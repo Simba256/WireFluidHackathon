@@ -158,13 +158,11 @@ export const config: VercelConfig = {
     },
   ],
 
-  // Optional: crons for refreshing the on-chain prize leaderboard cache
-  crons: [
-    {
-      path: '/api/internal/refresh-prize-leaderboard',
-      schedule: '*/1 * * * *', // every minute during tournament
-    },
-  ],
+  // No crons: Vercel Hobby restricts cron schedules to once-per-day, which is
+  // useless for a 30s-refresh prize leaderboard. We use lazy-refresh-on-read
+  // inside the /api/leaderboard/prize route handler instead — see
+  // docs/ARCHITECTURE.md §Indexing Strategy. Upgrade path if realtime
+  // leaderboard becomes critical: a Railway/Fly event-listener daemon (v2).
 };
 ```
 

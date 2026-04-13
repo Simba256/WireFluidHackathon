@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-14 (00:40 PKT)
+> Last updated: 2026-04-14 (00:45 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -12,6 +12,7 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [ ] SIWE auth + API auth scaffolding (`/api/auth/nonce`, `/api/auth/verify`)
 
 ## Recently Completed
+- [x] Full-repo consistency sweep for the single-threshold pivot — updated un-touched files that still referenced the old "rank by earnedBalance" / "pay-to-win" framing: root `README.md`, `docs/README.md`, `docs/CONTRACTS.md`, `docs/DEPLOYMENT.md` (removed broken Hobby cron snippet), `docs/ROADMAP.md`, `docs/DEMO_TRANSACTIONS.md`, `docs/SETUP.md`, `packages/shared/README.md`, `packages/contracts/README.md`, `BUILD_CHECKLIST.md`. Every user-facing surface now speaks the same language: rank by `balanceOf`, qualify + claim at `earnedBalance ≥ 10k` — (2026-04-14)
 - [x] Simplified leaderboard qualification to a single 10k threshold — collapsed the two-tier (1k visibility / 10k claim) model into one (10k for both). Same threshold, two enforcement points (backend filter + on-chain claim gate). Cleaner pitch, one constant, same anti-whale properties. Removed `MIN_EARNED_FOR_LEADERBOARD_WEI` from `packages/shared/constants.ts`; updated all 10 files touched in the prior pivot — (2026-04-14)
 - [x] Leaderboard design pivot + doc rewrite — flipped from "rank by earnedBalance" to "rank by balanceOf, qualify by earnedBalance ≥ 10k." Trading/gifting/DEX activity are now core strategic mechanics for qualified players. Committed lazy-refresh indexing strategy (Vercel-only, no daemon) because Hobby crons are daily-only. Updated `docs/TOKENOMICS.md`, `docs/SECURITY.md`, `docs/GAME_DESIGN.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`, `docs/API.md`, `CLAUDE.md` §5 and §7 — (2026-04-13)
 - [x] Neon Postgres provisioned + schema migrated + seeds loaded — Singapore region (`ap-southeast-1`), pooled connection, Postgres 16.12; all 13 tables created via `drizzle-kit migrate`, seed loaded 150 players + 5 prize tiers + 1 tournament; row counts verified — (2026-04-13)

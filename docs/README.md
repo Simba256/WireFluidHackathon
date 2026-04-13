@@ -57,7 +57,8 @@
 - **Explorer**: `https://wirefluidscan.com`
 - **Token**: `BNDY` (BoundaryLine Points), transferable ERC-20
 - **Trophy**: `PSLTrophies`, soulbound ERC-721
-- **Minimum earned to claim**: 10,000 BNDY
+- **Leaderboard rank metric**: `PSLPoints.balanceOf(wallet)` — transferable wallet balance
+- **Qualification + claim gate**: `earnedBalance >= 10,000 BNDY` (enforced in both backend leaderboard filter and on-chain `claimTier()`)
 - **Tiers**: Top 50 / Top 25 / Top 10 / Top 3 / Rank 1
 - **Claim rule**: one per user per tournament, current tier only
 
@@ -69,11 +70,12 @@ All key decisions are captured in the root [`PROJECT_TRACKER.md`](../PROJECT_TRA
 
 The most important ones:
 
-1. **Transferable ERC-20 + `earnedBalance` tracking** — lets the token trade freely without enabling pay-to-win
+1. **Play-to-qualify, pay-to-rank, earn-to-win** — the prize leaderboard ranks wallets by `balanceOf` (so trading, gifting, and DEX activity are real game mechanics), filtered to wallets with `earnedBalance >= 10,000 BNDY`. The same 10k threshold gates prize claims on-chain. Pure whales with zero earned are invisible and blocked; qualified players can climb rank with capital.
 2. **Soulbound trophy NFTs** — achievement proof cannot be faked by buying
-3. **Dual leaderboard** — off-chain global (engagement) + on-chain prize (authoritative)
+3. **Dual leaderboard** — off-chain global (engagement, ranks everyone by total earned points) + on-chain prize (authoritative, ranks qualified wallets by `balanceOf`)
 4. **Off-chain gameplay, on-chain settlement** — zero gas to play, gas only to sync and claim
 5. **Free to play, gas-only** — no entry fees, no tokenized entry, no money handling
+6. **No indexer daemon, single Vercel deploy** — leaderboard refreshes lazily on read (stale snapshot → multicall + transfer log scan → upsert → return). Vercel Hobby crons are daily-only, so no cron-based refresh; client polling covers UI freshness.
 
 ---
 

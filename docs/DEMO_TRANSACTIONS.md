@@ -89,15 +89,15 @@ To demonstrate that BNDY is a standard transferable ERC-20 (not soulbound), we i
 
 ---
 
-## Transferability Defense Verification
+## Pure-Whale Defense Verification
 
-To prove the pay-to-win mitigation works, we include one transaction where a wallet **received** BNDY via transfer and **attempted to claim** without having earned the minimum. The tx should revert with `"Below minimum"` because `earnedBalance` is zero.
+To prove the pure-whale mitigation works, we include one transaction where a wallet **received** BNDY via transfer (no earned history) and **attempted to claim** a prize. The tx should revert with `"Below minimum"` because `earnedBalance` is zero, regardless of how much BNDY the wallet holds.
 
 | Attacker wallet | Received amount | Claim attempt tx | Revert reason |
 |---|---|---|---|
 | `0x____________...` | ________ BNDY | `0x____________...` | `Below minimum` |
 
-This failed tx is a positive demo: it shows the `earnedBalance` gate blocking a token-based attack exactly as designed.
+This failed tx is a positive demo: the `earnedBalance` gate blocks the token-based attack exactly as designed. The same filter also hides this wallet from `/api/leaderboard/prize` — it never appears on the rankings — so the defense is symmetric in the UI and the contract.
 
 ---
 

@@ -20,7 +20,7 @@ Dependencies: OpenZeppelin Contracts v5 (`ERC20`, `ERC721`, `ECDSA`, `EIP712`, `
 ## `PSLPoints.sol`
 
 ### Purpose
-The BNDY token used throughout BoundaryLine. Users earn off-chain points by playing, then sync those points to their wallet as transferable ERC-20 tokens. To claim a prize, users must have **earned** (not merely received via transfer) a minimum threshold, and hold at least that much in their wallet for burning.
+The BNDY token used throughout BoundaryLine. Users earn off-chain points by playing, then sync those points to their wallet as transferable ERC-20 tokens. The on-chain prize leaderboard ranks qualified wallets by `balanceOf` (so trading and DEX activity are real rank-moving mechanics), with qualification gated by `earnedBalance >= 10,000 BNDY`. To claim a prize, users must pass the same 10k earned gate — purchased or received tokens count toward rank but not toward the claim gate. The 10,000 BNDY threshold is enforced on-chain by `claimTier()` and mirrored in the backend leaderboard filter so visibility and claim eligibility are the same set.
 
 ### State
 

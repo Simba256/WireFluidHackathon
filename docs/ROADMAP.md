@@ -136,7 +136,7 @@ Important to name explicitly so we don't drift:
 ## Guiding Principles Through Roadmap
 
 1. **Trust minimization over convenience** — every v2 item should reduce what users must trust us for
-2. **Game integrity over token economics** — if a proposed feature makes BNDY more "interesting" but weakens the earned-vs-held distinction, we reject it
+2. **Game integrity over token economics** — if a proposed feature makes BNDY more "interesting" but weakens the `earnedBalance` qualification gate (the thing that stops zero-play whales from entering the leaderboard or claiming prizes), we reject it. Pay-to-rank is intentional; pay-to-qualify is never allowed.
 3. **Cricket-first, crypto-second** — the product is fantasy cricket. Crypto is the substrate, not the pitch.
 4. **Free to play, gas-only** — this is a promise, not a phase
 5. **Ship small, ship often** — each release should be demoable within a week of starting

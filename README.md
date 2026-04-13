@@ -1,6 +1,6 @@
 # BoundaryLine
 
-> Free-to-play fantasy PSL on WireFluid. Pick your 11, earn points from real matches, climb the on-chain leaderboard, claim real prizes as permanent trophy NFTs.
+> Free-to-play fantasy PSL on WireFluid. Pick your 11, earn points from real matches, trade and climb the on-chain prize leaderboard, claim real prizes as permanent trophy NFTs.
 
 **Built for the WireFluid Hackathon — April 2026.**
 
@@ -22,10 +22,11 @@ Millions of Pakistanis follow PSL. Existing fantasy cricket apps gatekeep prizes
 1. **Connect your wallet** using Sign-In With Ethereum (SIWE).
 2. **Pick your 11 players** from the PSL 2026 squads under a salary cap.
 3. **Earn points** as real matches play out — runs, wickets, catches all count.
-4. **Sync your points** to your wallet when you're ready to compete on the prize leaderboard (small gas fee).
-5. **Claim your tier** when your on-chain rank hits Top 50, Top 25, Top 10, Top 3, or Rank 1 — burn your tokens, mint a trophy NFT, receive your real prize.
+4. **Sync your points** to your wallet. Once you've earned and synced **10,000 BNDY**, you're on the prize leaderboard.
+5. **Climb rank** by playing more, trading, gifting, or buying BNDY on the market — the leaderboard ranks by wallet balance, not just earned history. Pure whales who never played stay invisible and cannot claim.
+6. **Claim your tier** when your rank hits Top 50, Top 25, Top 10, Top 3, or Rank 1 — burn your tokens, mint a trophy NFT, receive your real prize.
 
-**One claim per player per tournament. Pick your moment.**
+**Play to qualify. Pay to rank. Earn to win. One claim per player per tournament — pick your moment.**
 
 ---
 

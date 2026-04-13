@@ -242,9 +242,9 @@ pnpm db:reset && pnpm db:seed
 - Check browser console for WalletConnect errors
 
 ### `earnedBalance` shows 0 after sync
-- Wait ~30 seconds for the indexer cache to refresh
-- Manually call `GET /api/leaderboard/prize` to trigger a fresh read
-- Verify the `Synced` event appears on the explorer for your tx
+- The prize leaderboard snapshot refreshes lazily on read; trigger a fresh refresh by loading `GET /api/leaderboard/prize` directly (or visiting the `/leaderboard` page, which polls every 5s)
+- Verify the `Synced` event appears on the explorer for your tx — if it's there but your rank isn't updating, the issue is in the refresh handler, not the contract
+- Remember: you only appear on the prize leaderboard after your `earnedBalance` crosses 10,000 BNDY. Below that threshold, your wallet is correctly hidden by the backend filter.
 
 ---
 

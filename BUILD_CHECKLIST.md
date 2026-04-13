@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (00:40 PKT)
+> Last updated: 2026-04-14 (00:45 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -347,7 +347,7 @@
 - [ ] Claim → trophy NFT in wallet — *ARCHITECTURE.md*
 - [ ] Trophy visible on wirefluidscan — *API.md*
 - [ ] BNDY transfer between wallets (wallet balance updates, earnedBalance does NOT) — *TOKENOMICS.md*
-- [ ] Gifted-balance claim attempt reverts (pay-to-win mitigation proof) — *SECURITY.md*
+- [ ] Gifted-balance claim attempt reverts (pure-whale mitigation proof — bought tokens count toward balanceOf but not earnedBalance, so claim gate reverts) — *SECURITY.md*
 
 ### 12.2 DEMO_TRANSACTIONS.md fill-in
 - [x] Contract addresses + explorer links — *DEMO_TRANSACTIONS.md*
