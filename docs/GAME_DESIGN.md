@@ -133,28 +133,29 @@ The **press-your-luck mechanic**. At any moment, you can:
 Example: You're rank #15 with 30,000 BNDY. Top 25 is claimable. You could lock in the jersey + poster. Or you could try to reach Top 10 for the signed bat — but someone above you might claim a slot first, pushing you up, or a newcomer could surge past you on tomorrow's match.
 
 ### Layer 3 — When to sync
-**Qualifying and unlocking rank movement.** Earned points live off-chain until you pay gas to sync them on-chain. Two things happen when you sync:
+**Crossing the qualification gate.** Earned points live off-chain until you pay gas to sync them on-chain. Two things happen when you sync:
 
-1. Tokens are minted into your wallet → `balanceOf` goes up → your leaderboard rank changes
-2. `earnedBalance` increments → you get closer to the 1k visibility floor and the 10k claim gate
+1. Tokens are minted into your wallet → `balanceOf` goes up → your leaderboard rank changes (once you're qualified)
+2. `earnedBalance` increments → you move closer to the 10,000 BNDY threshold that unlocks leaderboard visibility and prize claims
 
-- **Sync early (cross the 1k floor fast)** — get on the leaderboard immediately, unlock secondary-market participation, reveal that you're competing
-- **Sync to exactly 10k** — minimum viable claim qualification; below this the contract reverts any claim attempt
-- **Sync partial, top up via trade** — sync enough to clear 1k, then buy additional BNDY on a DEX to climb rank without waiting for the next match. Only valid as a rank strategy; you still need 10k *earned* to actually convert rank into a prize.
-- **Sync all** — maximum rank from your earned pool, zero reliance on the market
+- **Sync aggressively to reach 10k** — until you cross the threshold you are invisible on the prize leaderboard and cannot claim anything. The fastest path to competing is to earn and sync 10,000 BNDY as soon as possible.
+- **Sync partially and hoard** — keep earned points off-chain while you watch the market. Risk: if the tournament closes before you sync, those points are dead weight. Reward: surprise entrance when you dump a large sync at the right moment.
+- **Sync all at once** — one transaction, maximum rank impact, maximum visibility.
+
+The tradeoff is public information vs. gas efficiency vs. strategic reveal timing. All three are legal plays.
 
 ### Layer 4 — Trading, gifting, and market play (**core strategic axis**)
-BNDY is transferable, and `balanceOf` is the leaderboard rank metric. Trading is not a side channel — it's a primary way to move on the board. A qualified player (≥1k earned) has real, meaningful choices here:
+BNDY is transferable, and `balanceOf` is the leaderboard rank metric. Trading is not a side channel — it's a primary way to move on the board. A qualified player (≥10,000 earned) has real, meaningful choices here:
 
-- **Buy to climb** — a player ranked #15 with 8,000 BNDY could buy 5,000 more BNDY off-market and jump to #9, without waiting for another match. Their claim eligibility doesn't improve (earned is still 8k), but their rank does. If they can push earned to 10k before the tournament ends, the rank is convertible.
-- **Sell to exit** — a player who has decided they're not going to play further can sell residual BNDY to players still competing. The token has real intra-tournament demand because rank matters.
-- **Gift to ally** — transfer BNDY to a friend below the 1k floor to bootstrap them onto the leaderboard (they still need to play ≥1k of their own earned to qualify — the gift can't bypass the floor), or to push them into a better rank band once qualified.
-- **Consolidate wallets** — combine balances from multiple wallets you control to concentrate rank. Note: `earnedBalance` does NOT consolidate. You can concentrate `balanceOf`, not `earnedBalance`.
-- **DEX trade** — any DEX that lists BNDY becomes a legitimate in-game mechanic. Expect mid-tournament price discovery driven by rank demand.
+- **Buy to climb** — a player who has earned 10,000 BNDY and is ranked #15 can buy another 20,000 BNDY off-market and jump to the Top 10 without waiting for another match. Their `earnedBalance` is unchanged (still 10k) but their `balanceOf` is now 30k, which is what the leaderboard ranks by. They're still claim-eligible because they cleared the 10k earned gate, and their new higher rank is fully convertible into a better-tier prize.
+- **Sell to exit** — a player who has decided they're not going to play further can sell residual BNDY to players still competing. The token has real intra-tournament demand because rank matters to qualified players.
+- **Gift to ally** — transfer BNDY to a qualified friend to boost their rank. Gifts to unqualified wallets (earned < 10k) are harmless — the recipient still can't rank or claim until they've earned 10k themselves. Gifts cannot bypass the qualification gate.
+- **Consolidate wallets** — combine balances from multiple wallets you control to concentrate rank. Note: `earnedBalance` does NOT consolidate across wallets. Each wallet still needs its own 10k earned to qualify. Consolidating `balanceOf` only helps if the destination wallet is already qualified.
+- **DEX trade** — any DEX that lists BNDY becomes a legitimate in-game mechanic. Expect mid-tournament price discovery driven by rank demand from qualified players.
 
-**The critical invariant**: none of these moves bypass the 10k earned claim gate. You can manipulate rank with capital all day long; you cannot manipulate prizes with capital. The claim gate is contract-enforced.
+**The critical invariant**: none of these moves bypass the 10k earned qualification gate. You can manipulate rank with capital all day long once you're in, but you cannot buy your way in. The gate is backend- and contract-enforced.
 
-**Emergent gameplay**: a whale with no play history cannot rank. A grinder with 1k earned and no capital cannot climb past whoever outspends them. The meta is a balance between earning (which unlocks qualification + claim) and acquiring (which unlocks rank). Most successful players will do both.
+**Emergent gameplay**: a whale with no play history cannot rank, cannot claim, cannot even see themselves on the leaderboard. A grinder with exactly 10k earned and no capital can compete but will struggle to climb past well-capitalized rivals. The meta is a balance between earning (which unlocks qualification + claim) and acquiring (which determines rank order among the qualified). Most successful players will do both.
 
 ### Layer 5 — Game theory around stock depletion
 Tier stock is finite. As Top 10 slots fill up, the pressure on rank 11–15 players to settle for Top 25 increases. Watching rank 9 claim is a signal that either (a) rank 10 is next or (b) someone has just backfilled from rank 11 into rank 10.
@@ -174,8 +175,9 @@ This creates natural urgency without needing a countdown timer.
 
 ### Prize Leaderboard (on-chain, qualification-gated)
 - **Rank metric**: `PSLPoints.balanceOf(wallet)` — the transferable wallet balance
-- **Qualification filter**: `PSLPoints.earnedBalance(wallet) >= 1,000 BNDY` — unqualified wallets never appear regardless of balance
-- **Claim gate** (not a rank condition): `earnedBalance >= 10,000 BNDY`, enforced by the contract at `claimTier()`
+- **Qualification + claim gate** (one threshold, two enforcement points): `earnedBalance >= 10,000 BNDY`
+  - Backend filter: only wallets that pass this check appear on the leaderboard at all
+  - On-chain gate: `PSLPoints.claimTier()` reverts unless the same check passes
 - Read via viem multicall against both contracts (one batched RPC call per refresh)
 - Refreshed lazily on `/api/leaderboard/prize` when the snapshot is >30s stale
 - **Authoritative — the ONLY leaderboard that determines prize eligibility**
@@ -184,10 +186,10 @@ This creates natural urgency without needing a countdown timer.
 - The global leaderboard gives **everyone** a sense of ranking and progress, reducing the paywall-like feeling of "you must sync to matter"
 - The prize leaderboard gives **qualified players** a trustless, transparent, and market-reactive mechanism to compete for rewards
 - The gap between them creates **strategic space** (Layers 3 and 4 above)
-- It lets the UX surface nudges: *"You're rank #47 globally but not on the prize board yet. Earn 1,000 BNDY and sync to compete."*
+- It lets the UX surface nudges: *"You're rank #47 globally. Earn and sync 10,000 BNDY to enter the prize leaderboard and compete for prizes."*
 
 ### Why `balanceOf` and not `earnedBalance` for ranking?
-Earlier design iterations ranked by `earnedBalance` to fully block pay-to-win. That was safer but flattened the token economy — transfers and trading had no leaderboard consequence, making BNDY a score display rather than a live asset. The current model ranks by `balanceOf` so trading, gifting, and DEX activity are real game mechanics, then gates qualification (1k earned) and claiming (10k earned) to prevent pure whales from capturing the board or the prizes. See [`TOKENOMICS.md`](./TOKENOMICS.md) and [`SECURITY.md`](./SECURITY.md) for the full invariant list.
+Earlier design iterations ranked by `earnedBalance` to fully block pay-to-win. That was safer but flattened the token economy — transfers and trading had no leaderboard consequence, making BNDY a score display rather than a live asset. The current model ranks by `balanceOf` so trading, gifting, and DEX activity are real game mechanics for qualified players, then uses a single earned-balance threshold (10,000 BNDY) to prevent pure whales from capturing the board or the prizes. See [`TOKENOMICS.md`](./TOKENOMICS.md) and [`SECURITY.md`](./SECURITY.md) for the full invariant list.
 
 ---
 
@@ -227,14 +229,13 @@ These are the knobs to tune on Day 2 based on demo scenarios:
 
 | Parameter | Current | Tune if... |
 |---|---|---|
-| `MIN_EARNED_TO_CLAIM` (on-chain) | 10,000 BNDY | Too restrictive (nobody crosses the claim gate) or too loose (everyone claims immediately). **Requires contract redeploy to change.** |
-| `MIN_EARNED_FOR_LEADERBOARD` (backend) | 1,000 BNDY | Leaderboard is too empty (raise) or too spammy (raise further). **Backend constant, no redeploy.** |
+| `MIN_EARNED_TO_CLAIM` (on-chain + backend filter) | 10,000 BNDY | Too restrictive (nobody qualifies) or too loose (everyone qualifies immediately). **On-chain; requires contract redeploy to change.** |
 | Salary cap | 100 credits | Teams are too homogenized / all-star / all-budget |
 | Point formula | See above | Bowlers vs batsmen earn wildly different amounts |
 | Tier stock counts | 1/3/10/25/50 | Prizes get claimed too fast or too slow |
 | Number of matches | 2-3 (demo) | Tournament ends without meaningful ranking |
 
-`MIN_EARNED_TO_CLAIM` is the only on-chain value and should be admin-settable in v2. `MIN_EARNED_FOR_LEADERBOARD` lives in `packages/shared/constants.ts` and can be tuned between deploys.
+`MIN_EARNED_TO_CLAIM` is the single earned threshold — used on-chain by `PSLPoints.claimTier()` and mirrored in the backend leaderboard filter so qualified-for-visibility and eligible-to-claim are the same set. Should be admin-settable in v2.
 
 ---
 

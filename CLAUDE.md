@@ -82,10 +82,11 @@ Never hard-code these outside `packages/shared` — import from the shared chain
 
 Recorded in `PROJECT_TRACKER.md` "Key Decisions". Reiterated here because these are load-bearing:
 
-- **Play-to-qualify, pay-to-rank, earn-to-win** (updated 2026-04-13) — BoundaryLine ranks wallets by `balanceOf` (transferable wallet balance) so trading, gifting, and DEX activity are real game mechanics. Two earned-balance gates block the abuse cases:
-  - **Leaderboard visibility floor**: `earnedBalance >= 1,000 BNDY` — a wallet with zero earned never appears on the leaderboard regardless of how much BNDY it holds. This blocks pure whales. Enforced in the backend snapshot query (constant `MIN_EARNED_FOR_LEADERBOARD` in `packages/shared/constants.ts`).
-  - **Claim gate**: `earnedBalance >= 10,000 BNDY` — a player can only convert rank into a prize if they have personally earned 10k through `sync()` backed by real play. This blocks pay-to-claim. Enforced on-chain in `PSLPoints.claimTier()` as a compile-time constant. **Do not lower this without redeploying the contract.**
-  - The 10x gap between the two floors is deliberate: pay-to-rank is a feature, pay-to-claim is not.
+- **Play-to-qualify, pay-to-rank, earn-to-win** (updated 2026-04-14) — BoundaryLine ranks wallets by `balanceOf` (transferable wallet balance) so trading, gifting, and DEX activity are real game mechanics. A single earned-balance threshold blocks the abuse case:
+  - **Qualification + claim threshold**: `earnedBalance >= 10,000 BNDY` — a wallet with less than 10k earned never appears on the leaderboard regardless of `balanceOf`, AND the contract reverts any `claimTier()` attempt. Enforced in two places (backend filter + `PSLPoints.claimTier()` compile-time constant) that read the same on-chain number.
+  - Once a wallet crosses the 10k earned threshold, it is both visible on the leaderboard and eligible to claim. Trading, gifting, and buying BNDY can then move its rank (since rank is `balanceOf`-based) but never affect qualification (which is `earnedBalance`-based).
+  - Pure whales with zero earned are blocked from both leaderboard visibility and prize claims by the same check. Pay-to-rank is a feature; pay-to-qualify is impossible.
+  - **Do not lower the 10k threshold without redeploying the contract.** The `MIN_EARNED_TO_CLAIM` constant in `PSLPoints.sol` is compile-time.
 - **Soulbound trophy NFTs** — `PSLTrophies._update` reverts on all non-mint transfers. Trophies prove achievement; making them tradable would let anyone fake "Top 10 Finisher" status.
 - **Dual leaderboard** — Global off-chain (inclusive, engagement) + Prize on-chain (authoritative, prize distribution). Only the prize leaderboard determines winners.
 - **One claim per user per tournament, current tier only** — creates press-your-luck tension; blocks downgrade exploits.
@@ -104,7 +105,7 @@ If a change seems to contradict any of these, stop and ask.
 - Zod validation at every external boundary (API request bodies, env parsing, external API responses). Never trust internal code boundaries.
 - Server re-derives authoritative state. **Never** trust client-submitted points, ranks, eligibility, or tier bands.
 - No hardcoded secrets. Env vars via `packages/shared` typed env loader.
-- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM_WEI, MIN_EARNED_FOR_LEADERBOARD_WEI, TEAM_SIZE, tier stocks, formula multipliers).
+- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM_WEI, TEAM_SIZE, tier stocks, formula multipliers).
 - Handle errors explicitly at boundaries; trust internal code.
 - Write testable code: pure functions, dependency injection for contract/DB clients.
 - Self-documenting names over comments. Comments only explain *why*, not *what*.
@@ -147,15 +148,14 @@ If a change seems to contradict any of these, stop and ask.
 
 From `docs/SECURITY.md`. Any change touching these needs a corresponding test and a mention in the PR:
 
-1. **Pure-whale leaderboard capture is impossible**: the leaderboard snapshot query filters to `earnedBalance >= 1,000 BNDY`. A zero-earned wallet never appears regardless of `balanceOf`.
-2. **Pay-to-claim is impossible**: `PSLPoints.claimTier()` enforces `earnedBalance >= 10,000 BNDY` on-chain. Purchased/received tokens count toward rank but not toward the claim gate.
-3. **Replay is impossible**: `usedNonces[nonce]` marked before any state change in `sync()` and `claimTier()`.
-4. **Double-claim is impossible**: `earnedBalance` reset to 0 on claim + DB unique partial index on active claims.
-5. **Voucher TTL = 5 minutes**: backend stores `voucher_expires_at`; stale pending records get released.
-6. **Signer key never leaves Vercel env**: never logged, never returned to clients, never committed. Stored as `SIGNER_PRIVATE_KEY`.
-7. **Front-running on scarce tiers blocked**: stock reserved at voucher-issue time via pending DB row, not at tx-confirm time.
-8. **Server-side validation everywhere**: Zod on every body, server re-derives all authoritative values. `earnedBalance` and `balanceOf` always read from contract, never from a client-submitted number.
-9. **No `tx.origin`, CEI respected, signer immutable, trophies one-shot.**
+1. **Pure-whale capture is impossible at both gates**: the leaderboard snapshot query filters to `earnedBalance >= 10,000 BNDY` (backend), and `PSLPoints.claimTier()` enforces the same `earnedBalance >= 10,000 BNDY` on-chain. A wallet below this threshold never appears on the leaderboard and cannot claim. Purchased/received tokens count toward `balanceOf` (rank) but not toward `earnedBalance` (qualification).
+2. **Replay is impossible**: `usedNonces[nonce]` marked before any state change in `sync()` and `claimTier()`.
+3. **Double-claim is impossible**: `earnedBalance` reset to 0 on claim + DB unique partial index on active claims.
+4. **Voucher TTL = 5 minutes**: backend stores `voucher_expires_at`; stale pending records get released.
+5. **Signer key never leaves Vercel env**: never logged, never returned to clients, never committed. Stored as `SIGNER_PRIVATE_KEY`.
+6. **Front-running on scarce tiers blocked**: stock reserved at voucher-issue time via pending DB row, not at tx-confirm time.
+7. **Server-side validation everywhere**: Zod on every body, server re-derives all authoritative values. `earnedBalance` and `balanceOf` always read from contract, never from a client-submitted number.
+8. **No `tx.origin`, CEI respected, signer immutable, trophies one-shot.**
 
 ---
 

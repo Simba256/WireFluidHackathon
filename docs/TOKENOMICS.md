@@ -18,8 +18,7 @@
 | Burn conditions | `claimTier()` burns entire claimant wallet balance |
 | Earned tracking | `earnedBalance` mapping — monotonic, survives transfers |
 | Leaderboard rank metric | `balanceOf` (transferable wallet balance) |
-| Leaderboard qualification floor | 1,000 BNDY earned |
-| Minimum for prize claim | 10,000 BNDY earned |
+| Leaderboard qualification + prize claim floor | 10,000 BNDY earned |
 
 ---
 
@@ -39,16 +38,16 @@ This is the most important tokenomic decision. Two wallet-level numbers are trac
 - **`balanceOf(user)`** — ERC-20 wallet balance. Can be acquired via transfer, DEX buy, gift. **This is the leaderboard rank metric.**
 - **`earnedBalance[user]`** — cumulative tokens earned through `sync()` (i.e. through play). **Never incremented by transfers.** **Never decremented** except on `claimTier()`. **This is the qualification gate, not the rank metric.**
 
-BoundaryLine ranks wallets by `balanceOf DESC`, filtered to wallets with `earnedBalance >= 1,000 BNDY`. Prize claims impose a stricter earned gate: `earnedBalance >= 10,000 BNDY`.
+BoundaryLine ranks wallets by `balanceOf DESC`, filtered to wallets with `earnedBalance >= 10,000 BNDY`. The same 10k earned threshold is also the contract-enforced claim gate — a single number that gates both visibility and prize redemption.
 
 **Translation**:
-- **Buying BNDY moves your rank.** Trading is a legitimate, intentional path to climbing the leaderboard. Whales can buy their way up — but only after they've proven they can play.
-- **You cannot rank at all without playing.** A wallet with a billion BNDY and zero earned sits at rank ∞. No leaderboard entry, no claim, no trophy. Pure whales are blocked by construction.
-- **You cannot claim a prize with only bought tokens.** You must have personally earned at least 10k BNDY through `sync()` calls backed by real match performance. Bought tokens contribute to your wallet balance at burn time, but they do not satisfy the earned gate.
+- **You must earn your seat at the table.** Until you have personally earned 10,000 BNDY through real match performance and synced it on-chain, you are invisible on the prize leaderboard and cannot claim anything. Pure whales with zero earned are blocked by construction.
+- **Once you're qualified, buying BNDY moves your rank.** Trading, gifting, and DEX activity are legitimate, intentional paths to climbing. A qualified player at rank #15 can buy their way into the Top 10 and claim the signed bat — because they've already proven they can play.
+- **Bought tokens count for rank, not for qualification.** If you earn 10k, sync it, then buy 50k more — you now hold 60k `balanceOf` (high rank) but your `earnedBalance` is still 10k (just barely qualified). You can claim. If a whale buys 1M BNDY with zero earned, they still cannot claim, cannot rank, cannot see themselves on the leaderboard.
 
-**Why this over pure earned-based ranking**: transferable tokens unlock the WireFluid DeFi narrative — real secondary markets, gifts, liquidity, DEX listings, cross-wallet consolidation. Ranking by `balanceOf` makes all of that economically meaningful instead of leaderboard-irrelevant. The earned floor preserves the core invariant that **zero-play whales cannot win** without sacrificing the tradability that makes the token interesting.
+**Why rank by `balanceOf` at all?**: transferable tokens unlock the WireFluid DeFi narrative — real secondary markets, gifts, liquidity, DEX listings, cross-wallet consolidation. Ranking by `balanceOf` makes all of that economically meaningful instead of leaderboard-irrelevant. The earned floor preserves the invariant that **zero-play whales cannot win** without sacrificing the tradability that makes the token interesting.
 
-**Why this over pure balance-based ranking**: pure balance ranking collapses immediately to "richest wallet wins." A $50 purchase on a DEX would vault anyone into Rank 1. The earned floor is what keeps this a game instead of an auction.
+**Why one threshold and not two?**: an earlier version of this spec had a softer 1k visibility floor and a strict 10k claim gate. It was simpler to replace both with a single 10k threshold: one constant, one mental model, one pitch line ("earn 10k BNDY to enter the prize leaderboard"). The engagement-for-new-players story is handled by the **global leaderboard** (off-chain, inclusive, ranks by total earned points from match performance), which already captures everyone from their first point.
 
 ### 3. Free-to-play, gas-only
 BoundaryLine never charges money for entry, team creation, or gameplay. The only cost a user can incur is WireFluid gas fees, paid directly to validators, for actions they choose:
@@ -100,21 +99,15 @@ Residue remains in circulation. For the hackathon demo, there will be residual B
 
 ## Anti-Abuse Guarantees
 
-### Pure-whale attack (buy leaderboard position with zero play)
-**Attack**: Acquire BNDY via DEX or transfer, appear at Rank 1 without playing a match.
-**Mitigation**: leaderboard queries filter to `earnedBalance >= 1,000 BNDY`. A wallet with zero earned balance never appears on the leaderboard regardless of how much BNDY it holds. The leaderboard cache table is populated only from wallets that pass this filter.
-**Result**: whales must first play enough to cross the 1k earned floor. After that, they can freely buy their way up — which is intentional.
-
-### Pay-to-claim attack (buy enough tokens to claim a top prize)
-**Attack**: Earn 1,000 BNDY to qualify for the leaderboard, then buy 50,000 BNDY on a DEX to enter Top 10, then claim.
-**Mitigation**: `claimTier()` contract enforces `earnedBalance >= 10,000 BNDY` (not 1k, not `balanceOf`). The attacker can appear on the leaderboard and even hold rank, but `claimTier()` reverts unless they have personally earned 10k through real play.
-**Result**: the maximum concession to purchased tokens is **leaderboard visibility and rank**, never an actual prize. The claim floor is 10x the leaderboard floor on purpose.
+### Pure-whale attack (buy leaderboard position or prize with zero play)
+**Attack**: Acquire BNDY via DEX or transfer without playing, try to appear on the leaderboard or claim a top-tier prize.
+**Mitigation**: both the backend leaderboard snapshot query and the on-chain `claimTier()` function enforce `earnedBalance >= 10,000 BNDY`. A wallet with zero or low earned balance never appears on the leaderboard regardless of `balanceOf`, and the contract reverts any claim attempt. The backend reads `earnedBalance` from the contract via multicall — it cannot be faked.
+**Result**: every attempt to bypass real play through capital fails at the same gate. The 10k earned threshold is the single binding constraint for both visibility and prize redemption.
 
 ### Sybil / wallet farming
 **Attack**: Create 1000 wallets, earn minimal amounts in each, claim 1000 low-tier prizes.
 **Mitigation**:
-- `MIN_EARNED_TO_CLAIM = 10,000 BNDY` — claiming requires meaningful play per wallet
-- The 1k leaderboard floor also raises visibility cost, but claim is the binding constraint
+- `MIN_EARNED_TO_CLAIM = 10,000 BNDY` — every wallet must personally earn this much through play before it can claim anything
 - SIWE requires each wallet to actually exist and sign messages
 - v2: rate-limit team creation, proof-of-humanity
 
@@ -167,14 +160,14 @@ Trophies have no market value. They are reputation.
 
 ## Value Accrual (What Makes BNDY "Worth" Anything)
 
-Honest answer: **BNDY has no guaranteed value**. It is a game score represented as a token. Its value to a qualified holder (someone with ≥1k earned) is:
+Honest answer: **BNDY has no guaranteed value**. It is a game score represented as a token. Its value to a qualified holder (someone with ≥10k earned) is:
 
 1. **Leaderboard rank** — `balanceOf` directly determines rank among qualified wallets. More tokens held (earned OR received) = higher rank. This creates legitimate demand among qualified players to acquire more BNDY.
-2. **Prize eligibility** — if your rank falls in a tier band, your `earnedBalance` is ≥10k, and tier stock is available, you can burn your wallet balance at claim time for a real prize + trophy.
+2. **Prize eligibility** — if your rank falls in a tier band and stock is available, you can burn your wallet balance at claim time for a real prize + trophy. (Qualification is already satisfied if you're on the board at all.)
 3. **Identity/status** — holding large earned amounts demonstrates play competence; holding large total amounts demonstrates commitment and/or capital.
 4. **Secondary market** — anyone may list BNDY on a DEX. Because rank depends on `balanceOf`, this market has real utility to qualified players who want to climb without waiting for the next match.
 
-**Critical caveat for speculators**: buying BNDY is worthless to anyone who hasn't crossed the 1k earned floor through real play. The token has zero leaderboard utility for unqualified wallets. This is deliberate — it keeps casual speculators out and ensures secondary-market demand comes from actual players.
+**Critical caveat for speculators**: buying BNDY is worthless to anyone who hasn't earned 10,000 BNDY through real play. The token has zero leaderboard utility for unqualified wallets. This is deliberate — it keeps casual speculators out and ensures secondary-market demand comes from actual players.
 
 We make no claims about BNDY having a floor price, exchange rate, or future value. Regulators and users should understand: **this is game scoring with an intentional secondary market for qualified players, not currency**.
 
@@ -200,4 +193,4 @@ Decision deferred to post-hackathon.
 
 ## Pitch Framing
 
-> *"BoundaryLine mints BNDY only when real cricket happens. Every run by Babar, every wicket by Shaheen, becomes tokens for the fans who picked them. Once you've earned your seat at the table — 1,000 BNDY through real play — you can climb the leaderboard by playing more, trading, or buying. But you can only win a real prize by actually playing through the 10,000 BNDY claim gate. Play to qualify. Pay to rank. Earn to win."*
+> *"BoundaryLine mints BNDY only when real cricket happens. Every run by Babar, every wicket by Shaheen, becomes tokens for the fans who picked them. Earn 10,000 BNDY through real play and you're on the prize leaderboard. From there, climb by playing more, trading, gifting, or buying — because rank is decided by wallet balance, not earned history. But you can't shortcut the 10k entry fee. Play to qualify. Pay to rank. Earn to win."*

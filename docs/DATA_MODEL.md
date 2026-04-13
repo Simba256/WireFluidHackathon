@@ -330,9 +330,9 @@ prize_leaderboard_snapshot {
 - `INDEX (tournament_id, wallet_balance DESC)` — supports rank recomputation
 
 **Population rules**:
-- Only wallets with `earned_balance >= 1_000_000000000000000000` (1,000 BNDY, 18 decimals) are inserted (qualification filter)
+- Only wallets with `earned_balance >= 10_000_000000000000000000` (10,000 BNDY, 18 decimals — same as `MIN_EARNED_TO_CLAIM`) are inserted (qualification filter)
 - Rank is `ROW_NUMBER() OVER (ORDER BY wallet_balance DESC)` among qualified wallets
-- A wallet that previously qualified but has since dropped below the floor is deleted from this table on refresh
+- A wallet that previously qualified but has since dropped below the threshold (e.g. after a successful claim that reset its earnedBalance to 0) is deleted from this table on refresh
 
 **Refresh strategy**:
 - Lazy refresh: `GET /api/leaderboard/prize` checks `MAX(refreshed_at)` against `now() - interval '30 seconds'` and rebuilds the snapshot if stale
@@ -360,7 +360,7 @@ tracked_wallet {
 **Notes**
 - Never contains wallet balances or earned amounts — those are read from chain at refresh time
 - Contains *all* wallets ever seen, qualified or not; the qualification filter is applied downstream at snapshot-build time
-- A wallet that receives dust via transfer is tracked here but will not appear in `prize_leaderboard_snapshot` unless it earns 1,000 BNDY
+- A wallet that receives dust via transfer is tracked here but will not appear in `prize_leaderboard_snapshot` unless it earns 10,000 BNDY
 
 ---
 

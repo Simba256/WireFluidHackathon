@@ -182,7 +182,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 
 ### Prize Leaderboard (on-chain, qualification-gated)
 - **Rank metric**: `PSLPoints.balanceOf(wallet)` — transferable wallet balance
-- **Qualification filter**: `PSLPoints.earnedBalance(wallet) >= 1,000 BNDY`
+- **Qualification filter**: `PSLPoints.earnedBalance(wallet) >= 10,000 BNDY` — the same threshold enforced on-chain by `claimTier()`, mirrored in the backend leaderboard filter so visibility and claim eligibility are the same set
 - Unqualified wallets never appear in the response even if their `balanceOf` is huge (pure-whale block)
 - **Authoritative for prize eligibility** — ranks computed here drive the `/api/claim` tier-band check
 - Cached in Postgres (`prize_leaderboard_snapshot`), refreshed lazily
@@ -223,7 +223,7 @@ This covers 100% of activity we authorize. The only wallets we need to discover 
    c. Update indexer_cursor.last_scanned_block = currentBlock
    d. Load all tracked_wallet rows
    e. viem multicall: balanceOf(w) + earnedBalance(w) for every tracked wallet
-   f. Filter to wallets where earnedBalance >= 1_000e18 (the qualification floor)
+   f. Filter to wallets where earnedBalance >= 10_000e18 (MIN_EARNED_TO_CLAIM — same gate as on-chain claim)
    g. Sort DESC by balanceOf, assign ranks
    h. Upsert all rows into prize_leaderboard_snapshot (atomic)
    i. Return fresh snapshot

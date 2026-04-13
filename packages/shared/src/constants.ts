@@ -11,12 +11,6 @@ export const MIN_EARNED_TO_CLAIM_WEI: bigint = parseUnits(
   BNDY_DECIMALS,
 );
 
-export const MIN_EARNED_FOR_LEADERBOARD_BNDY = 1_000 as const;
-export const MIN_EARNED_FOR_LEADERBOARD_WEI: bigint = parseUnits(
-  String(MIN_EARNED_FOR_LEADERBOARD_BNDY),
-  BNDY_DECIMALS,
-);
-
 export const VOUCHER_TTL_SECONDS = 5 * 60;
 
 export const POINT_FORMULA = {

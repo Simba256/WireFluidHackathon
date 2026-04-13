@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-13 (23:15 PKT)
+> Last updated: 2026-04-14 (00:40 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -282,20 +282,19 @@
   - [ ] `eth_getLogs` Transfer scan from `last_scanned_block + 1` — *ARCHITECTURE.md*
   - [ ] Upsert discovered wallets into `tracked_wallet` — *ARCHITECTURE.md*
   - [ ] viem multicall: `balanceOf` + `earnedBalance` over all tracked wallets — *ARCHITECTURE.md*
-  - [ ] Filter to `earnedBalance >= MIN_EARNED_FOR_LEADERBOARD_WEI` (1,000 BNDY) — *ARCHITECTURE.md*
+  - [ ] Filter to `earnedBalance >= MIN_EARNED_TO_CLAIM_WEI` (10,000 BNDY — same as on-chain claim gate) — *ARCHITECTURE.md*
   - [ ] Rank by `balanceOf DESC` among qualified wallets — *GAME_DESIGN.md*
   - [ ] Atomic snapshot upsert — *ARCHITECTURE.md*
   - [ ] Advance `indexer_cursor.last_scanned_block` — *ARCHITECTURE.md*
 - [ ] Tier band derivation (1/3/10/25/50) from rank among qualified — *GAME_DESIGN.md*
-- [ ] `canClaim` flag derivation (`earnedBalance >= 10k` + rank in tier band + stock + no prior active claim) — *API.md*
+- [ ] `canClaim` flag derivation (rank in tier band + stock + no prior active claim; qualification is implicit since only 10k+ earned wallets appear) — *API.md*
 - [ ] Client-side 5s poll on `/leaderboard` page — *ARCHITECTURE.md*
 
 ---
 
 ## 10. Security (SECURITY.md)
 
-- [ ] Pure-whale leaderboard capture blocked via 1,000 BNDY earned floor in snapshot query — *SECURITY.md*
-- [ ] Pay-to-claim blocked via on-chain `MIN_EARNED_TO_CLAIM = 10,000 BNDY` — *SECURITY.md*
+- [ ] Pure-whale blocked at both gates: backend leaderboard filter + on-chain `MIN_EARNED_TO_CLAIM = 10,000 BNDY` — *SECURITY.md*
 - [ ] Replay blocked via `usedNonces` — *SECURITY.md*
 - [ ] Double-claim blocked (reset + DB unique) — *SECURITY.md*
 - [ ] Signer key only in Vercel env, never logged — *SECURITY.md*

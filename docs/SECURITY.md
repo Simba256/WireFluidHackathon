@@ -15,7 +15,7 @@
 ### What users do NOT need to trust
 1. **Claim validity** — claims are cryptographically gated by the on-chain `earnedBalance >= 10,000 BNDY` check + signature verification. The backend cannot forge a claim without compromising the signer key.
 2. **Trophy ownership** — trophies are soulbound ERC-721 tokens; once minted, they cannot be moved or revoked. The on-chain record is the truth.
-3. **Leaderboard rank ordering** — reads `balanceOf` + `earnedBalance` directly from the contract via viem multicall. Rank positions cannot be faked by the backend — only the *filter* (qualification floor) and the *refresh schedule* are backend-controlled, and both are deterministic from contract state.
+3. **Leaderboard rank ordering** — reads `balanceOf` + `earnedBalance` directly from the contract via viem multicall. Rank positions cannot be faked by the backend — the filter (same 10k earned floor the contract enforces for claims) and the refresh schedule are both deterministic from on-chain state.
 4. **Token custody** — users hold their own BNDY in their own wallet. The backend cannot move it.
 
 ### What BoundaryLine does NOT trust
@@ -30,21 +30,19 @@
 
 ### Tier 1: Game-breaking attacks (must prevent)
 
-> **Design context**: BoundaryLine ranks wallets by `balanceOf` and qualifies them by `earnedBalance`. Pay-to-rank is intentional; pure-whale and pay-to-claim are the two attack categories that must be blocked.
+> **Design context**: BoundaryLine ranks wallets by `balanceOf` and qualifies them by `earnedBalance >= 10,000 BNDY`. Pay-to-rank (buying BNDY to climb **after** you've earned your seat) is intentional. Pure whales (zero-play capital attacks) are the single attack category that must be blocked, and the 10k earned threshold handles both leaderboard visibility and prize claim eligibility with one number.
 
-#### T1.1 — Pure-whale leaderboard takeover (zero-play rank capture)
-**Attack**: Acquire a massive BNDY balance via DEX or transfer without ever playing, appear at Rank 1.
-**Mitigation**: the leaderboard query filters to `earnedBalance >= 1,000 BNDY`. A wallet with zero `earnedBalance` is literally absent from the leaderboard response regardless of `balanceOf`. The snapshot table never inserts unqualified wallets.
-**Status**: ✅ Mitigated in backend (leaderboard query) and enforced on-chain (earnedBalance read from contract, not DB — backend cannot fake it).
-**Note**: This is a *weaker* mitigation than the original "earned-only" design, but it's intentional. Pay-to-rank is a feature; pure-whale is not.
+#### T1.1 — Pure-whale attack (buy rank or prize with zero play)
+**Attack**: Acquire a massive BNDY balance via DEX or transfer without ever playing cricket, try to appear at Rank 1 or claim a top-tier prize.
+**Mitigation**: a single on-chain-derived threshold enforced in two places:
+- **Leaderboard visibility**: the backend snapshot query filters to `earnedBalance >= 10,000 BNDY`. A wallet with less than 10k earned is literally absent from the leaderboard response regardless of `balanceOf`. The snapshot table never inserts unqualified wallets.
+- **Prize claim**: `PSLPoints.claimTier()` enforces `earnedBalance >= MIN_EARNED_TO_CLAIM` where `MIN_EARNED_TO_CLAIM = 10,000 BNDY` on-chain. Purchased tokens count toward `balanceOf` but contribute nothing to `earnedBalance`. Any claim by an unqualified wallet reverts.
 
-#### T1.2 — Pay-to-claim (buy your way past the prize gate)
-**Attack**: Earn the minimum 1,000 BNDY to appear on the leaderboard, then buy 50,000 BNDY on a DEX to climb into Top 10, then call `claimTier()`.
-**Mitigation**: `claimTier()` enforces `earnedBalance >= MIN_EARNED_TO_CLAIM` where `MIN_EARNED_TO_CLAIM = 10,000 BNDY`. The purchased tokens count toward `balanceOf` (which determines rank) but contribute nothing to `earnedBalance`. The contract reverts the claim regardless of rank or wallet balance unless the attacker has personally earned 10k through real play.
-**Status**: ✅ Mitigated in contract. The 10x gap between the leaderboard floor (1k) and the claim floor (10k) is the binding constraint.
-**Worth restating**: an attacker *can* rank #1 on the leaderboard with bought tokens. They *cannot* convert that rank into a prize. This is the intended separation.
+Because `earnedBalance` only grows via `sync()` with a backend-signed voucher, and the backend only signs vouchers for legitimately earned off-chain points, no amount of DEX activity or wallet-to-wallet transfer can raise `earnedBalance`. The attack has no viable path.
+**Status**: ✅ Mitigated both in backend (leaderboard filter) and on-chain (claim gate). Both enforcement points read `earnedBalance` directly from the contract — the backend filter cannot be weakened by lying about state, only by lowering the filter constant, which requires a code change + redeploy.
+**Worth restating**: once a player has genuinely earned 10,000 BNDY through play and crossed the gate, they are free to buy additional BNDY on a DEX to improve their rank. That is pay-to-rank and is an intentional feature. It is distinct from pay-to-qualify, which is impossible.
 
-#### T1.3 — Signer key compromise
+#### T1.2 — Signer key compromise
 **Attack**: Steal the signer private key, mint unlimited BNDY to attacker wallets.
 **Mitigation**:
 - Key stored as Vercel env var, not in git
@@ -54,12 +52,12 @@
 - Post-hackathon: rotate to HSM / KMS; v2: multi-party signing
 **Status**: ⚠️ Accepted risk for hackathon. Single point of failure documented.
 
-#### T1.4 — Voucher replay
+#### T1.3 — Voucher replay
 **Attack**: Intercept a signed voucher and submit it multiple times.
 **Mitigation**: `usedNonces` mapping in `PSLPoints`. Any submitted nonce is marked used in the same transaction; second submission reverts.
 **Status**: ✅ Mitigated in contract.
 
-#### T1.5 — Double-claim in one tournament
+#### T1.4 — Double-claim in one tournament
 **Attack**: Claim a Top 10 prize, then claim Top 25 for the same wallet.
 **Mitigation**: `claimTier()` resets `earnedBalance` to 0 and burns the full wallet. Subsequent claim attempts fail the `earnedBalance >= MIN` check unless the user re-earns 10k+ points through additional play. DB also enforces one active claim per wallet per tournament via unique index.
 **Status**: ✅ Mitigated at both layers.
@@ -127,9 +125,9 @@
 #### T3.4 — Unbounded tracked-wallet growth
 **Attack**: Generate thousands of wallets and send dust transfers of BNDY to bloat the `tracked_wallet` table and slow the leaderboard refresh multicall.
 **Mitigation**:
-- Tracked wallets are filtered at refresh time: only wallets with `earnedBalance >= 1,000 BNDY` appear on the leaderboard
+- Tracked wallets are filtered at refresh time: only wallets with `earnedBalance >= 10,000 BNDY` appear on the leaderboard
 - Dust-receiver wallets are tracked but never rank, and the multicall cost per wallet is cheap (~1ms)
-- v2: prune tracked wallets with zero activity across N consecutive refreshes
+- v2: prune tracked wallets with zero earned across N consecutive refreshes
 **Status**: ✅ Operationally acceptable at hackathon scale. Watch in production.
 
 ---
@@ -143,7 +141,7 @@
 - [x] `usedNonces` prevents voucher replay
 - [x] `earnedBalance` is only modified in controlled paths (sync, claim)
 - [x] `claimTier` burns full balance (no partial burn edge cases)
-- [x] `MIN_EARNED_TO_CLAIM` is a compile-time constant (10,000 BNDY, no admin backdoor) — claim gate, distinct from the 1,000 BNDY leaderboard visibility floor enforced in the backend
+- [x] `MIN_EARNED_TO_CLAIM` is a compile-time constant (10,000 BNDY, no admin backdoor) — serves as both the on-chain claim gate and the backend leaderboard visibility filter
 - [x] No `tx.origin` usage
 - [x] No unchecked external calls
 - [x] `setTrophies` is one-shot (cannot be re-pointed after initial wiring)
