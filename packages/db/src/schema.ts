@@ -22,12 +22,22 @@ export const user = pgTable(
   'user',
   {
     wallet: text('wallet').primaryKey(),
-    siweNonce: text('siwe_nonce'),
     displayName: text('display_name'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (t) => [walletCheck('wallet')],
+);
+
+export const siweNonce = pgTable(
+  'siwe_nonce',
+  {
+    nonce: text('nonce').primaryKey(),
+    issuedAt: timestamp('issued_at', { withTimezone: true }).defaultNow().notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    consumedAt: timestamp('consumed_at', { withTimezone: true }),
+  },
+  (t) => [index('siwe_nonce_expires_at_idx').on(t.expiresAt)],
 );
 
 export const player = pgTable(
@@ -237,6 +247,7 @@ export const adminSession = pgTable('admin_session', {
 });
 
 export type User = typeof user.$inferSelect;
+export type SiweNonce = typeof siweNonce.$inferSelect;
 export type Player = typeof player.$inferSelect;
 export type Match = typeof match.$inferSelect;
 export type PlayerScore = typeof playerScore.$inferSelect;

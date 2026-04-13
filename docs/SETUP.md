@@ -115,7 +115,7 @@ ADMIN_API_KEY="<generate a random 32+ char string>"
 SIWE_DOMAIN="localhost:3000"
 SIWE_URL="http://localhost:3000"
 
-# NextAuth / JWT
+# Session JWT (jose HS256, direct — not NextAuth)
 AUTH_SECRET="<generate: openssl rand -base64 32>"
 
 # Chain config

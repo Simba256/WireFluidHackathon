@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { sql } from "drizzle-orm";
-import { user } from "@boundaryline/db";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
+import { siweNonce, user } from "@boundaryline/db";
 import { SiweMessage } from "siwe";
 import { API_ERROR_CODES } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { verifySiwe } from "@/lib/siwe";
 import { issueSessionToken } from "@/lib/jwt";
-import { badRequest, errorResponse, internalError, zodToResponse } from "@/lib/errors";
-import { NONCE_COOKIE } from "@/lib/auth-cookies";
+import {
+  badRequest,
+  errorResponse,
+  internalError,
+  zodToResponse,
+} from "@/lib/errors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,11 +33,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return badRequest(API_ERROR_CODES.VALIDATION_ERROR, "Invalid JSON body");
   }
 
-  const cookieNonce = req.cookies.get(NONCE_COOKIE)?.value;
-  if (!cookieNonce) {
-    return badRequest(API_ERROR_CODES.NONCE_MISMATCH, "Missing nonce cookie");
-  }
-
   let messageNonce: string;
   try {
     messageNonce = new SiweMessage(body.message).nonce;
@@ -44,8 +43,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       401,
     );
   }
-  if (messageNonce !== cookieNonce) {
-    return badRequest(API_ERROR_CODES.NONCE_MISMATCH, "Nonce mismatch");
+
+  const database = db();
+
+  // Atomic single-use consumption: only succeeds if the nonce exists, hasn't
+  // been consumed, and hasn't expired. Any other outcome is NONCE_MISMATCH.
+  const consumed = await database
+    .update(siweNonce)
+    .set({ consumedAt: new Date() })
+    .where(
+      and(
+        eq(siweNonce.nonce, messageNonce),
+        isNull(siweNonce.consumedAt),
+        gt(siweNonce.expiresAt, new Date()),
+      ),
+    )
+    .returning({ nonce: siweNonce.nonce });
+
+  if (consumed.length === 0) {
+    return badRequest(
+      API_ERROR_CODES.NONCE_MISMATCH,
+      "Nonce unknown, expired, or already used",
+    );
   }
 
   let verified;
@@ -57,13 +76,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const database = db();
     const rows = await database
       .insert(user)
-      .values({ wallet: verified.address, siweNonce: verified.nonce })
+      .values({ wallet: verified.address })
       .onConflictDoUpdate({
         target: user.wallet,
-        set: { siweNonce: verified.nonce, updatedAt: sql`now()` },
+        set: { updatedAt: sql`now()` },
       })
       .returning({ wallet: user.wallet, createdAt: user.createdAt });
 
@@ -72,15 +90,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const token = await issueSessionToken(verified.address);
 
-    const res = NextResponse.json({
+    return NextResponse.json({
       token,
       user: {
         wallet: upserted.wallet,
         createdAt: upserted.createdAt.toISOString(),
       },
     });
-    res.cookies.delete(NONCE_COOKIE);
-    return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";
     return internalError(`Auth verify failed: ${msg}`);

@@ -54,7 +54,6 @@
 ```ts
 user {
   wallet        text          primary key          // lowercase 0x...
-  siwe_nonce    text          nullable             // current unconsumed nonce
   display_name  text          nullable             // optional alias
   created_at    timestamptz   default now()
   updated_at    timestamptz   default now()
@@ -67,7 +66,49 @@ user {
 **Notes**
 - `wallet` is the canonical identity key
 - No email, no password, no off-chain credentials
-- SIWE nonces are per-user so multi-tab sessions work
+- SIWE nonces are **not** stored on this row — they live in their own
+  `siwe_nonce` table so that multiple concurrent `/api/auth/nonce` calls
+  (multi-tab) don't clobber each other. See `siwe_nonce` below.
+
+---
+
+### `siwe_nonce`
+
+Server-side nonce store for the SIWE login flow. One row per issued nonce.
+Single-use: a row is created on `GET /api/auth/nonce` and marked consumed
+on successful `POST /api/auth/verify`. A stale row is free to leave until
+the lazy sweep reaps it.
+
+```ts
+siwe_nonce {
+  nonce         text          primary key          // random 64-bit hex
+  issued_at     timestamptz   default now()
+  expires_at    timestamptz   not null             // issued_at + 10 minutes
+  consumed_at   timestamptz   nullable             // set on /verify success
+}
+```
+
+**Indexes**
+- `PK (nonce)`
+- `INDEX (expires_at)` — for the lazy sweep of expired rows
+
+**Notes**
+- The nonce is not tied to a wallet at issue time. The wallet is only known
+  at `/verify` time, when the signature is recovered. Binding at issue
+  would require the client to send its address on `/nonce`, which opens a
+  DoS griefing vector (any attacker could rotate a victim's nonce). Here,
+  every tab gets its own row keyed by the random nonce itself.
+- Consumption is atomic:
+  ```sql
+  UPDATE siwe_nonce
+     SET consumed_at = now()
+   WHERE nonce = $1 AND consumed_at IS NULL AND expires_at > now()
+  RETURNING nonce
+  ```
+  If zero rows return, the nonce was missing, already used, or expired —
+  reject with `NONCE_MISMATCH`.
+- Expired rows are swept lazily (opportunistic `DELETE` on `/nonce` calls)
+  rather than via cron. Hobby-plan-friendly.
 
 ---
 

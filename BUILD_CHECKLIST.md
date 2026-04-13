@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (01:05 PKT)
+> Last updated: 2026-04-14 (01:35 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -81,7 +81,8 @@
 ## 2. Database (`packages/db`)
 
 ### 2.1 Drizzle schema tables
-- [x] `user` (wallet PK, siwe_nonce, display_name, timestamps) — *DATA_MODEL.md*
+- [x] `user` (wallet PK, display_name, timestamps) — *DATA_MODEL.md*
+- [x] `siwe_nonce` (nonce PK, issued_at, expires_at, consumed_at) — *DATA_MODEL.md*
 - [x] `player` (id, external_id unique, name, team, role, base_price, photo_url, active) — *DATA_MODEL.md*
 - [x] `match` (id, tournament_id, team_a, team_b, scheduled_at, status, played_at) — *DATA_MODEL.md*
 - [x] `player_score` (match_id, player_id, runs, wickets, catches, run_outs, stumpings, dismissed_for_zero, points_awarded) — *DATA_MODEL.md*

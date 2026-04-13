@@ -8,6 +8,13 @@
       "when": 1776100737846,
       "tag": "0000_stormy_raza",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776112239416,
+      "tag": "0001_slow_blur",
+      "breakpoints": true
     }
   ]
 }
