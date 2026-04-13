@@ -1,0 +1,17 @@
+{
+  "network": "wirefluidTestnet",
+  "chainId": 92533,
+  "deployer": "0x51bB66D97d36C5942D53a00D74553629a2E15cB4",
+  "trustedSigner": "0xeCBBF715d35FdD6f56316fb1B64B89C1B329aCd1",
+  "contracts": {
+    "PSLPoints": "0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc",
+    "PSLTrophies": "0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7"
+  },
+  "deploymentTxs": {
+    "PSLPoints": "0x2e1afa3f66758afc3e1f0a87afda862f14bd5ff32f5b30b7b4cdd253c80b606c",
+    "PSLTrophies": "0x4733d02607dcec765d121be7bae1e6484ae8f7f446b2b5349e264d9a3ec0cf11",
+    "setTrophies": "0x8b660758008ee38583798d48ba812c127c34a4ee8cf5fd95a7da3bd5590409d6"
+  },
+  "initialTournamentId": 1,
+  "deployedAt": "2026-04-13T14:30:25.420Z"
+}
