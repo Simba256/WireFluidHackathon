@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-13 (22:42 PKT)
+> Last updated: 2026-04-13 (23:15 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -16,8 +16,8 @@
 - [x] `pnpm-workspace.yaml` — *SETUP.md*
 - [x] `.env.example` at root — *SETUP.md*
 - [x] `.gitignore` (node_modules, .env.local, .next, artifacts, .turbo) — *SETUP.md*
-- [ ] `.env.local` populated (DATABASE_URL, SIGNER_PRIVATE_KEY, ADMIN_API_KEY, AUTH_SECRET, SIWE_*, chain, contract addrs) — *SETUP.md*
-- [ ] Neon project created (main branch, connection string) — *SETUP.md / DEPLOYMENT.md*
+- [~] `.env.local` populated — DATABASE_URL set; signer/admin/auth/contract addrs still pending — *SETUP.md*
+- [x] Neon project created (main branch, connection string) — *SETUP.md / DEPLOYMENT.md*
 - [ ] Vercel project linked (`vercel link`) — *DEPLOYMENT.md*
 - [ ] `vercel.ts` config (build, framework, headers, crons) — *DEPLOYMENT.md*
 
@@ -106,6 +106,9 @@
 - [x] `claim`: unique nonce, unique (wallet, tournament_id) partial — *DATA_MODEL.md*
 - [x] `prize`: unique (tournament_id, tier_id) — *DATA_MODEL.md*
 - [x] `prize_leaderboard_snapshot`: idx (tournament_id, rank) — *DATA_MODEL.md*
+- [ ] `prize_leaderboard_snapshot`: add `wallet_balance` column + idx (tournament_id, wallet_balance DESC) — *DATA_MODEL.md* (**post-pivot, needs schema migration**)
+- [ ] `tracked_wallet` table (wallet PK, first_seen_via, last_touched) — *DATA_MODEL.md* (**post-pivot**)
+- [ ] `indexer_cursor` table (contract_address PK, last_scanned_block) — *DATA_MODEL.md* (**post-pivot**)
 
 ### 2.3 Migrations & seeds
 - [x] Drizzle migration 0001 generated — *DATA_MODEL.md*
@@ -268,19 +271,31 @@
 
 ---
 
-## 9. Leaderboard Caching
+## 9. Leaderboard Caching & Indexing
 
-- [ ] Global: DB window rank — *DATA_MODEL.md*
-- [ ] Prize: snapshot table, 30s refresh — *ARCHITECTURE.md*
-- [ ] viem multicall over all synced wallets — *ARCHITECTURE.md*
-- [ ] `snapshot_block` tracking — *DATA_MODEL.md*
-- [ ] Tier band derivation (1/3/10/25/50) — *GAME_DESIGN.md*
+- [ ] Global: DB window rank query by `user_point.total_points DESC` — *DATA_MODEL.md*
+- [ ] Prize snapshot schema extended (`wallet_balance` column) — *DATA_MODEL.md*
+- [ ] `tracked_wallet` table + upsert on voucher issuance (sync/claim routes) — *ARCHITECTURE.md*
+- [ ] `indexer_cursor` table initialized at deploy block — *ARCHITECTURE.md*
+- [ ] Lazy-refresh handler inside `GET /api/leaderboard/prize`:
+  - [ ] Stale-check (`MAX(refreshed_at) > now() - 30s`) — *ARCHITECTURE.md*
+  - [ ] `eth_getLogs` Transfer scan from `last_scanned_block + 1` — *ARCHITECTURE.md*
+  - [ ] Upsert discovered wallets into `tracked_wallet` — *ARCHITECTURE.md*
+  - [ ] viem multicall: `balanceOf` + `earnedBalance` over all tracked wallets — *ARCHITECTURE.md*
+  - [ ] Filter to `earnedBalance >= MIN_EARNED_FOR_LEADERBOARD_WEI` (1,000 BNDY) — *ARCHITECTURE.md*
+  - [ ] Rank by `balanceOf DESC` among qualified wallets — *GAME_DESIGN.md*
+  - [ ] Atomic snapshot upsert — *ARCHITECTURE.md*
+  - [ ] Advance `indexer_cursor.last_scanned_block` — *ARCHITECTURE.md*
+- [ ] Tier band derivation (1/3/10/25/50) from rank among qualified — *GAME_DESIGN.md*
+- [ ] `canClaim` flag derivation (`earnedBalance >= 10k` + rank in tier band + stock + no prior active claim) — *API.md*
+- [ ] Client-side 5s poll on `/leaderboard` page — *ARCHITECTURE.md*
 
 ---
 
 ## 10. Security (SECURITY.md)
 
-- [ ] Pay-to-win blocked via `earnedBalance` — *SECURITY.md*
+- [ ] Pure-whale leaderboard capture blocked via 1,000 BNDY earned floor in snapshot query — *SECURITY.md*
+- [ ] Pay-to-claim blocked via on-chain `MIN_EARNED_TO_CLAIM = 10,000 BNDY` — *SECURITY.md*
 - [ ] Replay blocked via `usedNonces` — *SECURITY.md*
 - [ ] Double-claim blocked (reset + DB unique) — *SECURITY.md*
 - [ ] Signer key only in Vercel env, never logged — *SECURITY.md*
@@ -379,7 +394,7 @@
 | Docs (spec) | ✅ Complete |
 | Monorepo infra | ✅ Scaffolded |
 | Contracts | ✅ Deployed + verified on WireFluid testnet |
-| DB schema | ✅ Schema + migration + seeds authored (live Neon push pending) |
+| DB schema | ✅ Migrated + seeded on live Neon (150 players, 5 tiers, 1 tournament) |
 | Shared pkg | ✅ Authored (chain, ABIs, DTOs, vouchers, constants) |
 | API routes | ⚠️ Not started |
 | Frontend | ⚠️ Not started |

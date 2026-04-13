@@ -308,14 +308,15 @@ prize {
 
 ### `prize_leaderboard_snapshot`
 
-Cache of the on-chain prize leaderboard. Refreshed periodically by reading `PSLPoints.earnedBalance()` via viem multicall.
+Cache of the on-chain prize leaderboard. Refreshed lazily on read from `GET /api/leaderboard/prize` when older than 30s. Populated by a viem multicall of `balanceOf()` + `earnedBalance()` across all `tracked_wallet` entries.
 
 ```ts
 prize_leaderboard_snapshot {
   wallet           text           not null
   tournament_id    integer        not null
-  earned_balance   numeric(78,0)  not null
-  rank             integer        not null
+  wallet_balance   numeric(78,0)  not null                 // balanceOf — the rank metric
+  earned_balance   numeric(78,0)  not null                 // earnedBalance — the qualification filter
+  rank             integer        not null                 // rank computed from wallet_balance among qualified wallets
   snapshot_block   bigint         not null
   refreshed_at     timestamptz    default now()
 
@@ -326,10 +327,60 @@ prize_leaderboard_snapshot {
 **Indexes**
 - `PK (wallet, tournament_id)`
 - `INDEX (tournament_id, rank)`
+- `INDEX (tournament_id, wallet_balance DESC)` — supports rank recomputation
+
+**Population rules**:
+- Only wallets with `earned_balance >= 1_000_000000000000000000` (1,000 BNDY, 18 decimals) are inserted (qualification filter)
+- Rank is `ROW_NUMBER() OVER (ORDER BY wallet_balance DESC)` among qualified wallets
+- A wallet that previously qualified but has since dropped below the floor is deleted from this table on refresh
 
 **Refresh strategy**:
-- Cron every 30s while tournament is active, or
-- On-demand via `GET /api/leaderboard/prize` with 30s cache header
+- Lazy refresh: `GET /api/leaderboard/prize` checks `MAX(refreshed_at)` against `now() - interval '30 seconds'` and rebuilds the snapshot if stale
+- No cron — Vercel Hobby crons are daily-only (see `docs/ARCHITECTURE.md` §Indexing Strategy)
+- Client-side 5s polling on the leaderboard page gives the appearance of freshness
+
+---
+
+### `tracked_wallet`
+
+List of wallet addresses the indexer should include in leaderboard multicalls. Populated from two sources: (1) voucher issuance in `/api/sync` and `/api/claim`, (2) Transfer log scanning during lazy refresh.
+
+```ts
+tracked_wallet {
+  wallet         text          primary key              // lowercase 0x..., CHECK constraint
+  first_seen_at  timestamptz   default now()
+  first_seen_via text          not null                 // 'voucher' | 'transfer_log' | 'mint'
+  last_touched   timestamptz   default now()
+}
+```
+
+**Indexes**
+- `PK (wallet)`
+
+**Notes**
+- Never contains wallet balances or earned amounts — those are read from chain at refresh time
+- Contains *all* wallets ever seen, qualified or not; the qualification filter is applied downstream at snapshot-build time
+- A wallet that receives dust via transfer is tracked here but will not appear in `prize_leaderboard_snapshot` unless it earns 1,000 BNDY
+
+---
+
+### `indexer_cursor`
+
+Checkpoint for Transfer log scanning. One row per contract.
+
+```ts
+indexer_cursor {
+  contract_address    text      primary key              // lowercase 0x...
+  last_scanned_block  bigint    not null default 0
+  updated_at          timestamptz default now()
+}
+```
+
+**Notes**
+- Initialized at contract deploy block
+- Updated atomically at the end of each lazy refresh after a successful scan
+- Scan uses `eth_getLogs({ address, topics: [Transfer], fromBlock: last_scanned_block + 1, toBlock: 'latest' })`
+- A race between concurrent refreshes is acceptable because `tracked_wallet` upserts are idempotent
 
 ---
 
@@ -399,4 +450,4 @@ Tournament seed: one `tournament` row with `status: 'active'`.
 - On-chain balances (always read from contract)
 - Trophy NFTs (read from `PSLTrophies` contract)
 
-**Golden rule**: the chain is the source of truth for `earnedBalance`, `balanceOf`, and trophy ownership. The DB caches these for query speed but never overrides them.
+**Golden rule**: the chain is the source of truth for `earnedBalance`, `balanceOf`, and trophy ownership. The DB caches these in `prize_leaderboard_snapshot` for query speed but never overrides them. On any snapshot read that hits fresh data, the response is reliable up to the `refreshed_at` timestamp; consumers that need strict currency should re-read directly from the contract via viem.

@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-13 (22:42 PKT)
+> Last updated: 2026-04-13 (23:15 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -9,9 +9,11 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 **Status**: Active — Design Phase Complete, Ready to Build
 
 ## In Progress
-- [ ] Provision Neon Postgres + run `db:push` + `db:seed` against live branch
+- [ ] SIWE auth + API auth scaffolding (`/api/auth/nonce`, `/api/auth/verify`)
 
 ## Recently Completed
+- [x] Leaderboard design pivot + doc rewrite — flipped from "rank by earnedBalance" to "rank by balanceOf, qualify by earnedBalance ≥ 1k, claim by earnedBalance ≥ 10k." Trading/gifting/DEX activity are now core strategic mechanics. Committed lazy-refresh indexing strategy (Vercel-only, no daemon) because Hobby crons are daily-only. Updated `docs/TOKENOMICS.md`, `docs/SECURITY.md`, `docs/GAME_DESIGN.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`, `docs/API.md`, `CLAUDE.md` §5 and §7; added `MIN_EARNED_FOR_LEADERBOARD_WEI` to `packages/shared/constants.ts` — (2026-04-13)
+- [x] Neon Postgres provisioned + schema migrated + seeds loaded — Singapore region (`ap-southeast-1`), pooled connection, Postgres 16.12; all 13 tables created via `drizzle-kit migrate`, seed loaded 150 players + 5 prize tiers + 1 tournament; row counts verified — (2026-04-13)
 - [x] Shared package authored — viem `defineChain` for WireFluid (92533), explorer URL helpers, deployed contract addresses + trusted signer constants, inlined `PSLPoints`/`PSLTrophies` ABIs (`as const` for viem inference), EIP-712 domain + `SyncVoucher`/`ClaimVoucher` typed-data structs, full DTO surface (User/Player/Team/Match/Score/Points/Leaderboards/Prize/Claim/Trophy), `ApiError` + error code catalog matching `docs/API.md`, game constants (SALARY_CAP, TEAM_SIZE, MIN_EARNED_TO_CLAIM_WEI, point formula multipliers, tier definitions + `tierForRank` helper), wallet normalize/validate (Zod), tsconfig + `@types/node`; typecheck clean — (2026-04-13)
 - [x] Database package authored — Drizzle schema for all 13 tables with wallet CHECK constraints, partial unique on active claims, leaderboard indexes; migration `0000_stormy_raza.sql` generated; query helpers (point formula, global rank, tier stock); seed runner + `data/psl-2026-players.json` (150 players) + `data/prizes.json` (5 tiers); typecheck clean — (2026-04-13)
 - [x] Contracts deployed + verified on WireFluid testnet — PSLPoints `0x785FAE9B...abBc`, PSLTrophies `0x6F42EC72...24F7`, setTrophies wired. Deployment JSON + DEMO_TRANSACTIONS.md updated, source verified on wirefluidscan — (2026-04-13)
@@ -25,7 +27,6 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [x] Scope negotiation (dropped: P2P point exchange, ERC-20 soulbound, fixed-price prize catalog) — (2026-04-13)
 
 ## Upcoming / Planned
-- [ ] Provision Neon Postgres + run `db:push` + `db:seed` against live branch — P0
 - [ ] SIWE auth + team picker UI — P0
 - [ ] Scoring engine + global leaderboard — P0
 - [ ] Sync flow (off-chain points → on-chain `earnedBalance`) — P0
@@ -38,7 +39,9 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - None
 
 ## Key Decisions
-- (2026-04-13) **Transferable ERC-20 with `earnedBalance` tracking** — rationale: user wanted tradability and secondary market, but pay-to-win must be blocked. Solution: prize eligibility reads from monotonic `earnedBalance` which only increments on mint (play), not on transfer.
+- (2026-04-13, 23:15 PKT — supersedes earlier "earned-balance ranking" decision) **Rank by `balanceOf`, qualify by `earnedBalance`, claim by `earnedBalance ≥ 10k`** — the leaderboard is now ranked by transferable wallet balance (`balanceOf DESC`) filtered to wallets with `earnedBalance ≥ 1,000 BNDY`. The claim gate stays at 10,000 BNDY earned, enforced on-chain. Rationale: user wanted trading, gifting, and DEX activity to be genuine game mechanics with leaderboard consequences, not dead side-channels. The two-tier gating (1k visibility, 10k claim) blocks pure whales and pay-to-claim while making pay-to-rank an intentional feature. No contract redeploy needed — `MIN_EARNED_TO_CLAIM` stays at 10k in the deployed contract; the 1k leaderboard floor is a backend-only constant in `packages/shared/constants.ts`.
+- (2026-04-13, 23:15 PKT) **No indexer daemon, lazy-refresh leaderboard** — Vercel Hobby crons are daily-only (confirmed from Vercel docs). Prize leaderboard refreshes inside the `GET /api/leaderboard/prize` handler when the snapshot is >30s stale: multicall over tracked wallets + Transfer-log scan + snapshot upsert. Client polls every 5s. Railway/Fly indexer is a v2 upgrade, not v1. Keeps single-deploy Vercel architecture.
+- (2026-04-13) **Transferable ERC-20 with `earnedBalance` tracking** — rationale: user wanted tradability and secondary market. Original decision ranked by `earnedBalance`; superseded above by the balance-ranked model.
 - (2026-04-13) **Soulbound trophy NFTs** — rationale: trophies represent achievement proof, must not be buyable/tradeable, otherwise anyone could fake "Top 10 Finisher" status.
 - (2026-04-13) **Dual leaderboard (global off-chain + prize on-chain)** — rationale: off-chain for engagement/inclusivity, on-chain for authoritative prize distribution. Only prize leaderboard determines winners.
 - (2026-04-13) **Minimum 10,000 BNDY earned to claim any prize** — rationale: raises cost of Sybil/low-effort claim attacks, forces meaningful gameplay.

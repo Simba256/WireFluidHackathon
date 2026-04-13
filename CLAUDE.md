@@ -82,13 +82,16 @@ Never hard-code these outside `packages/shared` — import from the shared chain
 
 Recorded in `PROJECT_TRACKER.md` "Key Decisions". Reiterated here because these are load-bearing:
 
-- **Transferable ERC-20 BNDY + monotonic `earnedBalance` mapping** — `balanceOf` is tradable; `earnedBalance` only increments on `sync()` and resets on `claimTier()`. Prize eligibility always reads `earnedBalance`. This is the pay-to-win mitigation — do not weaken it.
+- **Play-to-qualify, pay-to-rank, earn-to-win** (updated 2026-04-13) — BoundaryLine ranks wallets by `balanceOf` (transferable wallet balance) so trading, gifting, and DEX activity are real game mechanics. Two earned-balance gates block the abuse cases:
+  - **Leaderboard visibility floor**: `earnedBalance >= 1,000 BNDY` — a wallet with zero earned never appears on the leaderboard regardless of how much BNDY it holds. This blocks pure whales. Enforced in the backend snapshot query (constant `MIN_EARNED_FOR_LEADERBOARD` in `packages/shared/constants.ts`).
+  - **Claim gate**: `earnedBalance >= 10,000 BNDY` — a player can only convert rank into a prize if they have personally earned 10k through `sync()` backed by real play. This blocks pay-to-claim. Enforced on-chain in `PSLPoints.claimTier()` as a compile-time constant. **Do not lower this without redeploying the contract.**
+  - The 10x gap between the two floors is deliberate: pay-to-rank is a feature, pay-to-claim is not.
 - **Soulbound trophy NFTs** — `PSLTrophies._update` reverts on all non-mint transfers. Trophies prove achievement; making them tradable would let anyone fake "Top 10 Finisher" status.
 - **Dual leaderboard** — Global off-chain (inclusive, engagement) + Prize on-chain (authoritative, prize distribution). Only the prize leaderboard determines winners.
-- **Min 10,000 BNDY earned to claim** — raises Sybil/low-effort attack cost.
 - **One claim per user per tournament, current tier only** — creates press-your-luck tension; blocks downgrade exploits.
 - **Off-chain accumulation, opt-in on-chain sync** — zero gas for gameplay.
 - **Free-to-play, gas-only** — avoids gambling classification. No entry fees, no fiat rails.
+- **No indexer daemon, single Vercel deploy** (added 2026-04-13) — Vercel Hobby crons are daily-only, so the prize leaderboard uses lazy refresh on `GET /api/leaderboard/prize`: stale-check → multicall + Transfer-log scan → snapshot upsert → return. Client polls every 5s for UI freshness. See `docs/ARCHITECTURE.md` §Indexing Strategy. A realtime indexer on Railway/Fly is a v2 upgrade, not a v1 requirement.
 
 If a change seems to contradict any of these, stop and ask.
 
@@ -101,7 +104,7 @@ If a change seems to contradict any of these, stop and ask.
 - Zod validation at every external boundary (API request bodies, env parsing, external API responses). Never trust internal code boundaries.
 - Server re-derives authoritative state. **Never** trust client-submitted points, ranks, eligibility, or tier bands.
 - No hardcoded secrets. Env vars via `packages/shared` typed env loader.
-- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM, TEAM_SIZE, tier stocks, formula multipliers).
+- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM_WEI, MIN_EARNED_FOR_LEADERBOARD_WEI, TEAM_SIZE, tier stocks, formula multipliers).
 - Handle errors explicitly at boundaries; trust internal code.
 - Write testable code: pure functions, dependency injection for contract/DB clients.
 - Self-documenting names over comments. Comments only explain *why*, not *what*.
@@ -144,14 +147,15 @@ If a change seems to contradict any of these, stop and ask.
 
 From `docs/SECURITY.md`. Any change touching these needs a corresponding test and a mention in the PR:
 
-1. **Pay-to-win is impossible**: prize eligibility reads `earnedBalance`, which only increments on `sync()` — never on `transfer`.
-2. **Replay is impossible**: `usedNonces[nonce]` marked before any state change in `sync()` and `claimTier()`.
-3. **Double-claim is impossible**: `earnedBalance` reset to 0 on claim + DB unique partial index on active claims.
-4. **Voucher TTL = 5 minutes**: backend stores `voucher_expires_at`; stale pending records get released.
-5. **Signer key never leaves Vercel env**: never logged, never returned to clients, never committed. Stored as `SIGNER_PRIVATE_KEY`.
-6. **Front-running on scarce tiers blocked**: stock reserved at voucher-issue time via pending DB row, not at tx-confirm time.
-7. **Server-side validation everywhere**: Zod on every body, server re-derives all authoritative values.
-8. **No `tx.origin`, CEI respected, signer immutable, trophies one-shot.**
+1. **Pure-whale leaderboard capture is impossible**: the leaderboard snapshot query filters to `earnedBalance >= 1,000 BNDY`. A zero-earned wallet never appears regardless of `balanceOf`.
+2. **Pay-to-claim is impossible**: `PSLPoints.claimTier()` enforces `earnedBalance >= 10,000 BNDY` on-chain. Purchased/received tokens count toward rank but not toward the claim gate.
+3. **Replay is impossible**: `usedNonces[nonce]` marked before any state change in `sync()` and `claimTier()`.
+4. **Double-claim is impossible**: `earnedBalance` reset to 0 on claim + DB unique partial index on active claims.
+5. **Voucher TTL = 5 minutes**: backend stores `voucher_expires_at`; stale pending records get released.
+6. **Signer key never leaves Vercel env**: never logged, never returned to clients, never committed. Stored as `SIGNER_PRIVATE_KEY`.
+7. **Front-running on scarce tiers blocked**: stock reserved at voucher-issue time via pending DB row, not at tx-confirm time.
+8. **Server-side validation everywhere**: Zod on every body, server re-derives all authoritative values. `earnedBalance` and `balanceOf` always read from contract, never from a client-submitted number.
+9. **No `tx.origin`, CEI respected, signer immutable, trophies one-shot.**
 
 ---
 

@@ -284,20 +284,41 @@ Off-chain global leaderboard. Ranks all registered users by total earned points.
 ```
 
 ### `GET /api/leaderboard/prize`
-On-chain prize leaderboard. Reads from cached `earnedBalance` snapshot.
+On-chain prize leaderboard. **Ranked by `balanceOf` (wallet balance), filtered to wallets with `earnedBalance >= 1,000 BNDY`.** Reads from cached snapshot (`prize_leaderboard_snapshot`) with lazy refresh on >30s staleness.
+
+Unqualified wallets (those below the 1,000 BNDY earned floor) do NOT appear in this response regardless of their wallet balance. This is the core pure-whale mitigation.
+
+**Query params**
+- `limit` — default `100`, max `500`
+- `offset` — default `0`
 
 **Response** `200`
 ```json
 {
   "entries": [
-    { "rank": 1, "wallet": "0x...", "earnedBalance": "52100000000000000000000", "tierEligible": "RANK_1" },
+    {
+      "rank": 1,
+      "wallet": "0x...",
+      "walletBalance": "52100000000000000000000",
+      "earnedBalance": "12400000000000000000000",
+      "tierEligible": "RANK_1",
+      "canClaim": true
+    },
     ...
   ],
-  "totalSynced": 89,
+  "totalQualified": 89,
   "snapshotBlock": 1829473,
   "updatedAt": "2026-04-13T13:40:00Z"
 }
 ```
+
+**Field semantics**
+- `rank` — position among qualified wallets, ordered by `walletBalance DESC`
+- `walletBalance` — `PSLPoints.balanceOf(wallet)` as uint256 string, the rank metric
+- `earnedBalance` — `PSLPoints.earnedBalance(wallet)` as uint256 string, the qualification + claim metric
+- `tierEligible` — the tier band this rank falls into (`RANK_1` / `TOP_3` / `TOP_10` / `TOP_25` / `TOP_50`), independent of whether the wallet can actually claim
+- `canClaim` — `true` only if `earnedBalance >= 10,000 BNDY` AND tier stock is available AND no prior active claim. A wallet can hold Rank 1 with `canClaim: false` if their earned balance is between 1k (qualified) and 10k (claim floor).
+- `totalQualified` — count of wallets that passed the 1,000 BNDY earned floor filter
 
 ---
 

@@ -175,19 +175,85 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 
 ### Global Leaderboard (off-chain)
 - Reads from `user_points` table, ordered by `total_points DESC`
-- Includes every player, synced or not
+- Includes every player, qualified or not, synced or not
 - Updates instantly after each match scoring event
 - Purpose: engagement, social ranking
 - Endpoint: `GET /api/leaderboard/global`
 
-### Prize Leaderboard (on-chain)
-- Reads from on-chain `earnedBalance(address)` via viem multicall
-- Only includes addresses that have emitted `Synced` events at least once
-- Cached in Postgres (`prize_leaderboard_snapshot`) and refreshed on a short interval
-- **Authoritative for prize eligibility**
+### Prize Leaderboard (on-chain, qualification-gated)
+- **Rank metric**: `PSLPoints.balanceOf(wallet)` — transferable wallet balance
+- **Qualification filter**: `PSLPoints.earnedBalance(wallet) >= 1,000 BNDY`
+- Unqualified wallets never appear in the response even if their `balanceOf` is huge (pure-whale block)
+- **Authoritative for prize eligibility** — ranks computed here drive the `/api/claim` tier-band check
+- Cached in Postgres (`prize_leaderboard_snapshot`), refreshed lazily
 - Endpoint: `GET /api/leaderboard/prize`
 
-See [`GAME_DESIGN.md`](./GAME_DESIGN.md) for the strategic implications.
+See [`GAME_DESIGN.md`](./GAME_DESIGN.md) for the strategic implications and [`TOKENOMICS.md`](./TOKENOMICS.md) for the invariant rationale.
+
+---
+
+## Indexing Strategy (no daemon, single Vercel deploy)
+
+The prize leaderboard depends on `balanceOf`, which can change on any `Transfer` event — not just our voucher-issued `Synced`/`TierClaimed` events. That means the leaderboard must react to on-chain state we didn't personally authorize. However, we **do not** run a long-running indexer daemon. Everything is request-scoped inside Vercel Functions.
+
+### Why no daemon
+- Vercel Hobby cron jobs are limited to **once per day** (not useful for a 30s-refresh leaderboard)
+- Running a separate indexer service on Railway/Fly doubles deployment surface, secret management, and cost
+- Vercel Fluid Compute functions give us **up to 300s per request** on Hobby, which is plenty for a multicall + log-scan sweep
+- Nobody needs realtime leaderboard updates when nobody is looking at the leaderboard
+
+### Three-layer strategy
+
+#### Layer 1 — Voucher-aware tracking (write path)
+Every time the backend issues a `SyncVoucher` or `ClaimVoucher`, it:
+1. Inserts a `synced_record` / `claim` row
+2. Upserts the user wallet into `tracked_wallet`
+
+This covers 100% of activity we authorize. The only wallets we need to discover *separately* are recipients of BNDY via transfer who never interacted with our API.
+
+#### Layer 2 — Lazy refresh on read (primary path)
+`GET /api/leaderboard/prize` handler:
+```ts
+1. SELECT * FROM prize_leaderboard_snapshot WHERE tournament_id = $1
+2. IF MAX(refreshed_at) > now() - 30s → return as-is (cache hit)
+3. ELSE:
+   a. Scan new Transfer logs since last cursor:
+      eth_getLogs({ address: PSLPoints, topics: [Transfer], fromBlock: indexer_cursor.last_scanned_block })
+   b. For each unique address in new logs, upsert into tracked_wallet
+   c. Update indexer_cursor.last_scanned_block = currentBlock
+   d. Load all tracked_wallet rows
+   e. viem multicall: balanceOf(w) + earnedBalance(w) for every tracked wallet
+   f. Filter to wallets where earnedBalance >= 1_000e18 (the qualification floor)
+   g. Sort DESC by balanceOf, assign ranks
+   h. Upsert all rows into prize_leaderboard_snapshot (atomic)
+   i. Return fresh snapshot
+```
+
+This is the whole "indexer." One function handler, triggered only when someone reads the leaderboard. Completes in well under 1s for <1k wallets.
+
+#### Layer 3 — Client polling (UI freshness)
+The `/leaderboard` page polls `GET /api/leaderboard/prize` every 5s via a React hook. This:
+- Keeps open leaderboard pages fresh without user interaction
+- Combined with the 30s server cache, each poll either gets a cache hit (cheap) or triggers a refresh (bounded to ~1 per 30s per server instance)
+
+### What this covers
+| Event | Detected by | Lag |
+|---|---|---|
+| User calls `sync()` | Layer 1 (voucher record) → Layer 2 refresh on next read | ≤30s |
+| User calls `claimTier()` | Layer 1 (claim record) → Layer 2 refresh on next read | ≤30s |
+| User calls `transfer()` to another user | Layer 2 log scan finds the new recipient | ≤30s |
+| Attacker bypasses our UI and calls `sync()` directly via Etherscan | Layer 2 log scan discovers the wallet via Transfer events (mint emits Transfer from 0x0) | ≤30s |
+| Attacker transfers dust to 10k wallets | Layer 2 picks them up but qualification filter keeps them off the leaderboard | N/A (filtered) |
+
+### What it does NOT cover
+- **Sub-5s realtime rank movement on an already-open page** — poll interval is 5s and server cache is 30s, so worst case is ~35s lag between an on-chain event and a client seeing it. For hackathon demo purposes this is fine. If we ever need realtime, the upgrade path is WebSocket push + event listener daemon on Railway/Fly (v2).
+
+### Additional DB tables this requires
+- **`tracked_wallet`** — list of wallets seen through any path (voucher, transfer event, mint)
+- **`indexer_cursor`** — `(contract_address, last_scanned_block)` to checkpoint the Transfer log scan
+- **`prize_leaderboard_snapshot`** — extended with a `wallet_balance` column alongside `earned_balance`
+
+See [`DATA_MODEL.md`](./DATA_MODEL.md) for schema.
 
 ---
 
@@ -222,7 +288,9 @@ See [`GAME_DESIGN.md`](./GAME_DESIGN.md) for the strategic implications.
 
 ## Scaling Notes (out of hackathon scope)
 
-- Prize leaderboard cache: fine for <10k players via multicall; beyond that needs a proper indexer (Ponder / Goldsky)
+- Prize leaderboard cache: fine for <10k players via lazy-refresh multicall; beyond that the Layer 2 refresh exceeds request-budget latency and needs a proper indexer (Ponder / Goldsky) with real-time writes to the snapshot table
+- Transfer log scanning: `eth_getLogs` over a widening block range is cheap for hackathon scale but unbounded long-term — v2 should batch scans by block window and store them
 - Match scoring: currently O(users × players); batch by player to O(players) + index lookups
 - Voucher signing: stateless, horizontally scalable
-- Postgres: indexed on `wallet`, `total_points DESC`, `tier`, `nonce`
+- Postgres: indexed on `wallet`, `total_points DESC`, `tier`, `nonce`, `tracked_wallet.wallet`
+- Realtime leaderboard: upgrade path is a Railway/Fly event-listener daemon writing directly to the snapshot table + WebSocket push to clients. Out of v1 scope.
