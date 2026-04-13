@@ -45,6 +45,7 @@
 | [`DEPLOYMENT.md`](./DEPLOYMENT.md) | Vercel + Neon + WireFluid deploy | DevOps, deployers |
 | [`SECURITY.md`](./SECURITY.md) | Threat model, trust, incident response | Security reviewers |
 | [`ROADMAP.md`](./ROADMAP.md) | v1 / v1.5 / v2 / v3 plans | Everyone |
+| [`DEMO_TRANSACTIONS.md`](./DEMO_TRANSACTIONS.md) | Live transaction hash log for hackathon demo | Judges, reviewers |
 
 ---
 

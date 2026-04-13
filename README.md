@@ -95,10 +95,15 @@ All project documentation lives in [`docs/`](./docs):
 
 ---
 
+## For Judges
+
+- **Live transaction log**: [`docs/DEMO_TRANSACTIONS.md`](./docs/DEMO_TRANSACTIONS.md) — every on-chain tx (deploys, syncs, claims, trophy mints) with hashes and explorer links
+- **Network**: WireFluid Testnet, chain ID `92533`, explorer `https://wirefluidscan.com`
+
 ## Links
 
 - **Live demo**: TBD
-- **Contracts on explorer**: TBD
+- **Contracts on explorer**: TBD (see `docs/DEMO_TRANSACTIONS.md`)
 - **Pitch deck**: `docs/pitch-deck.pdf` (added before demo)
 - **Demo video**: TBD
 
