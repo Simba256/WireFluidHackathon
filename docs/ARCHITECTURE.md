@@ -4,6 +4,17 @@
 
 ---
 
+## Why WireFluid
+
+We target **WireFluid testnet** (chain ID `92533`) specifically because its properties map directly onto BoundaryLine's critical path:
+
+- **~5 second economic finality** — the claim tx confirms while the user is still watching the success screen. No "wait for 12 confirmations" UX.
+- **Stable, cheap gas** (~$0.0005 sync, ~$0.001 claim) — our free-to-play promise only holds if gas is a non-event. Ethereum mainnet or a congested L2 would break the model.
+- **Full EVM compatibility** — we write standard Solidity 0.8.24 + OpenZeppelin v5, deploy with Hardhat, build UIs with wagmi + viem. Zero platform lock-in.
+- **Cosmos SDK + IBC** — unlocks the v2 cross-chain prize redemption story through 50+ app-chains without custom bridges.
+
+Full platform reference: [`WIREFLUID.md`](./WIREFLUID.md).
+
 ## High-Level Overview
 
 BoundaryLine is a **hybrid on-chain / off-chain** application. Gameplay and scoring happen off-chain for speed and zero gas. Prize-critical operations (sync, claim, trophy mint) happen on-chain for trust and verifiability.

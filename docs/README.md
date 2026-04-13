@@ -14,10 +14,11 @@
 ### I want to build / run the code
 1. [`SETUP.md`](./SETUP.md) — local environment, wallets, database
 2. [`ARCHITECTURE.md`](./ARCHITECTURE.md) — how pieces fit together
-3. [`DATA_MODEL.md`](./DATA_MODEL.md) — database schema
-4. [`API.md`](./API.md) — REST endpoints
-5. [`CONTRACTS.md`](./CONTRACTS.md) — smart contract specs
-6. [`DEPLOYMENT.md`](./DEPLOYMENT.md) — shipping to production
+3. [`WIREFLUID.md`](./WIREFLUID.md) — chain config, Hardhat/viem setup, why WireFluid
+4. [`DATA_MODEL.md`](./DATA_MODEL.md) — database schema
+5. [`API.md`](./API.md) — REST endpoints
+6. [`CONTRACTS.md`](./CONTRACTS.md) — smart contract specs
+7. [`DEPLOYMENT.md`](./DEPLOYMENT.md) — shipping to production
 
 ### I want to understand what we trust and why
 1. [`SECURITY.md`](./SECURITY.md) — threat model, trust assumptions, incident response
@@ -34,6 +35,7 @@
 | File | Purpose | Audience |
 |---|---|---|
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | System design, data flow, component diagram | Engineers |
+| [`WIREFLUID.md`](./WIREFLUID.md) | Chain config, Hardhat/viem setup, finality & gas rationale | Contract + frontend devs |
 | [`CONTRACTS.md`](./CONTRACTS.md) | Solidity spec for `PSLPoints` and `PSLTrophies` | Solidity devs, auditors |
 | [`TOKENOMICS.md`](./TOKENOMICS.md) | BNDY token design, supply, anti-abuse | Product, legal, devs |
 | [`GAME_DESIGN.md`](./GAME_DESIGN.md) | Rules, scoring, tiers, strategic layers | Product, game designers |
