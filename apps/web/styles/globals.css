@@ -1,15 +1,30 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root {
-  --background: #0b0f14;
-  --foreground: #f5f7fa;
+  --background: #0e141b;
+  --foreground: #dde3ed;
 }
 
 html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-body), "Manrope", sans-serif;
+}
+
+.stadium-gradient {
+  background: radial-gradient(
+    circle at 50% 0%,
+    rgba(84, 233, 138, 0.15) 0%,
+    rgba(14, 20, 27, 0) 70%
+  );
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
