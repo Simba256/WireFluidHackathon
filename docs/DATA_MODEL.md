@@ -1,0 +1,402 @@
+# Data Model
+
+> Postgres schema (Drizzle ORM) for BoundaryLine off-chain state.
+
+---
+
+## Conventions
+
+- Snake_case for column names
+- Singular table names (Drizzle convention)
+- Wallet addresses stored lowercase, `text` column, CHECK constraint validates `0x[0-9a-f]{40}`
+- Timestamps: `timestamptz`, defaulting to `now()`
+- Point values stored as `bigint` (avoid float precision issues)
+- Token amounts stored as `numeric(78, 0)` to match uint256 range
+
+---
+
+## Entity Relationship Diagram
+
+```
+┌─────────────┐        ┌────────────┐         ┌─────────────┐
+│    user     │◄───┐   │   player   │    ┌───►│    team     │
+└─────────────┘    │   └────────────┘    │    └──────┬──────┘
+                   │           ▲         │           │
+                   │           │         │           ▼
+                   │    ┌──────┴──────┐  │   ┌──────────────┐
+                   │    │player_score │  │   │ team_player  │
+                   │    └──────┬──────┘  │   └──────────────┘
+                   │           │         │
+                   │           ▼         │
+                   │    ┌────────────┐   │
+                   │    │   match    │◄──┘
+                   │    └────────────┘
+                   │
+                   ├──────────────────┐
+                   │                  │
+                   ▼                  ▼
+           ┌───────────────┐  ┌─────────────────┐
+           │  user_point   │  │  synced_record  │
+           └───────────────┘  └─────────────────┘
+                   │
+                   ▼
+           ┌───────────────┐
+           │    claim      │
+           └───────────────┘
+```
+
+---
+
+## Tables
+
+### `user`
+
+```ts
+user {
+  wallet        text          primary key          // lowercase 0x...
+  siwe_nonce    text          nullable             // current unconsumed nonce
+  display_name  text          nullable             // optional alias
+  created_at    timestamptz   default now()
+  updated_at    timestamptz   default now()
+}
+```
+
+**Indexes**
+- `PK (wallet)`
+
+**Notes**
+- `wallet` is the canonical identity key
+- No email, no password, no off-chain credentials
+- SIWE nonces are per-user so multi-tab sessions work
+
+---
+
+### `player`
+
+```ts
+player {
+  id           serial        primary key
+  external_id  text          unique                // from seed data
+  name         text          not null
+  team         text          not null              // PSL franchise
+  role         text          not null              // 'batsman' | 'bowler' | 'all-rounder' | 'wicketkeeper'
+  base_price   integer       not null              // credits for salary cap
+  photo_url    text          nullable
+  active       boolean       default true
+  created_at   timestamptz   default now()
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `UNIQUE (external_id)`
+- `INDEX (team)`
+- `INDEX (role)`
+
+---
+
+### `match`
+
+```ts
+match {
+  id            serial        primary key
+  tournament_id integer       not null
+  team_a        text          not null
+  team_b        text          not null
+  scheduled_at  timestamptz   not null
+  status        text          not null              // 'scheduled' | 'live' | 'completed'
+  played_at     timestamptz   nullable
+  created_at    timestamptz   default now()
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `INDEX (tournament_id, status)`
+
+---
+
+### `player_score`
+
+Per-match, per-player stat line. One row per (match, player).
+
+```ts
+player_score {
+  id                  serial       primary key
+  match_id            integer      references match(id) not null
+  player_id           integer      references player(id) not null
+  runs                integer      default 0
+  wickets             integer      default 0
+  catches             integer      default 0
+  run_outs            integer      default 0
+  stumpings           integer      default 0
+  dismissed_for_zero  boolean      default false
+  points_awarded      bigint       not null             // calculated via formula
+  created_at          timestamptz  default now()
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `UNIQUE (match_id, player_id)`
+- `INDEX (player_id)`
+
+---
+
+### `team`
+
+One team per user per tournament.
+
+```ts
+team {
+  id             serial       primary key
+  user_wallet    text         references user(wallet) not null
+  tournament_id  integer      not null
+  total_credits  integer      not null
+  created_at     timestamptz  default now()
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `UNIQUE (user_wallet, tournament_id)`
+
+---
+
+### `team_player`
+
+Junction — 11 rows per team.
+
+```ts
+team_player {
+  team_id    integer    references team(id) not null
+  player_id  integer    references player(id) not null
+
+  PRIMARY KEY (team_id, player_id)
+}
+```
+
+**Indexes**
+- `PK (team_id, player_id)`
+- `INDEX (player_id)` — for reverse lookup during match scoring
+
+---
+
+### `user_point`
+
+Denormalized running total per user per tournament. Updated transactionally when a match is scored.
+
+```ts
+user_point {
+  wallet          text          not null
+  tournament_id   integer       not null
+  total_points    bigint        default 0 not null
+  last_match_id   integer       nullable
+  updated_at      timestamptz   default now()
+
+  PRIMARY KEY (wallet, tournament_id)
+}
+```
+
+**Indexes**
+- `PK (wallet, tournament_id)`
+- `INDEX (tournament_id, total_points DESC)` — for global leaderboard queries
+
+**Query for global leaderboard**
+```sql
+SELECT wallet, total_points,
+       RANK() OVER (ORDER BY total_points DESC) as rank
+FROM user_point
+WHERE tournament_id = $1
+ORDER BY total_points DESC
+LIMIT $2 OFFSET $3;
+```
+
+---
+
+### `synced_record`
+
+Audit trail of every successful on-chain sync.
+
+```ts
+synced_record {
+  id             serial        primary key
+  wallet         text          not null
+  tournament_id  integer       not null
+  amount         numeric(78,0) not null                 // uint256 BNDY
+  nonce          numeric(78,0) not null
+  tx_hash        text          nullable
+  block_number   bigint        nullable
+  status         text          not null                 // 'pending' | 'confirmed' | 'failed'
+  voucher_expires_at timestamptz not null
+  created_at     timestamptz   default now()
+  confirmed_at   timestamptz   nullable
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `UNIQUE (nonce)`
+- `INDEX (wallet, tournament_id)`
+
+**Purpose**
+- `total_synced_for_user = SUM(amount) WHERE wallet = X AND status = 'confirmed'`
+- `unsynced_delta = user_point.total_points - total_synced_for_user`
+
+---
+
+### `claim`
+
+One row per claim attempt. Status transitions: `pending → confirmed` or `pending → expired`.
+
+```ts
+claim {
+  id                  serial        primary key
+  wallet              text          not null
+  tournament_id       integer       not null
+  tier_id             smallint      not null
+  nonce               numeric(78,0) not null
+  tx_hash             text          nullable
+  block_number        bigint        nullable
+  status              text          not null               // 'pending' | 'confirmed' | 'expired'
+  voucher_expires_at  timestamptz   not null
+  trophy_token_id     bigint        nullable
+  fulfillment_status  text          default 'none'         // 'none' | 'pending_shipping' | 'shipped' | 'delivered'
+  created_at          timestamptz   default now()
+  confirmed_at        timestamptz   nullable
+}
+```
+
+**Indexes**
+- `PK (id)`
+- `UNIQUE (nonce)`
+- `UNIQUE (wallet, tournament_id) WHERE status IN ('pending', 'confirmed')` — enforces one active claim per user per tournament
+- `INDEX (tier_id, status)` — for stock calculations
+
+**Stock calculation**
+```sql
+SELECT tier_id, COUNT(*) as claimed
+FROM claim
+WHERE tournament_id = $1 AND status IN ('pending', 'confirmed')
+GROUP BY tier_id;
+```
+
+Stock remaining = `tier.stock_limit - claimed`.
+
+---
+
+### `prize`
+
+Static prize catalog, one row per tier per tournament.
+
+```ts
+prize {
+  id            serial        primary key
+  tournament_id integer       not null
+  tier_id       smallint      not null
+  name          text          not null
+  description   text          not null
+  image_url     text          nullable
+  stock_limit   integer       not null
+  rank_required integer       not null               // 1, 3, 10, 25, 50
+
+  UNIQUE (tournament_id, tier_id)
+}
+```
+
+---
+
+### `prize_leaderboard_snapshot`
+
+Cache of the on-chain prize leaderboard. Refreshed periodically by reading `PSLPoints.earnedBalance()` via viem multicall.
+
+```ts
+prize_leaderboard_snapshot {
+  wallet           text           not null
+  tournament_id    integer        not null
+  earned_balance   numeric(78,0)  not null
+  rank             integer        not null
+  snapshot_block   bigint         not null
+  refreshed_at     timestamptz    default now()
+
+  PRIMARY KEY (wallet, tournament_id)
+}
+```
+
+**Indexes**
+- `PK (wallet, tournament_id)`
+- `INDEX (tournament_id, rank)`
+
+**Refresh strategy**:
+- Cron every 30s while tournament is active, or
+- On-demand via `GET /api/leaderboard/prize` with 30s cache header
+
+---
+
+### `tournament`
+
+```ts
+tournament {
+  id           serial       primary key
+  name         text         not null
+  status       text         not null                // 'open' | 'active' | 'closed' | 'archived'
+  started_at   timestamptz  nullable
+  closed_at    timestamptz  nullable
+  grace_ends   timestamptz  nullable
+  created_at   timestamptz  default now()
+}
+```
+
+For the hackathon demo, exactly one tournament row exists.
+
+---
+
+### `admin_session`
+
+Simple admin auth for the scoring panel.
+
+```ts
+admin_session {
+  token        text          primary key
+  created_at   timestamptz   default now()
+  expires_at   timestamptz   not null
+}
+```
+
+Or just use an `ADMIN_API_KEY` env var and skip this table. Simpler for hackathon.
+
+---
+
+## Migrations
+
+Drizzle Kit migrations in `packages/db/drizzle/`. Run via:
+
+```bash
+pnpm db:generate    # generate migration from schema.ts diff
+pnpm db:push        # apply to Neon (dev)
+pnpm db:migrate     # apply via migration files (prod)
+pnpm db:seed        # load players + prizes + tournament row
+```
+
+---
+
+## Seed Data
+
+Loaded from `data/psl-2026-players.json` — roughly 150–200 player records spanning all six PSL franchises.
+
+Prize seed data in `data/prizes.json` — 5 tiers × 1 tournament = 5 prize rows.
+
+Tournament seed: one `tournament` row with `status: 'active'`.
+
+---
+
+## What's NOT In The DB
+
+- Private keys (backend signer key is in env)
+- Raw SIWE messages after verification
+- User passwords (wallet-based auth, no passwords)
+- Transaction hashes for events we haven't observed yet (indexer writes them async)
+- On-chain balances (always read from contract)
+- Trophy NFTs (read from `PSLTrophies` contract)
+
+**Golden rule**: the chain is the source of truth for `earnedBalance`, `balanceOf`, and trophy ownership. The DB caches these for query speed but never overrides them.
