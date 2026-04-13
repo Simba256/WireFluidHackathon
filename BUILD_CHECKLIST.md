@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (00:45 PKT)
+> Last updated: 2026-04-14 (01:05 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -142,9 +142,9 @@
 ## 4. Backend API (`apps/web/app/api`)
 
 ### 4.1 Auth
-- [ ] `GET /api/auth/nonce` — *API.md*
-- [ ] `POST /api/auth/verify` (SIWE → JWT, upsert user) — *API.md*
-- [ ] `POST /api/auth/logout` (JWT blacklist) — *API.md*
+- [x] `GET /api/auth/nonce` — *API.md*
+- [x] `POST /api/auth/verify` (SIWE → JWT, upsert user) — *API.md*
+- [x] `POST /api/auth/logout` (JWT blacklist) — *API.md*
 
 ### 4.2 Players & Teams
 - [ ] `GET /api/players` (cached 1h) — *API.md*
@@ -173,13 +173,13 @@
 - [ ] `POST /api/admin/tournaments/:id/close` (grace period) — *API.md*
 
 ### 4.8 Infra helpers
-- [ ] SIWE parse/verify util — *SETUP.md*
-- [ ] JWT issue/verify — *SETUP.md*
+- [x] SIWE parse/verify util — *SETUP.md*
+- [x] JWT issue/verify — *SETUP.md*
 - [ ] EIP-712 signer util (viem/ethers) — *ARCHITECTURE.md*
-- [ ] Drizzle query helpers — *SETUP.md*
+- [~] Drizzle query helpers — db client wrapper done; per-route helpers pending — *SETUP.md*
 - [ ] viem read clients for PSLPoints / PSLTrophies — *ARCHITECTURE.md*
-- [ ] Zod validation middleware — *API.md / SECURITY.md*
-- [ ] Standardized error responses — *API.md*
+- [x] Zod validation (per-route inline) — *API.md / SECURITY.md*
+- [x] Standardized error responses — *API.md*
 - [-] Rate limiting (v1.5) — *SECURITY.md*
 
 ---
