@@ -286,6 +286,8 @@ Off-chain global leaderboard. Ranks all registered users by total earned points.
 ### `GET /api/leaderboard/prize`
 On-chain prize leaderboard. **Ranked by `balanceOf` (wallet balance), filtered to wallets with `earnedBalance >= 10,000 BNDY`** — the same threshold the on-chain `claimTier()` enforces for prize claims. Reads from cached snapshot (`prize_leaderboard_snapshot`) with lazy refresh on >30s staleness.
 
+> **v1 implementation note (2026-04-14):** the shipped handler performs the multicall + filter + sort **in-memory on every request** against `SELECT DISTINCT wallet FROM synced_record`. It does not yet read from `prize_leaderboard_snapshot`, does not run the 30s cache check, and does not scan Transfer logs. The response shape below is final; only the persistence and cache layers are pending (v1.5). See `docs/ARCHITECTURE.md` §Indexing Strategy → "v1 implementation status".
+
 Unqualified wallets (those below the 10,000 BNDY earned threshold) do NOT appear in this response regardless of their wallet balance. This is the core pure-whale mitigation.
 
 **Query params**

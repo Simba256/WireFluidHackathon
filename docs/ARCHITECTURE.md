@@ -255,6 +255,17 @@ The `/leaderboard` page polls `GET /api/leaderboard/prize` every 5s via a React 
 
 See [`DATA_MODEL.md`](./DATA_MODEL.md) for schema.
 
+### v1 implementation status (2026-04-14)
+
+The shipped `GET /api/leaderboard/prize` handler implements a simplified subset of Layer 2:
+
+1. `SELECT DISTINCT wallet FROM synced_record WHERE tournament_id = $1` is used as the tracked-wallet source in place of a dedicated `tracked_wallet` table. This covers every wallet that has ever been issued a sync voucher — the same set Layer 1 would populate.
+2. viem `multicall` reads `balanceOf(w)` + `earnedBalance(w)` for each wallet.
+3. The qualified set is filtered by `earnedBalance >= MIN_EARNED_TO_CLAIM_WEI` and sorted `balanceOf DESC` in-memory, ranks assigned, response returned.
+4. **Not yet implemented:** Transfer log scanning, `indexer_cursor` advancement, `prize_leaderboard_snapshot` upsert, 30s stale-cache check, the `wallet_balance` column on the snapshot table, and the `tracked_wallet` table itself.
+
+Gap vs spec: attackers who call `PSLPoints.sync()` directly without going through our API are not discovered, because the Transfer log scan is absent. For hackathon scope this is acceptable — the demo path always goes through the voucher flow, so every participant lands in `synced_record` naturally. The full Layer 2 is a v1.5 upgrade (see BUILD_CHECKLIST §9).
+
 ---
 
 ## Trust Model

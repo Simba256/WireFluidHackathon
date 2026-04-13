@@ -349,6 +349,8 @@ prize {
 
 ### `prize_leaderboard_snapshot`
 
+> **v1 status (2026-04-14):** the base table is migrated with `earned_balance`, `rank`, and `snapshot_block` columns, but the `wallet_balance` column and its supporting `(tournament_id, wallet_balance DESC)` index described below are **not yet applied**. The current `GET /api/leaderboard/prize` handler does the multicall + sort in-memory on each request and does not persist to this table. The schema below is the target shape for v1.5; a migration will add the `wallet_balance` column and wire up snapshot upserts when the full lazy-refresh pipeline (Transfer log scan + `tracked_wallet` + `indexer_cursor`) ships.
+
 Cache of the on-chain prize leaderboard. Refreshed lazily on read from `GET /api/leaderboard/prize` when older than 30s. Populated by a viem multicall of `balanceOf()` + `earnedBalance()` across all `tracked_wallet` entries.
 
 ```ts
@@ -384,6 +386,8 @@ prize_leaderboard_snapshot {
 
 ### `tracked_wallet`
 
+> **v1 status (2026-04-14):** **not yet migrated.** In v1 the `GET /api/leaderboard/prize` handler substitutes `SELECT DISTINCT wallet FROM synced_record WHERE tournament_id = $1` as its wallet source — everyone who has ever been issued a sync voucher is implicitly tracked. The dedicated `tracked_wallet` table ships alongside the Transfer-log scan in v1.5, at which point wallets who received BNDY via transfer but never called `/api/sync` will also be discoverable.
+
 List of wallet addresses the indexer should include in leaderboard multicalls. Populated from two sources: (1) voucher issuance in `/api/sync` and `/api/claim`, (2) Transfer log scanning during lazy refresh.
 
 ```ts
@@ -406,6 +410,8 @@ tracked_wallet {
 ---
 
 ### `indexer_cursor`
+
+> **v1 status (2026-04-14):** **not yet migrated.** The v1 prize leaderboard handler does not run a Transfer log scan, so no cursor state is needed. This table ships with the v1.5 indexer work.
 
 Checkpoint for Transfer log scanning. One row per contract.
 
