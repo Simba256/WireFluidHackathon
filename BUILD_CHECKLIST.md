@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (01:35 PKT)
+> Last updated: 2026-04-14 (01:45 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -148,9 +148,9 @@
 - [x] `POST /api/auth/logout` (JWT blacklist) — *API.md*
 
 ### 4.2 Players & Teams
-- [ ] `GET /api/players` (cached 1h) — *API.md*
-- [ ] `POST /api/teams` (validate 11 players, salary cap, no dup, no existing team) — *API.md*
-- [ ] `GET /api/teams/me` — *API.md*
+- [x] `GET /api/players` (cached 1h) — *API.md*
+- [x] `POST /api/teams` (validate 11 players, salary cap, no dup, no existing team) — *API.md*
+- [x] `GET /api/teams/me` — *API.md*
 
 ### 4.3 Points & Sync
 - [ ] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — *API.md*

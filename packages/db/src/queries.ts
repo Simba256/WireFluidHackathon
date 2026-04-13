@@ -1,6 +1,28 @@
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import type { Database } from './client';
-import { claim, playerScore, userPoint } from './schema';
+import { claim, playerScore, tournament, userPoint } from './schema';
+
+export async function getActiveTournamentId(db: Database): Promise<number> {
+  const rows = await db
+    .select({ id: tournament.id })
+    .from(tournament)
+    .where(eq(tournament.status, 'active'))
+    .limit(1);
+  const first = rows[0];
+  if (!first) {
+    // Fall back to the most recent tournament row so local dev works even
+    // when the seed sets status='scheduled' or similar.
+    const fallback = await db
+      .select({ id: tournament.id })
+      .from(tournament)
+      .orderBy(desc(tournament.id))
+      .limit(1);
+    const f = fallback[0];
+    if (!f) throw new Error('No tournament row found');
+    return f.id;
+  }
+  return first.id;
+}
 
 export interface ScoreInput {
   runs: number;

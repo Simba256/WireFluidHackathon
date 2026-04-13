@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-14 (01:35 PKT)
+> Last updated: 2026-04-14 (01:45 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -9,9 +9,10 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 **Status**: Active — Design Phase Complete, Ready to Build
 
 ## In Progress
-- [ ] Players & teams API routes (`/api/players`, `/api/teams`, `/api/teams/me`)
+- [ ] Frontend wallet connect + SIWE flow (wagmi, RainbowKit, `useAuth`)
 
 ## Recently Completed
+- [x] Players & Teams API shipped — `GET /api/players` returns the active player catalog (ordered by team,name; `Cache-Control: s-maxage=3600` + `revalidate=3600`). `POST /api/teams` is auth-gated via `requireAuth`, Zod-validates `playerIds`, enforces `TEAM_SIZE=11`, rejects duplicates (`DUPLICATE_PLAYER`), confirms all selected rows exist + are `active`, sums `base_price` against `SALARY_CAP=100` (`CAP_EXCEEDED`), checks for existing team (`TEAM_EXISTS` on pre-check + unique-index race), then inserts team + team_player atomically in a transaction. `GET /api/teams/me` joins `team_player` → `player` for the caller and returns the full lineup or `404 NO_TEAM`. Added `getActiveTournamentId(db)` helper in `packages/db` that prefers `status='active'` and falls back to most-recent row. DB + web typecheck clean — (2026-04-14)
 - [x] SIWE nonce storage hardened (cookie → dedicated `siwe_nonce` table) + doc cleanup — replaced the cookie-based nonce with a Postgres-backed `siwe_nonce` table so concurrent tabs each get their own single-use row. Migration `0001_slow_blur.sql` drops `user.siwe_nonce`, creates `siwe_nonce(nonce PK, issued_at, expires_at, consumed_at)` + expires_at index, applied to Neon. `/api/auth/nonce` now inserts a row + lazy-sweeps expired rows; `/api/auth/verify` consumes atomically via `UPDATE ... WHERE consumed_at IS NULL AND expires_at > now() RETURNING`. Deleted `lib/auth-cookies.ts`. Docs: `docs/DATA_MODEL.md` rewritten (user row + new siwe_nonce table section with rationale), `docs/SETUP.md` comment updated from "NextAuth / JWT" to "jose HS256, direct — not NextAuth". DB + web typecheck clean — (2026-04-14)
 - [x] Next.js 16 app scaffolded + SIWE auth shipped — `apps/web` now has `next.config.ts`, Tailwind/PostCSS config, root layout + landing page, and a working auth stack. Built `lib/env.ts` (Zod-validated server env), `lib/errors.ts` (`{error,code}` helpers matching `API_ERROR_CODES`), `lib/jwt.ts` (jose HS256, 7d TTL, jti), `lib/session-blacklist.ts` (in-memory revoke), `lib/auth.ts` (`requireAuth` Bearer helper), `lib/siwe.ts` (siwe v2 verify w/ chain-id check), `lib/db.ts` (drizzle via shared env). Routes: `GET /api/auth/nonce` (issues + sets httpOnly nonce cookie), `POST /api/auth/verify` (Zod body, cookie-vs-message nonce check, SIWE verify, user upsert, JWT issue), `POST /api/auth/logout` (revokes jti). Installed `siwe`, `jose`, `zod`, `drizzle-orm`, `tailwindcss`/`autoprefixer`/`postcss`, React/Node types. `pnpm --filter @boundaryline/web typecheck` clean — (2026-04-14)
 - [x] Full-repo consistency sweep for the single-threshold pivot — updated un-touched files that still referenced the old "rank by earnedBalance" / "pay-to-win" framing: root `README.md`, `docs/README.md`, `docs/CONTRACTS.md`, `docs/DEPLOYMENT.md` (removed broken Hobby cron snippet), `docs/ROADMAP.md`, `docs/DEMO_TRANSACTIONS.md`, `docs/SETUP.md`, `packages/shared/README.md`, `packages/contracts/README.md`, `BUILD_CHECKLIST.md`. Every user-facing surface now speaks the same language: rank by `balanceOf`, qualify + claim at `earnedBalance ≥ 10k` — (2026-04-14)
@@ -31,8 +32,7 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [x] Scope negotiation (dropped: P2P point exchange, ERC-20 soulbound, fixed-price prize catalog) — (2026-04-13)
 
 ## Upcoming / Planned
-- [ ] Players & teams API (`/api/players`, `/api/teams`, `/api/teams/me`) — P0
-- [ ] Team picker UI (wallet connect + SIWE flow + salary-cap picker) — P0
+- [ ] Team picker UI (salary-cap picker + submit to POST /api/teams) — P0
 - [ ] Scoring engine + global leaderboard — P0
 - [ ] Sync flow (off-chain points → on-chain `earnedBalance`) — P0
 - [ ] Prize leaderboard (on-chain read via multicall) — P0
