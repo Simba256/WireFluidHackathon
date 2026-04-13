@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-13
+> Last updated: 2026-04-13 (22:30 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -81,43 +81,43 @@
 ## 2. Database (`packages/db`)
 
 ### 2.1 Drizzle schema tables
-- [ ] `user` (wallet PK, siwe_nonce, display_name, timestamps) — *DATA_MODEL.md*
-- [ ] `player` (id, external_id unique, name, team, role, base_price, photo_url, active) — *DATA_MODEL.md*
-- [ ] `match` (id, tournament_id, team_a, team_b, scheduled_at, status, played_at) — *DATA_MODEL.md*
-- [ ] `player_score` (match_id, player_id, runs, wickets, catches, run_outs, stumpings, dismissed_for_zero, points_awarded) — *DATA_MODEL.md*
-- [ ] `team` (id, user_wallet, tournament_id, total_credits) — *DATA_MODEL.md*
-- [ ] `team_player` (team_id, player_id composite PK) — *DATA_MODEL.md*
-- [ ] `user_point` (wallet, tournament_id, total_points, last_match_id) — *DATA_MODEL.md*
-- [ ] `synced_record` (wallet, amount, nonce, tx_hash, block_number, status, voucher_expires_at) — *DATA_MODEL.md*
-- [ ] `claim` (wallet, tier_id, nonce, tx_hash, trophy_token_id, fulfillment_status, status) — *DATA_MODEL.md*
-- [ ] `prize` (tournament_id, tier_id, name, desc, image, stock_limit, rank_required) — *DATA_MODEL.md*
-- [ ] `prize_leaderboard_snapshot` (wallet, tournament_id, earned_balance, rank, snapshot_block) — *DATA_MODEL.md*
-- [ ] `tournament` (id, name, status, started/closed/grace timestamps) — *DATA_MODEL.md*
-- [ ] `admin_session` (optional) — *DATA_MODEL.md*
+- [x] `user` (wallet PK, siwe_nonce, display_name, timestamps) — *DATA_MODEL.md*
+- [x] `player` (id, external_id unique, name, team, role, base_price, photo_url, active) — *DATA_MODEL.md*
+- [x] `match` (id, tournament_id, team_a, team_b, scheduled_at, status, played_at) — *DATA_MODEL.md*
+- [x] `player_score` (match_id, player_id, runs, wickets, catches, run_outs, stumpings, dismissed_for_zero, points_awarded) — *DATA_MODEL.md*
+- [x] `team` (id, user_wallet, tournament_id, total_credits) — *DATA_MODEL.md*
+- [x] `team_player` (team_id, player_id composite PK) — *DATA_MODEL.md*
+- [x] `user_point` (wallet, tournament_id, total_points, last_match_id) — *DATA_MODEL.md*
+- [x] `synced_record` (wallet, amount, nonce, tx_hash, block_number, status, voucher_expires_at) — *DATA_MODEL.md*
+- [x] `claim` (wallet, tier_id, nonce, tx_hash, trophy_token_id, fulfillment_status, status) — *DATA_MODEL.md*
+- [x] `prize` (tournament_id, tier_id, name, desc, image, stock_limit, rank_required) — *DATA_MODEL.md*
+- [x] `prize_leaderboard_snapshot` (wallet, tournament_id, earned_balance, rank, snapshot_block) — *DATA_MODEL.md*
+- [x] `tournament` (id, name, status, started/closed/grace timestamps) — *DATA_MODEL.md*
+- [x] `admin_session` (optional) — *DATA_MODEL.md*
 
 ### 2.2 Indexes & constraints
-- [ ] Wallet CHECK constraint (lowercase 0x…) — *DATA_MODEL.md*
-- [ ] `player`: unique external_id, idx team, idx role — *DATA_MODEL.md*
-- [ ] `match`: idx (tournament_id, status) — *DATA_MODEL.md*
-- [ ] `player_score`: unique (match_id, player_id), idx player_id — *DATA_MODEL.md*
-- [ ] `team`: unique (user_wallet, tournament_id) — *DATA_MODEL.md*
-- [ ] `user_point`: idx (tournament_id, total_points DESC) — *DATA_MODEL.md*
-- [ ] `synced_record`: unique nonce, idx (wallet, tournament_id) — *DATA_MODEL.md*
-- [ ] `claim`: unique nonce, unique (wallet, tournament_id) partial — *DATA_MODEL.md*
-- [ ] `prize`: unique (tournament_id, tier_id) — *DATA_MODEL.md*
-- [ ] `prize_leaderboard_snapshot`: idx (tournament_id, rank) — *DATA_MODEL.md*
+- [x] Wallet CHECK constraint (lowercase 0x…) — *DATA_MODEL.md*
+- [x] `player`: unique external_id, idx team, idx role — *DATA_MODEL.md*
+- [x] `match`: idx (tournament_id, status) — *DATA_MODEL.md*
+- [x] `player_score`: unique (match_id, player_id), idx player_id — *DATA_MODEL.md*
+- [x] `team`: unique (user_wallet, tournament_id) — *DATA_MODEL.md*
+- [x] `user_point`: idx (tournament_id, total_points DESC) — *DATA_MODEL.md*
+- [x] `synced_record`: unique nonce, idx (wallet, tournament_id) — *DATA_MODEL.md*
+- [x] `claim`: unique nonce, unique (wallet, tournament_id) partial — *DATA_MODEL.md*
+- [x] `prize`: unique (tournament_id, tier_id) — *DATA_MODEL.md*
+- [x] `prize_leaderboard_snapshot`: idx (tournament_id, rank) — *DATA_MODEL.md*
 
 ### 2.3 Migrations & seeds
-- [ ] Drizzle migration 0001 generated — *DATA_MODEL.md*
-- [ ] `players.json` seed (~150–200 PSL 2026 players) — *DATA_MODEL.md / GAME_DESIGN.md*
-- [ ] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — *DATA_MODEL.md / GAME_DESIGN.md*
-- [ ] Tournament row seed — *DATA_MODEL.md*
-- [ ] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — *SETUP.md*
+- [x] Drizzle migration 0001 generated — *DATA_MODEL.md*
+- [x] `players.json` seed (~150 PSL 2026 players) — *DATA_MODEL.md / GAME_DESIGN.md*
+- [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — *DATA_MODEL.md / GAME_DESIGN.md*
+- [x] Tournament row seed — *DATA_MODEL.md*
+- [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — *SETUP.md*
 
 ### 2.4 Query helpers
-- [ ] Point calculation helper — *GAME_DESIGN.md*
-- [ ] Global leaderboard rank query — *DATA_MODEL.md*
-- [ ] Tier stock count helper — *DATA_MODEL.md*
+- [x] Point calculation helper — *GAME_DESIGN.md*
+- [x] Global leaderboard rank query — *DATA_MODEL.md*
+- [x] Tier stock count helper — *DATA_MODEL.md*
 
 ---
 
@@ -379,7 +379,7 @@
 | Docs (spec) | ✅ Complete |
 | Monorepo infra | ✅ Scaffolded |
 | Contracts | ✅ Deployed + verified on WireFluid testnet |
-| DB schema | ⚠️ Not started |
+| DB schema | ✅ Schema + migration + seeds authored (live Neon push pending) |
 | Shared pkg | ⚠️ Not started |
 | API routes | ⚠️ Not started |
 | Frontend | ⚠️ Not started |

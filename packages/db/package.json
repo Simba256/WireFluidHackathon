@@ -18,6 +18,7 @@
     "postgres": "latest"
   },
   "devDependencies": {
+    "@types/node": "latest",
     "drizzle-kit": "latest",
     "tsx": "latest",
     "typescript": "latest"

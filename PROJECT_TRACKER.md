@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-13 (18:40 PKT)
+> Last updated: 2026-04-13 (22:30 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -9,9 +9,10 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 **Status**: Active — Design Phase Complete, Ready to Build
 
 ## In Progress
-- [ ] Database schema + seeds (`packages/db`, section 2)
+- [ ] Shared package — viem chain, wagmi config, ABIs, DTOs, constants (`packages/shared`, section 3)
 
 ## Recently Completed
+- [x] Database package authored — Drizzle schema for all 13 tables with wallet CHECK constraints, partial unique on active claims, leaderboard indexes; migration `0000_stormy_raza.sql` generated; query helpers (point formula, global rank, tier stock); seed runner + `data/psl-2026-players.json` (150 players) + `data/prizes.json` (5 tiers); typecheck clean — (2026-04-13)
 - [x] Contracts deployed + verified on WireFluid testnet — PSLPoints `0x785FAE9B...abBc`, PSLTrophies `0x6F42EC72...24F7`, setTrophies wired. Deployment JSON + DEMO_TRANSACTIONS.md updated, source verified on wirefluidscan — (2026-04-13)
 - [x] Slither static analysis — project-local `.venv` (slither 0.11.5), zero findings across all severities — (2026-04-13)
 - [x] Contract test suite — 24 passing, 100% stmts/funcs/lines, 84% branches. Covers sync/claim happy + revert paths, earnedBalance isolation, gifted-balance burn, trophy cross-mint, soulbound enforcement, setTrophies one-shot — (2026-04-13)
@@ -23,9 +24,8 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [x] Scope negotiation (dropped: P2P point exchange, ERC-20 soulbound, fixed-price prize catalog) — (2026-04-13)
 
 ## Upcoming / Planned
-- [ ] Monorepo scaffold (pnpm + Turborepo + Next.js + Hardhat) — P0
-- [ ] Deploy `PSLPoints.sol` + `PSLTrophies.sol` to WireFluid testnet — P0
-- [ ] Neon Postgres + Drizzle schema + seed PSL 2026 player data — P0
+- [ ] Provision Neon Postgres + run `db:push` + `db:seed` against live branch — P0
+- [ ] Shared package: viem chain, wagmi config, contract ABIs, DTOs, constants — P0
 - [ ] SIWE auth + team picker UI — P0
 - [ ] Scoring engine + global leaderboard — P0
 - [ ] Sync flow (off-chain points → on-chain `earnedBalance`) — P0
