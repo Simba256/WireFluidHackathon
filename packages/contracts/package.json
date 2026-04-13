@@ -1,0 +1,21 @@
+{
+  "name": "@boundaryline/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "coverage": "hardhat coverage",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "typecheck": "tsc --noEmit",
+    "deploy:testnet": "hardhat run scripts/deploy.ts --network wirefluidTestnet",
+    "clean": "hardhat clean && rm -rf typechain-types .turbo"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "latest",
+    "@openzeppelin/contracts": "latest",
+    "hardhat": "latest",
+    "solhint": "latest",
+    "typescript": "latest"
+  }
+}

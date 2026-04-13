@@ -1,0 +1,30 @@
+{
+  "name": "boundaryline",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Free-to-play fantasy PSL on WireFluid",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:push": "pnpm --filter @boundaryline/db push",
+    "db:seed": "pnpm --filter @boundaryline/db seed",
+    "db:studio": "pnpm --filter @boundaryline/db studio",
+    "contracts:compile": "pnpm --filter @boundaryline/contracts compile",
+    "contracts:test": "pnpm --filter @boundaryline/contracts test",
+    "contracts:deploy:testnet": "pnpm --filter @boundaryline/contracts deploy:testnet"
+  },
+  "devDependencies": {
+    "turbo": "latest",
+    "typescript": "latest",
+    "prettier": "latest"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}
