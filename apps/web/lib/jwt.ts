@@ -1,5 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
-import { serverEnv } from "./env";
+import { authEnv } from "./env";
 
 const ISSUER = "boundaryline";
 const AUDIENCE = "boundaryline-web";
@@ -11,7 +11,7 @@ export interface SessionClaims {
 }
 
 function secret(): Uint8Array {
-  return new TextEncoder().encode(serverEnv().AUTH_SECRET);
+  return new TextEncoder().encode(authEnv().AUTH_SECRET);
 }
 
 export async function issueSessionToken(wallet: string): Promise<string> {

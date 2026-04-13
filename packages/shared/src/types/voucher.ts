@@ -1,9 +1,6 @@
 import type { Address, Hex, TypedDataDomain } from "viem";
-import {
-  EIP712_DOMAIN_NAME,
-  EIP712_DOMAIN_VERSION,
-} from "../constants.js";
-import { CONTRACT_ADDRESSES, WIREFLUID_CHAIN_ID } from "../chain/index.js";
+import { EIP712_DOMAIN_NAME, EIP712_DOMAIN_VERSION } from "../constants";
+import { CONTRACT_ADDRESSES, WIREFLUID_CHAIN_ID } from "../chain/index";
 
 export interface SyncVoucher {
   user: Address;

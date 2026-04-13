@@ -1,4 +1,4 @@
-import type { PlayerRole, TierId, TierName } from "../constants.js";
+import type { PlayerRole, TierId, TierName } from "../constants";
 
 export interface UserDTO {
   wallet: string;

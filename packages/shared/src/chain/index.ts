@@ -1,2 +1,2 @@
-export * from "./wirefluid.js";
-export * from "./contracts.js";
+export * from "./wirefluid";
+export * from "./contracts";

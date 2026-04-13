@@ -1,5 +1,5 @@
 import { SiweMessage, generateNonce } from "siwe";
-import { serverEnv } from "./env";
+import { siweEnv } from "./env";
 
 export function newNonce(): string {
   return generateNonce();
@@ -14,7 +14,7 @@ export async function verifySiwe(
   message: string,
   signature: string,
 ): Promise<VerifiedSiwe> {
-  const env = serverEnv();
+  const env = siweEnv();
   const siwe = new SiweMessage(message);
   const result = await siwe.verify({
     signature,

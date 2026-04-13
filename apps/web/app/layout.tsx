@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Space_Grotesk, Manrope } from "next/font/google";
 import "../styles/globals.css";
+import "@rainbow-me/rainbowkit/styles.css";
+import { Providers } from "@/components/providers";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -31,7 +33,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="antialiased selection:bg-primary selection:text-on-primary overflow-x-hidden">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

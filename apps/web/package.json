@@ -13,6 +13,8 @@
   "dependencies": {
     "@boundaryline/db": "workspace:*",
     "@boundaryline/shared": "workspace:*",
+    "@rainbow-me/rainbowkit": "^2.2.10",
+    "@tanstack/react-query": "^5.99.0",
     "drizzle-orm": "^0.45.2",
     "jose": "^6.2.2",
     "next": "latest",
@@ -20,9 +22,11 @@
     "react-dom": "latest",
     "siwe": "^3.0.0",
     "viem": "^2.47.16",
+    "wagmi": "^2.19.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

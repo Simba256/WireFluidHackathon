@@ -1,3 +1,3 @@
-export * from "./voucher.js";
-export * from "./dto.js";
-export * from "./error.js";
+export * from "./voucher";
+export * from "./dto";
+export * from "./error";

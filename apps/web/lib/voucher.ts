@@ -8,10 +8,10 @@ import {
   type ClaimVoucher,
   type SyncVoucher,
 } from "@boundaryline/shared";
-import { serverEnv } from "./env";
+import { signerEnv } from "./env";
 
 function signer() {
-  const pk = serverEnv().SIGNER_PRIVATE_KEY as Hex;
+  const pk = signerEnv().SIGNER_PRIVATE_KEY as Hex;
   return privateKeyToAccount(pk);
 }
 

@@ -1,6 +1,6 @@
 import { getDb } from "@boundaryline/db";
-import { serverEnv } from "./env";
+import { databaseEnv } from "./env";
 
 export function db() {
-  return getDb(serverEnv().DATABASE_URL);
+  return getDb(databaseEnv().DATABASE_URL);
 }

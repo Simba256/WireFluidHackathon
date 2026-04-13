@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { LandingNav } from "@/components/landing-nav";
+import { HeroWalletActions } from "@/components/hero-wallet-actions";
+import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
 
 const HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAtbiBkfh0n1iYWKJMjnClUdsWtk1Q4C62aZY8v6bwhAq7VX1D2aWH5tm13PHdZP6YfsEoRJPLzBMToJhuDf9piAyi87MeHaifldMn71CHd8GhG4ROP83ViTOJ0DBTWmUlFY7iizvt7m74oQB8fe61Az0Q0lbsEl3cT4xkzEsdl_vgm9AXXjlDkNzWsiH1wuqQwdY43Bv-Lcsy0RSE0mpRwH-LM9CvALwzFiZm72EZm4qmXx3fbswmCjEB9TGfvRISB5XZ7j0D_Pgau";
@@ -14,59 +17,6 @@ function Icon({ name, className }: { name: string; className?: string }) {
     <span className={`material-symbols-outlined ${className ?? ""}`}>
       {name}
     </span>
-  );
-}
-
-function Nav() {
-  return (
-    <nav className="fixed top-0 w-full z-50 bg-[#0e141b] flex justify-between items-center px-6 py-4 h-16">
-      <div className="text-2xl font-bold tracking-tighter text-primary font-headline">
-        BoundaryLine
-      </div>
-      <div className="hidden md:flex items-center gap-8 font-headline tracking-tight">
-        <a
-          className="text-primary border-b-2 border-primary pb-1 transition-colors"
-          href="#"
-        >
-          Dashboard
-        </a>
-        <a
-          className="text-slate-400 hover:text-primary transition-colors"
-          href="#"
-        >
-          Play
-        </a>
-        <a
-          className="text-slate-400 hover:text-primary transition-colors"
-          href="#"
-        >
-          Leaderboard
-        </a>
-        <a
-          className="text-slate-400 hover:text-primary transition-colors"
-          href="#"
-        >
-          Prizes
-        </a>
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex flex-col items-end">
-          <span className="text-[10px] text-slate-500 font-bold tracking-widest uppercase">
-            Wallet
-          </span>
-          <span className="text-sm font-mono font-bold text-primary">
-            0x71C...42e1
-          </span>
-        </div>
-        <button className="bg-primary text-on-primary px-6 py-2 rounded-full font-bold text-sm hover:opacity-90 transition-all">
-          $BNDY 2,450
-        </button>
-        <Icon
-          name="account_balance_wallet"
-          className="text-primary cursor-pointer"
-        />
-      </div>
-    </nav>
   );
 }
 
@@ -112,15 +62,7 @@ function HeroSection() {
             blockchain.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6">
-            <button className="bg-primary text-on-primary px-10 py-5 rounded-full font-headline font-bold text-xl flex items-center justify-center gap-3 hover:scale-105 transition-transform shadow-[0_10px_40px_rgba(84,233,138,0.3)]">
-              Connect Wallet
-              <Icon name="rocket_launch" />
-            </button>
-            <button className="bg-surface-container-high border border-outline-variant text-on-surface px-10 py-5 rounded-full font-headline font-bold text-xl hover:bg-surface-bright transition-colors">
-              View Leaderboard
-            </button>
-          </div>
+          <HeroWalletActions />
         </div>
       </div>
 
@@ -349,9 +291,7 @@ function CTASection() {
               ))}
             </div>
 
-            <button className="mt-12 bg-primary text-on-primary rounded-full px-12 py-6 font-headline font-black text-2xl hover:scale-110 transition-transform active:scale-95 shadow-2xl">
-              DRAFT YOUR TEAM NOW
-            </button>
+            <FinalCtaWalletAction />
           </div>
         </div>
       </div>
@@ -439,7 +379,7 @@ function MobileBottomNav() {
 export default function HomePage() {
   return (
     <>
-      <Nav />
+      <LandingNav />
       <main className="pt-16">
         <HeroSection />
         <StatsBar />
