@@ -187,10 +187,18 @@ All of these are candidates for v2. For the hackathon, we use WireFluid as a **f
 
 | Contract | Address | Explorer |
 |---|---|---|
-| `PSLPoints` | `0x...` (TBD) | `https://wirefluidscan.com/address/0x...` |
-| `PSLTrophies` | `0x...` (TBD) | `https://wirefluidscan.com/address/0x...` |
+| `PSLPoints` | `0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc` | [wirefluidscan.com/address/0x785FAE9B…abBc#code](https://wirefluidscan.com/address/0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc#code) |
+| `PSLTrophies` | `0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7` | [wirefluidscan.com/address/0x6F42EC72…24F7#code](https://wirefluidscan.com/address/0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7#code) |
 
-These will be committed to `packages/contracts/deployments/wirefluid-testnet.json` and mirrored in the root `.env.local` / Vercel env vars as `NEXT_PUBLIC_PSL_POINTS_ADDRESS` and `NEXT_PUBLIC_PSL_TROPHIES_ADDRESS`.
+**Deployer**: `0x51bB66D97d36C5942D53a00D74553629a2E15cB4`
+**Trusted signer**: `0xeCBBF715d35FdD6f56316fb1B64B89C1B329aCd1`
+
+**Deploy txs**:
+- PSLPoints deploy — [`0x2e1afa3f…80b606c`](https://wirefluidscan.com/tx/0x2e1afa3f66758afc3e1f0a87afda862f14bd5ff32f5b30b7b4cdd253c80b606c)
+- PSLTrophies deploy — [`0x4733d026…3ec0cf11`](https://wirefluidscan.com/tx/0x4733d02607dcec765d121be7bae1e6484ae8f7f446b2b5349e264d9a3ec0cf11)
+- `setTrophies` wiring — [`0x8b660758…590409d6`](https://wirefluidscan.com/tx/0x8b660758008ee38583798d48ba812c127c34a4ee8cf5fd95a7da3bd5590409d6) (block 881404)
+
+These are committed to `packages/contracts/deployments/wirefluid-testnet.json` and must be mirrored in the root `.env.local` / Vercel env vars as `NEXT_PUBLIC_PSL_POINTS_ADDRESS` and `NEXT_PUBLIC_PSL_TROPHIES_ADDRESS` before the web app can talk to them.
 
 ---
 

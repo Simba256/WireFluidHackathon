@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-13
+> Last updated: 2026-04-13 (18:40 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -9,9 +9,15 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 **Status**: Active — Design Phase Complete, Ready to Build
 
 ## In Progress
-- [ ] Project documentation authoring — `docs/*` (design locked, drafting specs)
+- [ ] Database schema + seeds (`packages/db`, section 2)
 
 ## Recently Completed
+- [x] Contracts deployed + verified on WireFluid testnet — PSLPoints `0x785FAE9B...abBc`, PSLTrophies `0x6F42EC72...24F7`, setTrophies wired. Deployment JSON + DEMO_TRANSACTIONS.md updated, source verified on wirefluidscan — (2026-04-13)
+- [x] Slither static analysis — project-local `.venv` (slither 0.11.5), zero findings across all severities — (2026-04-13)
+- [x] Contract test suite — 24 passing, 100% stmts/funcs/lines, 84% branches. Covers sync/claim happy + revert paths, earnedBalance isolation, gifted-balance burn, trophy cross-mint, soulbound enforcement, setTrophies one-shot — (2026-04-13)
+- [x] `PSLTrophies.sol` — soulbound ERC-721, immutable minter, inline-SVG tokenURI, `_update` blocks transfers, tier/tournament tagging — (2026-04-13)
+- [x] `PSLPoints.sol` — ERC-20 BNDY, EIP-712 sync/claim vouchers, earnedBalance gating, one-shot setTrophies, compiles + solhint clean — (2026-04-13)
+- [x] Hardhat scaffold for `packages/contracts` — config, .env.example, solhint, slither, deploy stub, OZ v5 installed, compile green — (2026-04-13)
 - [x] Final design lock: transferable ERC-20 + earned-balance tracking + soulbound trophies + dual leaderboard — (2026-04-13)
 - [x] WireFluid platform research (chain ID 92533, RPC, faucet, explorer) — (2026-04-13)
 - [x] Scope negotiation (dropped: P2P point exchange, ERC-20 soulbound, fixed-price prize catalog) — (2026-04-13)

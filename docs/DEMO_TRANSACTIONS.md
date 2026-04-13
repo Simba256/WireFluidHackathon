@@ -12,11 +12,13 @@
 
 | Contract | Address | Deploy Tx | Verified |
 |---|---|---|---|
-| `PSLPoints` (BNDY ERC-20) | `0x________________________________________` | `0x________________________________________` | TBD |
-| `PSLTrophies` (Soulbound ERC-721) | `0x________________________________________` | `0x________________________________________` | TBD |
+| `PSLPoints` (BNDY ERC-20) | [`0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc`](https://wirefluidscan.com/address/0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc#code) | [`0x2e1afa3f...80b606c`](https://wirefluidscan.com/tx/0x2e1afa3f66758afc3e1f0a87afda862f14bd5ff32f5b30b7b4cdd253c80b606c) | ✅ |
+| `PSLTrophies` (Soulbound ERC-721) | [`0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7`](https://wirefluidscan.com/address/0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7#code) | [`0x4733d026...3ec0cf11`](https://wirefluidscan.com/tx/0x4733d02607dcec765d121be7bae1e6484ae8f7f446b2b5349e264d9a3ec0cf11) | ✅ |
+
+**Deployer**: `0x51bB66D97d36C5942D53a00D74553629a2E15cB4`
 
 **Wiring tx** — `PSLPoints.setTrophies(PSLTrophies address)`:
-`0x________________________________________`
+[`0x8b660758...590409d6`](https://wirefluidscan.com/tx/0x8b660758008ee38583798d48ba812c127c34a4ee8cf5fd95a7da3bd5590409d6) (block 881404)
 
 ---
 
@@ -26,7 +28,7 @@ The EOA that signs EIP-712 sync & claim vouchers. **Not** user-facing; included 
 
 | Role | Address |
 |---|---|
-| Trusted Signer | `0x________________________________________` |
+| Trusted Signer | [`0xeCBBF715d35FdD6f56316fb1B64B89C1B329aCd1`](https://wirefluidscan.com/address/0xeCBBF715d35FdD6f56316fb1B64B89C1B329aCd1) |
 
 ---
 
