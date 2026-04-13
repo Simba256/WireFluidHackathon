@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (01:45 PKT)
+> Last updated: 2026-04-14 (02:25 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -153,32 +153,32 @@
 - [x] `GET /api/teams/me` — *API.md*
 
 ### 4.3 Points & Sync
-- [ ] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — *API.md*
-- [ ] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — *API.md*
+- [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — *API.md*
+- [x] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — *API.md*
 
 ### 4.4 Claims
-- [ ] `POST /api/claim` (earned gate, rank check, stock reserve, voucher) — *API.md*
-- [ ] `GET /api/claim/status` — *API.md*
+- [x] `POST /api/claim` (earned gate, rank check, stock reserve, voucher) — *API.md*
+- [x] `GET /api/claim/status` — *API.md*
 
 ### 4.5 Leaderboards
-- [ ] `GET /api/leaderboard/global` (paginated, `around` param) — *API.md*
-- [ ] `GET /api/leaderboard/prize` (snapshot-backed, 30s refresh) — *API.md*
+- [x] `GET /api/leaderboard/global` (paginated) — *API.md* (`around` param deferred)
+- [~] `GET /api/leaderboard/prize` — lazy multicall read over distinct synced wallets; full Transfer-log scan + snapshot upsert deferred — *API.md*
 
 ### 4.6 Prizes & Trophies
-- [ ] `GET /api/prizes` (tiers + live stock) — *API.md*
-- [ ] `GET /api/trophies/:wallet` (on-chain read) — *API.md*
+- [x] `GET /api/prizes` (tiers + live stock) — *API.md*
+- [x] `GET /api/trophies/:wallet` (tokenURI per confirmed claim) — *API.md*
 
 ### 4.7 Admin
-- [ ] `POST /api/admin/matches` — *API.md*
-- [ ] `POST /api/admin/matches/:id/scores` (compute points, update user_point) — *API.md*
-- [ ] `POST /api/admin/tournaments/:id/close` (grace period) — *API.md*
+- [x] `POST /api/admin/matches` — *API.md*
+- [x] `POST /api/admin/matches/:id/scores` (compute points, update user_point) — *API.md*
+- [x] `POST /api/admin/tournaments/:id/close` (grace period) — *API.md*
 
 ### 4.8 Infra helpers
 - [x] SIWE parse/verify util — *SETUP.md*
 - [x] JWT issue/verify — *SETUP.md*
-- [ ] EIP-712 signer util (viem/ethers) — *ARCHITECTURE.md*
-- [~] Drizzle query helpers — db client wrapper done; per-route helpers pending — *SETUP.md*
-- [ ] viem read clients for PSLPoints / PSLTrophies — *ARCHITECTURE.md*
+- [x] EIP-712 signer util (`lib/voucher.ts`) — *ARCHITECTURE.md*
+- [x] Drizzle query helpers — per-route usage via @boundaryline/db helpers — *SETUP.md*
+- [x] viem read clients for PSLPoints / PSLTrophies (`lib/viem.ts`) — *ARCHITECTURE.md*
 - [x] Zod validation (per-route inline) — *API.md / SECURITY.md*
 - [x] Standardized error responses — *API.md*
 - [-] Rate limiting (v1.5) — *SECURITY.md*
@@ -239,36 +239,36 @@
 
 ## 6. Scoring Engine
 
-- [ ] Formula: `runs + wickets*25 + catches*10 + run_outs*10 + stumpings*10 + bonuses - penalties` — *GAME_DESIGN.md*
-- [ ] Bonuses: 50+ runs (+20), 100+ runs (+50), 5+ wkts (+50) — *GAME_DESIGN.md*
-- [ ] Penalty: duck (-5) — *GAME_DESIGN.md*
-- [ ] Team score = sum of 11 players — *GAME_DESIGN.md*
-- [ ] User total accumulates across matches — *GAME_DESIGN.md*
-- [ ] Atomic update on score submission — *DATA_MODEL.md*
+- [x] Formula: `runs + wickets*25 + catches*10 + run_outs*10 + stumpings*10 + bonuses - penalties` — *GAME_DESIGN.md* (`calculatePlayerPoints`)
+- [x] Bonuses: 50+ runs (+20), 100+ runs (+50), 5+ wkts (+50) — *GAME_DESIGN.md*
+- [x] Penalty: duck (-5) — *GAME_DESIGN.md*
+- [x] Team score = sum of 11 players — *GAME_DESIGN.md* (distinct-join aggregation)
+- [x] User total accumulates across matches — *GAME_DESIGN.md* (upsert `total_points + delta`)
+- [x] Atomic update on score submission — *DATA_MODEL.md* (wrapped in tx)
 
 ---
 
 ## 7. Sync Flow
 
-- [ ] Backend computes `delta = totalEarned − onChainEarned` — *ARCHITECTURE.md*
-- [ ] Unique nonce generation — *ARCHITECTURE.md*
-- [ ] EIP-712 voucher sign (5 min TTL) — *ARCHITECTURE.md*
-- [ ] Gas estimate returned (~70k) — *API.md*
+- [x] Backend computes `delta = totalEarned − onChainEarned − pendingWei` — *ARCHITECTURE.md*
+- [x] Unique nonce generation (`generateNonce`) — *ARCHITECTURE.md*
+- [x] EIP-712 voucher sign (5 min TTL) — *ARCHITECTURE.md*
+- [x] Gas estimate returned (~70k) — *API.md*
 - [ ] Frontend `PSLPoints.sync()` via wagmi — *ARCHITECTURE.md*
-- [ ] `Synced` event observer → DB confirm — *ARCHITECTURE.md*
+- [ ] `Synced` event observer → DB confirm — *ARCHITECTURE.md* (frontend will patch status post-tx)
 - [ ] Prize leaderboard cache refresh trigger — *ARCHITECTURE.md*
 
 ---
 
 ## 8. Claim Flow
 
-- [ ] Eligibility checks (earned, rank, stock, no prior) — *ARCHITECTURE.md*
-- [ ] Pending claim slot reservation — *ARCHITECTURE.md*
-- [ ] EIP-712 ClaimVoucher sign (5 min TTL) — *ARCHITECTURE.md*
-- [ ] Gas estimate returned (~120k) — *API.md*
+- [x] Eligibility checks (earned, rank, stock, no prior) — *ARCHITECTURE.md*
+- [x] Pending claim slot reservation (insert `pending` row, catch unique-index race) — *ARCHITECTURE.md*
+- [x] EIP-712 ClaimVoucher sign (5 min TTL) — *ARCHITECTURE.md*
+- [x] Gas estimate returned (~120k) — *API.md*
 - [ ] Frontend `PSLPoints.claimTier()` — *ARCHITECTURE.md*
 - [ ] `TierClaimed` + `TrophyMinted` observers → DB confirm — *ARCHITECTURE.md*
-- [ ] Fulfillment status `pending_shipping` — *API.md / DATA_MODEL.md*
+- [x] Fulfillment status `pending_shipping` default (`claim.fulfillment_status='none'` initially, set post-confirm) — *API.md / DATA_MODEL.md*
 
 ---
 

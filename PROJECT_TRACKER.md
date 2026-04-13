@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-14 (01:45 PKT)
+> Last updated: 2026-04-14 (02:25 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -12,6 +12,7 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [ ] Frontend wallet connect + SIWE flow (wagmi, RainbowKit, `useAuth`)
 
 ## Recently Completed
+- [x] Backend API surface complete — shipped every remaining v1 route. **Admin:** `POST /api/admin/matches` (Zod-validated `{teamA,teamB,scheduledAt}`, auto-binds to active tournament), `POST /api/admin/matches/:id/scores` (applies per-player `calculatePlayerPoints`, upserts `player_score`, distinct-joins `team_player → team` to find affected wallets in the match's tournament, sums deltas per wallet, atomic `userPoint` upsert with `total_points + delta::bigint`, marks match `completed`), `POST /api/admin/tournaments/:id/close` (24h grace, sets `closedAt`/`graceEnds`). All admin routes gated via `requireAdmin` (new `lib/admin.ts`, `X-Admin-Key` vs `ADMIN_API_KEY`). **Points/Sync:** `GET /api/points/me` (on-chain `earnedBalance`+`balanceOf` via new `lib/viem.ts` public client, off-chain total → wei conversion, global rank via `COUNT(*)+1` subquery, tier-band derivation, active-claim probe, `canClaim` flag); `POST /api/sync` (expires stale pending vouchers, subtracts active pending amounts, computes delta against on-chain earned, inserts `pending` `synced_record` with 5-min TTL, signs `SyncVoucher` via `lib/voucher.ts`). **Claim:** `POST /api/claim` (`earnedBalance >= MIN_EARNED_TO_CLAIM_WEI` on-chain recheck, rank→tier band match, active-claim check, stock reserve via `getTierStockClaimed`, pending row insert w/ unique-index race catch → `ALREADY_CLAIMED`, EIP-712 `ClaimVoucher` sign); `GET /api/claim/status` (most recent active claim, tier name resolved). **Leaderboards:** `GET /api/leaderboard/global` (RANK() window, user join for display_name, pagination); `GET /api/leaderboard/prize` (distinct wallets from `synced_record`, viem `multicall` over `balanceOf`+`earnedBalance`, filter `earnedBalance >= MIN_EARNED_TO_CLAIM_WEI`, rank by `balanceOf DESC`, tier derivation — lazy read in-handler, full Transfer-log scan deferred to v2). **Prizes/Trophies:** `GET /api/prizes` (joins `prize` rows with live `getTierStockClaimed`), `GET /api/trophies/:wallet` (reads confirmed claims with `trophy_token_id`, fetches `tokenURI` from `PSLTrophies` per row). New libs: `lib/admin.ts`, `lib/viem.ts` (read helpers for `earnedBalance`/`balanceOf`/trophy balance), `lib/voucher.ts` (nonce generator, EIP-712 `SyncVoucher`/`ClaimVoucher` signers via `privateKeyToAccount(SIGNER_PRIVATE_KEY)`). Added `viem` dep to `apps/web`. Typecheck clean across web/db/shared — (2026-04-14)
 - [x] Players & Teams API shipped — `GET /api/players` returns the active player catalog (ordered by team,name; `Cache-Control: s-maxage=3600` + `revalidate=3600`). `POST /api/teams` is auth-gated via `requireAuth`, Zod-validates `playerIds`, enforces `TEAM_SIZE=11`, rejects duplicates (`DUPLICATE_PLAYER`), confirms all selected rows exist + are `active`, sums `base_price` against `SALARY_CAP=100` (`CAP_EXCEEDED`), checks for existing team (`TEAM_EXISTS` on pre-check + unique-index race), then inserts team + team_player atomically in a transaction. `GET /api/teams/me` joins `team_player` → `player` for the caller and returns the full lineup or `404 NO_TEAM`. Added `getActiveTournamentId(db)` helper in `packages/db` that prefers `status='active'` and falls back to most-recent row. DB + web typecheck clean — (2026-04-14)
 - [x] SIWE nonce storage hardened (cookie → dedicated `siwe_nonce` table) + doc cleanup — replaced the cookie-based nonce with a Postgres-backed `siwe_nonce` table so concurrent tabs each get their own single-use row. Migration `0001_slow_blur.sql` drops `user.siwe_nonce`, creates `siwe_nonce(nonce PK, issued_at, expires_at, consumed_at)` + expires_at index, applied to Neon. `/api/auth/nonce` now inserts a row + lazy-sweeps expired rows; `/api/auth/verify` consumes atomically via `UPDATE ... WHERE consumed_at IS NULL AND expires_at > now() RETURNING`. Deleted `lib/auth-cookies.ts`. Docs: `docs/DATA_MODEL.md` rewritten (user row + new siwe_nonce table section with rationale), `docs/SETUP.md` comment updated from "NextAuth / JWT" to "jose HS256, direct — not NextAuth". DB + web typecheck clean — (2026-04-14)
 - [x] Next.js 16 app scaffolded + SIWE auth shipped — `apps/web` now has `next.config.ts`, Tailwind/PostCSS config, root layout + landing page, and a working auth stack. Built `lib/env.ts` (Zod-validated server env), `lib/errors.ts` (`{error,code}` helpers matching `API_ERROR_CODES`), `lib/jwt.ts` (jose HS256, 7d TTL, jti), `lib/session-blacklist.ts` (in-memory revoke), `lib/auth.ts` (`requireAuth` Bearer helper), `lib/siwe.ts` (siwe v2 verify w/ chain-id check), `lib/db.ts` (drizzle via shared env). Routes: `GET /api/auth/nonce` (issues + sets httpOnly nonce cookie), `POST /api/auth/verify` (Zod body, cookie-vs-message nonce check, SIWE verify, user upsert, JWT issue), `POST /api/auth/logout` (revokes jti). Installed `siwe`, `jose`, `zod`, `drizzle-orm`, `tailwindcss`/`autoprefixer`/`postcss`, React/Node types. `pnpm --filter @boundaryline/web typecheck` clean — (2026-04-14)
@@ -32,12 +33,14 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 - [x] Scope negotiation (dropped: P2P point exchange, ERC-20 soulbound, fixed-price prize catalog) — (2026-04-13)
 
 ## Upcoming / Planned
+- [ ] Frontend: wagmi + RainbowKit wired to WireFluid, ConnectWallet, SIWE `useAuth` — P0
 - [ ] Team picker UI (salary-cap picker + submit to POST /api/teams) — P0
-- [ ] Scoring engine + global leaderboard — P0
-- [ ] Sync flow (off-chain points → on-chain `earnedBalance`) — P0
-- [ ] Prize leaderboard (on-chain read via multicall) — P0
-- [ ] Claim flow with EIP-712 vouchers — P0
+- [ ] Dashboard (points/me, sync button → PSLPoints.sync via wagmi) — P0
+- [ ] Leaderboard page (global + prize tabs, 5s poll on prize) — P0
+- [ ] Prizes page + claim flow (PSLPoints.claimTier via wagmi) — P0
 - [ ] Trophy showcase page — P1
+- [ ] End-to-end demo run + populate DEMO_TRANSACTIONS.md — P0
+- [ ] Vercel link + env vars + prod deploy — P0
 - [ ] Demo video + pitch deck + README polish — P0
 
 ## Blockers
