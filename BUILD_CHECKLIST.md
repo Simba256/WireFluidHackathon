@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-13 (22:30 PKT)
+> Last updated: 2026-04-13 (22:42 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -123,16 +123,16 @@
 
 ## 3. Shared Package (`packages/shared`)
 
-- [ ] `wirefluid.ts` viem `defineChain` — *WIREFLUID.md*
-- [ ] wagmi config export — *WIREFLUID.md*
-- [ ] Chain constants (id, rpc, explorer, faucet) — *WIREFLUID.md*
-- [ ] `PSLPoints` ABI export — *CONTRACTS.md*
-- [ ] `PSLTrophies` ABI export — *CONTRACTS.md*
-- [ ] Contract TS types (typechain or viem) — *CONTRACTS.md*
-- [ ] `SyncVoucher` / `ClaimVoucher` TS types — *ARCHITECTURE.md*
-- [ ] User / Player / Team / Match / Prize / Leaderboard DTOs — *API.md*
-- [ ] Error type `{ error, code }` — *API.md*
-- [ ] Game constants (SALARY_CAP, MIN_EARNED, TEAM_SIZE, tier stocks, formula multipliers) — *GAME_DESIGN.md*
+- [x] `wirefluid.ts` viem `defineChain` — *WIREFLUID.md*
+- [~] wagmi config export — deferred to `apps/web` (wagmi only meaningful in browser context) — *WIREFLUID.md*
+- [x] Chain constants (id, rpc, explorer, faucet) — *WIREFLUID.md*
+- [x] `PSLPoints` ABI export — *CONTRACTS.md*
+- [x] `PSLTrophies` ABI export — *CONTRACTS.md*
+- [x] Contract TS types (viem `as const` ABI inference) — *CONTRACTS.md*
+- [x] `SyncVoucher` / `ClaimVoucher` TS types + EIP-712 typed-data structs — *ARCHITECTURE.md*
+- [x] User / Player / Team / Match / Prize / Leaderboard DTOs — *API.md*
+- [x] Error type `{ error, code }` + full code catalog — *API.md*
+- [x] Game constants (SALARY_CAP, MIN_EARNED, TEAM_SIZE, tier stocks, formula multipliers) — *GAME_DESIGN.md*
 
 ---
 
@@ -380,7 +380,7 @@
 | Monorepo infra | ✅ Scaffolded |
 | Contracts | ✅ Deployed + verified on WireFluid testnet |
 | DB schema | ✅ Schema + migration + seeds authored (live Neon push pending) |
-| Shared pkg | ⚠️ Not started |
+| Shared pkg | ✅ Authored (chain, ABIs, DTOs, vouchers, constants) |
 | API routes | ⚠️ Not started |
 | Frontend | ⚠️ Not started |
 | Deployment | ⚠️ Not started |

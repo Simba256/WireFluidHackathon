@@ -1,0 +1,80 @@
+import { parseUnits } from "viem";
+
+export const BNDY_DECIMALS = 18 as const;
+
+export const SALARY_CAP = 100 as const;
+export const TEAM_SIZE = 11 as const;
+
+export const MIN_EARNED_TO_CLAIM_BNDY = 10_000 as const;
+export const MIN_EARNED_TO_CLAIM_WEI: bigint = parseUnits(
+  String(MIN_EARNED_TO_CLAIM_BNDY),
+  BNDY_DECIMALS,
+);
+
+export const VOUCHER_TTL_SECONDS = 5 * 60;
+
+export const POINT_FORMULA = {
+  RUN: 1,
+  WICKET: 25,
+  CATCH: 10,
+  RUN_OUT: 10,
+  STUMPING: 10,
+  HALF_CENTURY_BONUS: 20,
+  HALF_CENTURY_THRESHOLD: 50,
+  CENTURY_BONUS: 50,
+  CENTURY_THRESHOLD: 100,
+  FIVE_WICKET_BONUS: 50,
+  FIVE_WICKET_THRESHOLD: 5,
+  DUCK_PENALTY: 5,
+} as const;
+
+export const TIER = {
+  TOP_50: 1,
+  TOP_25: 2,
+  TOP_10: 3,
+  TOP_3: 4,
+  RANK_1: 5,
+} as const;
+
+export type TierId = (typeof TIER)[keyof typeof TIER];
+
+export type TierName = "TOP_50" | "TOP_25" | "TOP_10" | "TOP_3" | "RANK_1";
+
+export interface TierDefinition {
+  id: TierId;
+  name: TierName;
+  rankRequired: number;
+  stockLimit: number;
+  displayName: string;
+}
+
+export const TIERS: readonly TierDefinition[] = [
+  { id: TIER.RANK_1, name: "RANK_1", rankRequired: 1, stockLimit: 1, displayName: "Rank 1" },
+  { id: TIER.TOP_3, name: "TOP_3", rankRequired: 3, stockLimit: 3, displayName: "Top 3" },
+  { id: TIER.TOP_10, name: "TOP_10", rankRequired: 10, stockLimit: 10, displayName: "Top 10" },
+  { id: TIER.TOP_25, name: "TOP_25", rankRequired: 25, stockLimit: 25, displayName: "Top 25" },
+  { id: TIER.TOP_50, name: "TOP_50", rankRequired: 50, stockLimit: 50, displayName: "Top 50" },
+] as const;
+
+export const TIERS_BY_ID: Record<TierId, TierDefinition> = TIERS.reduce(
+  (acc, tier) => {
+    acc[tier.id] = tier;
+    return acc;
+  },
+  {} as Record<TierId, TierDefinition>,
+);
+
+export const tierForRank = (rank: number): TierDefinition | null => {
+  if (rank < 1) return null;
+  const ordered = [...TIERS].sort((a, b) => a.rankRequired - b.rankRequired);
+  for (const tier of ordered) {
+    if (rank <= tier.rankRequired) return tier;
+  }
+  return null;
+};
+
+export const EIP712_DOMAIN_NAME = "BoundaryLine" as const;
+export const EIP712_DOMAIN_VERSION = "1" as const;
+
+export const PLAYER_ROLES = ["batsman", "bowler", "all_rounder", "wicket_keeper"] as const;
+export type PlayerRole = (typeof PLAYER_ROLES)[number];

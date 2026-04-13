@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-13 (22:30 PKT)
+> Last updated: 2026-04-13 (22:42 PKT)
 
 ## Project Summary
 BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick teams, earn points from real match performance, and claim real-world prizes via on-chain soulbound trophy NFTs. Built for the WireFluid Hackathon (2026-04-13 → 2026-04-14).
@@ -9,9 +9,10 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 **Status**: Active — Design Phase Complete, Ready to Build
 
 ## In Progress
-- [ ] Shared package — viem chain, wagmi config, ABIs, DTOs, constants (`packages/shared`, section 3)
+- [ ] Provision Neon Postgres + run `db:push` + `db:seed` against live branch
 
 ## Recently Completed
+- [x] Shared package authored — viem `defineChain` for WireFluid (92533), explorer URL helpers, deployed contract addresses + trusted signer constants, inlined `PSLPoints`/`PSLTrophies` ABIs (`as const` for viem inference), EIP-712 domain + `SyncVoucher`/`ClaimVoucher` typed-data structs, full DTO surface (User/Player/Team/Match/Score/Points/Leaderboards/Prize/Claim/Trophy), `ApiError` + error code catalog matching `docs/API.md`, game constants (SALARY_CAP, TEAM_SIZE, MIN_EARNED_TO_CLAIM_WEI, point formula multipliers, tier definitions + `tierForRank` helper), wallet normalize/validate (Zod), tsconfig + `@types/node`; typecheck clean — (2026-04-13)
 - [x] Database package authored — Drizzle schema for all 13 tables with wallet CHECK constraints, partial unique on active claims, leaderboard indexes; migration `0000_stormy_raza.sql` generated; query helpers (point formula, global rank, tier stock); seed runner + `data/psl-2026-players.json` (150 players) + `data/prizes.json` (5 tiers); typecheck clean — (2026-04-13)
 - [x] Contracts deployed + verified on WireFluid testnet — PSLPoints `0x785FAE9B...abBc`, PSLTrophies `0x6F42EC72...24F7`, setTrophies wired. Deployment JSON + DEMO_TRANSACTIONS.md updated, source verified on wirefluidscan — (2026-04-13)
 - [x] Slither static analysis — project-local `.venv` (slither 0.11.5), zero findings across all severities — (2026-04-13)
@@ -25,7 +26,6 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 
 ## Upcoming / Planned
 - [ ] Provision Neon Postgres + run `db:push` + `db:seed` against live branch — P0
-- [ ] Shared package: viem chain, wagmi config, contract ABIs, DTOs, constants — P0
 - [ ] SIWE auth + team picker UI — P0
 - [ ] Scoring engine + global leaderboard — P0
 - [ ] Sync flow (off-chain points → on-chain `earnedBalance`) — P0

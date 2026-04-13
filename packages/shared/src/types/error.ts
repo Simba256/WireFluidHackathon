@@ -1,0 +1,31 @@
+export const API_ERROR_CODES = {
+  SIWE_INVALID: "SIWE_INVALID",
+  NONCE_MISMATCH: "NONCE_MISMATCH",
+  INVALID_TEAM_SIZE: "INVALID_TEAM_SIZE",
+  CAP_EXCEEDED: "CAP_EXCEEDED",
+  DUPLICATE_PLAYER: "DUPLICATE_PLAYER",
+  TEAM_EXISTS: "TEAM_EXISTS",
+  NO_TEAM: "NO_TEAM",
+  NOTHING_TO_SYNC: "NOTHING_TO_SYNC",
+  UNAUTHORIZED: "UNAUTHORIZED",
+  BELOW_THRESHOLD: "BELOW_THRESHOLD",
+  WRONG_TIER: "WRONG_TIER",
+  NO_STOCK: "NO_STOCK",
+  ALREADY_CLAIMED: "ALREADY_CLAIMED",
+  VALIDATION_ERROR: "VALIDATION_ERROR",
+  NOT_FOUND: "NOT_FOUND",
+  INTERNAL_ERROR: "INTERNAL_ERROR",
+} as const;
+
+export type ApiErrorCode =
+  (typeof API_ERROR_CODES)[keyof typeof API_ERROR_CODES];
+
+export interface ApiError {
+  error: string;
+  code: ApiErrorCode;
+}
+
+export const apiError = (code: ApiErrorCode, message: string): ApiError => ({
+  error: message,
+  code,
+});
