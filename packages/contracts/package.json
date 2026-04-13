@@ -8,14 +8,17 @@
     "coverage": "hardhat coverage",
     "lint": "solhint 'contracts/**/*.sol'",
     "typecheck": "tsc --noEmit",
+    "slither": ".venv/bin/slither . --exclude-informational --exclude-low",
     "deploy:testnet": "hardhat run scripts/deploy.ts --network wirefluidTestnet",
-    "clean": "hardhat clean && rm -rf typechain-types .turbo"
+    "verify:testnet": "hardhat run scripts/verify.ts --network wirefluidTestnet",
+    "clean": "hardhat clean && rm -rf typechain-types .turbo cache artifacts"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "latest",
-    "@openzeppelin/contracts": "latest",
-    "hardhat": "latest",
-    "solhint": "latest",
-    "typescript": "latest"
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.10",
+    "solhint": "^5.0.3",
+    "typescript": "^5.5.4"
   }
 }
