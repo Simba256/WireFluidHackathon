@@ -235,6 +235,7 @@
 
 - [x] ConnectWallet button — _ARCHITECTURE.md_ (SIWE message uses checksummed wallet address)
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
+- [x] Team logos sourced from ESPN Cricinfo and stored locally under `apps/web/public/team-logos` — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [ ] PlayerCard — _GAME_DESIGN.md_
 - [ ] TeamGrid (11 slots + cap bar) — _GAME_DESIGN.md_

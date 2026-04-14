@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
@@ -150,6 +151,36 @@ function matchStatusLabel(
   }
 
   return "Upcoming";
+}
+
+function TeamLogoPuck({
+  side,
+}: {
+  side: DashboardDTO["recentMatches"][number]["teamA"];
+}) {
+  return (
+    <div
+      className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-background bg-white shadow-xl"
+      style={{ boxShadow: `0 10px 24px ${side.accentColor}33` }}
+    >
+      {side.logoPath ? (
+        <Image
+          src={side.logoPath}
+          alt={side.name}
+          fill
+          className="object-contain p-1"
+          sizes="48px"
+        />
+      ) : (
+        <span
+          className="font-headline text-sm font-bold"
+          style={{ color: side.accentColor }}
+        >
+          {side.shortCode}
+        </span>
+      )}
+    </div>
+  );
 }
 
 function AppChrome({
@@ -979,13 +1010,7 @@ export function DashboardPage() {
                   <div className="flex flex-1 items-center gap-4">
                     <div className="flex -space-x-4">
                       {[matchItem.teamA, matchItem.teamB].map((side) => (
-                        <div
-                          key={side.name}
-                          className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-background font-headline text-sm font-bold text-background shadow-xl"
-                          style={{ backgroundColor: side.accentColor }}
-                        >
-                          {side.shortCode}
-                        </div>
+                        <TeamLogoPuck key={side.name} side={side} />
                       ))}
                     </div>
                     <div>

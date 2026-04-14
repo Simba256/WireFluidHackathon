@@ -138,11 +138,13 @@ export interface DashboardMatchActivityDTO {
     name: string;
     shortCode: string;
     accentColor: string;
+    logoPath: string;
   };
   teamB: {
     name: string;
     shortCode: string;
     accentColor: string;
+    logoPath: string;
   };
   venue: string | null;
   scheduledAt: string;

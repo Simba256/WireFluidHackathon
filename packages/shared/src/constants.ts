@@ -39,6 +39,7 @@ export interface FranchiseDefinition {
   shortCode: string;
   shortLabel: string;
   accentColor: string;
+  logoPath: string;
 }
 
 export const FRANCHISES: readonly FranchiseDefinition[] = [
@@ -47,36 +48,42 @@ export const FRANCHISES: readonly FranchiseDefinition[] = [
     shortCode: "IU",
     shortLabel: "Islamabad",
     accentColor: "#ef4444",
+    logoPath: "/team-logos/islamabad-united.png",
   },
   {
     name: "Karachi Kings",
     shortCode: "KK",
     shortLabel: "Karachi",
     accentColor: "#3b82f6",
+    logoPath: "/team-logos/karachi-kings.png",
   },
   {
     name: "Lahore Qalandars",
     shortCode: "LQ",
     shortLabel: "Lahore",
     accentColor: "#22c55e",
+    logoPath: "/team-logos/lahore-qalandars.png",
   },
   {
     name: "Multan Sultans",
     shortCode: "MS",
     shortLabel: "Multan",
     accentColor: "#a855f7",
+    logoPath: "/team-logos/multan-sultans.png",
   },
   {
     name: "Peshawar Zalmi",
     shortCode: "PZ",
     shortLabel: "Peshawar",
     accentColor: "#f59e0b",
+    logoPath: "/team-logos/peshawar-zalmi.png",
   },
   {
     name: "Quetta Gladiators",
     shortCode: "QG",
     shortLabel: "Quetta",
     accentColor: "#8b5cf6",
+    logoPath: "/team-logos/quetta-gladiators.png",
   },
 ] as const;
 
@@ -101,6 +108,7 @@ export function franchiseForName(name: string): FranchiseDefinition {
         .toUpperCase(),
       shortLabel: name,
       accentColor: "#54e98a",
+      logoPath: "",
     }
   );
 }
