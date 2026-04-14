@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-14 (03:27 PKT)
+> Last updated: 2026-04-15 (00:00 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -123,6 +123,7 @@
 - [x] Drizzle migration 0001 generated — _DATA_MODEL.md_
 - [x] `players.json` seed (~150 PSL 2026 players) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
+- [x] `matches.json` seed (3 demo fixtures with venues) — _DATA_MODEL.md_
 - [x] Tournament row seed — _DATA_MODEL.md_
 - [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — _SETUP.md_
 
@@ -166,6 +167,7 @@
 ### 4.3 Points & Sync
 
 - [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — _API.md_
+- [x] `GET /api/dashboard/me` (aggregated dashboard payload: balances, ranks, claim state, recent match activity) — _API.md_
 - [x] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — _API.md_
 
 ### 4.4 Claims
@@ -176,7 +178,7 @@
 ### 4.5 Leaderboards
 
 - [x] `GET /api/leaderboard/global` (paginated) — _API.md_ (`around` param deferred)
-- [~] `GET /api/leaderboard/prize` — lazy multicall read over distinct synced wallets; full Transfer-log scan + snapshot upsert deferred — _API.md_
+- [~] `GET /api/leaderboard/prize` — lazy contract-read refresh over distinct synced wallets; full Transfer-log scan + snapshot upsert deferred — _API.md_
 
 ### 4.6 Prizes & Trophies
 
@@ -219,7 +221,7 @@
 
 ### 5.3 App pages
 
-- [ ] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
 - [ ] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
 - [ ] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
@@ -239,7 +241,7 @@
 - [ ] LeaderboardRow — _API.md_
 - [ ] TierCard — _GAME_DESIGN.md_
 - [ ] TrophyNFT display — _API.md_
-- [ ] TransactionStatus (tx hash → explorer) — _ARCHITECTURE.md_
+- [x] TransactionStatus (tx hash → explorer) — _ARCHITECTURE.md_
 - [ ] Error message components — _API.md_
 
 ### 5.6 Hooks
@@ -278,8 +280,8 @@
 - [x] Unique nonce generation (`generateNonce`) — _ARCHITECTURE.md_
 - [x] EIP-712 voucher sign (5 min TTL) — _ARCHITECTURE.md_
 - [x] Gas estimate returned (~70k) — _API.md_
-- [ ] Frontend `PSLPoints.sync()` via wagmi — _ARCHITECTURE.md_
-- [ ] `Synced` event observer → DB confirm — _ARCHITECTURE.md_ (frontend will patch status post-tx)
+- [x] Frontend `PSLPoints.sync()` via wagmi — _ARCHITECTURE.md_
+- [~] Sync DB confirmation — frontend receipt-based confirm/cancel routes shipped; true event observer still pending — _ARCHITECTURE.md_
 - [ ] Prize leaderboard cache refresh trigger — _ARCHITECTURE.md_
 
 ---
@@ -290,7 +292,7 @@
 - [x] Pending claim slot reservation (insert `pending` row, catch unique-index race) — _ARCHITECTURE.md_
 - [x] EIP-712 ClaimVoucher sign (5 min TTL) — _ARCHITECTURE.md_
 - [x] Gas estimate returned (~120k) — _API.md_
-- [ ] Frontend `PSLPoints.claimTier()` — _ARCHITECTURE.md_
+- [x] Frontend `PSLPoints.claimTier()` via wagmi — _ARCHITECTURE.md_
 - [ ] `TierClaimed` + `TrophyMinted` observers → DB confirm — _ARCHITECTURE.md_
 - [x] Fulfillment status `pending_shipping` default (`claim.fulfillment_status='none'` initially, set post-confirm) — _API.md / DATA_MODEL.md_
 
@@ -306,7 +308,7 @@
   - [ ] Stale-check (`MAX(refreshed_at) > now() - 30s`) — _ARCHITECTURE.md_
   - [ ] `eth_getLogs` Transfer scan from `last_scanned_block + 1` — _ARCHITECTURE.md_
   - [ ] Upsert discovered wallets into `tracked_wallet` — _ARCHITECTURE.md_
-  - [ ] viem multicall: `balanceOf` + `earnedBalance` over all tracked wallets — _ARCHITECTURE.md_
+  - [ ] Batched contract reads: `balanceOf` + `earnedBalance` over all tracked wallets — _ARCHITECTURE.md_
   - [ ] Filter to `earnedBalance >= MIN_EARNED_TO_CLAIM_WEI` (10,000 BNDY — same as on-chain claim gate) — _ARCHITECTURE.md_
   - [ ] Rank by `balanceOf DESC` among qualified wallets — _GAME_DESIGN.md_
   - [ ] Atomic snapshot upsert — _ARCHITECTURE.md_
@@ -368,6 +370,7 @@
 - [ ] Local dev boots — _SETUP.md_
 - [ ] MetaMask on WireFluid + test WIRE — _SETUP.md_
 - [ ] SIWE sign-in → JWT — _ARCHITECTURE.md_
+- [x] Demo dashboard wallet seeded with team + scored matches in Neon — _PROJECT_TRACKER.md_
 - [ ] Team creation (11 players, cap enforced) — _GAME_DESIGN.md_
 - [ ] Admin scores a match → user*point updates — \_GAME_DESIGN.md*
 - [ ] Global leaderboard reflects — _API.md_
@@ -417,18 +420,18 @@
 
 ---
 
-## Snapshot — 2026-04-13
+## Snapshot — 2026-04-14
 
-| Area           | State                                                                  |
-| -------------- | ---------------------------------------------------------------------- |
-| Docs (spec)    | ✅ Complete                                                            |
-| Monorepo infra | ✅ Scaffolded                                                          |
-| Contracts      | ✅ Deployed + verified on WireFluid testnet                            |
-| DB schema      | ✅ Migrated + seeded on live Neon (150 players, 5 tiers, 1 tournament) |
-| Shared pkg     | ✅ Authored (chain, ABIs, DTOs, vouchers, constants)                   |
-| API routes     | ⚠️ Not started                                                         |
-| Frontend       | ⚠️ Not started                                                         |
-| Deployment     | ⚠️ Not started                                                         |
-| Demo artifacts | ⚠️ Not started                                                         |
+| Area           | State                                                                             |
+| -------------- | --------------------------------------------------------------------------------- |
+| Docs (spec)    | ✅ Complete                                                                       |
+| Monorepo infra | ✅ Scaffolded                                                                     |
+| Contracts      | ✅ Deployed + verified on WireFluid testnet                                       |
+| DB schema      | ✅ Migrated + seeded on live Neon (150 players, 5 tiers, 1 tournament, 3 matches) |
+| Shared pkg     | ✅ Authored (chain, ABIs, DTOs, vouchers, constants)                              |
+| API routes     | ✅ Core auth/gameplay/dashboard routes shipped                                    |
+| Frontend       | ⚠️ Landing + dashboard shipped; remaining app pages pending                       |
+| Deployment     | ⚠️ Contracts live; Vercel app deploy pending                                      |
+| Demo artifacts | ⚠️ Transactions log partially filled; demo run pending                            |
 
 **Suggested build order:** contracts → DB schema + seeds → shared types/ABIs → API routes → frontend pages (parallel) → deploy → demo transactions.

@@ -33,6 +33,7 @@ export interface MatchDTO {
   tournamentId: number;
   teamA: string;
   teamB: string;
+  venue: string | null;
   scheduledAt: string;
   status: "scheduled" | "live" | "completed";
   playedAt: string | null;
@@ -128,4 +129,80 @@ export interface TrophyDTO {
 export interface TrophiesResponseDTO {
   wallet: string;
   trophies: TrophyDTO[];
+}
+
+export interface DashboardMatchActivityDTO {
+  id: number;
+  teamA: {
+    name: string;
+    shortCode: string;
+    accentColor: string;
+  };
+  teamB: {
+    name: string;
+    shortCode: string;
+    accentColor: string;
+  };
+  venue: string | null;
+  scheduledAt: string;
+  playedAt: string | null;
+  points: number;
+}
+
+export interface DashboardDTO {
+  user: {
+    wallet: string;
+    displayName: string;
+    shortWallet: string;
+  };
+  tournament: {
+    id: number;
+    name: string;
+    seasonLabel: string;
+    subtitle: string;
+  };
+  balances: {
+    totalEarned: number;
+    onChainEarned: string;
+    walletBalance: string;
+    unsynced: number;
+    pendingSync: string;
+    minEarnedToQualify: number;
+  };
+  team: {
+    exists: boolean;
+    playerCount: number;
+    totalCredits: number | null;
+  };
+  global: {
+    rank: number | null;
+    totalPlayers: number;
+    percentile: number | null;
+  };
+  prize: {
+    qualified: boolean;
+    prizeRank: number | null;
+    prizeTotal: number;
+    percentile: number | null;
+    currentTier: {
+      id: TierId;
+      name: TierName;
+      displayName: string;
+      rankRequired: number;
+    } | null;
+    canClaim: boolean;
+    progressLabel: string;
+    progressPercent: number;
+  };
+  claim: {
+    status: "pending" | "confirmed";
+    tierId: TierId;
+    tierName: TierName;
+    tierDisplayName: string;
+    txHash: string | null;
+    tokenId: number | null;
+    claimedAt: string;
+    fulfillmentStatus: "none" | "pending_shipping" | "shipped" | "delivered";
+  } | null;
+  recentMatches: DashboardMatchActivityDTO[];
 }

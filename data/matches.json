@@ -1,0 +1,26 @@
+[
+  {
+    "teamA": "Lahore Qalandars",
+    "teamB": "Karachi Kings",
+    "venue": "Gaddafi Stadium",
+    "scheduledAt": "2026-03-14T14:00:00.000Z",
+    "status": "completed",
+    "playedAt": "2026-03-14T18:30:00.000Z"
+  },
+  {
+    "teamA": "Multan Sultans",
+    "teamB": "Peshawar Zalmi",
+    "venue": "Multan Cricket Stadium",
+    "scheduledAt": "2026-03-12T14:00:00.000Z",
+    "status": "completed",
+    "playedAt": "2026-03-12T18:30:00.000Z"
+  },
+  {
+    "teamA": "Quetta Gladiators",
+    "teamB": "Islamabad United",
+    "venue": "National Stadium Karachi",
+    "scheduledAt": "2026-03-11T14:00:00.000Z",
+    "status": "completed",
+    "playedAt": "2026-03-11T18:30:00.000Z"
+  }
+]

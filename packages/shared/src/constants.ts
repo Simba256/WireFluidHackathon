@@ -2,6 +2,12 @@ import { parseUnits } from "viem";
 
 export const BNDY_DECIMALS = 18 as const;
 
+export const APP_NAME = "BoundaryLine" as const;
+export const DEFAULT_MANAGER_NAME = "Fantasy Manager" as const;
+export const DASHBOARD_SEASON_LABEL = "Season 2026" as const;
+export const DASHBOARD_TOURNAMENT_SUBTITLE =
+  "PSL Edition - Pro League" as const;
+
 export const SALARY_CAP = 100 as const;
 export const TEAM_SIZE = 11 as const;
 
@@ -28,6 +34,77 @@ export const POINT_FORMULA = {
   DUCK_PENALTY: 5,
 } as const;
 
+export interface FranchiseDefinition {
+  name: string;
+  shortCode: string;
+  shortLabel: string;
+  accentColor: string;
+}
+
+export const FRANCHISES: readonly FranchiseDefinition[] = [
+  {
+    name: "Islamabad United",
+    shortCode: "IU",
+    shortLabel: "Islamabad",
+    accentColor: "#ef4444",
+  },
+  {
+    name: "Karachi Kings",
+    shortCode: "KK",
+    shortLabel: "Karachi",
+    accentColor: "#3b82f6",
+  },
+  {
+    name: "Lahore Qalandars",
+    shortCode: "LQ",
+    shortLabel: "Lahore",
+    accentColor: "#22c55e",
+  },
+  {
+    name: "Multan Sultans",
+    shortCode: "MS",
+    shortLabel: "Multan",
+    accentColor: "#a855f7",
+  },
+  {
+    name: "Peshawar Zalmi",
+    shortCode: "PZ",
+    shortLabel: "Peshawar",
+    accentColor: "#f59e0b",
+  },
+  {
+    name: "Quetta Gladiators",
+    shortCode: "QG",
+    shortLabel: "Quetta",
+    accentColor: "#8b5cf6",
+  },
+] as const;
+
+export const FRANCHISES_BY_NAME: Record<string, FranchiseDefinition> =
+  FRANCHISES.reduce(
+    (acc, franchise) => {
+      acc[franchise.name] = franchise;
+      return acc;
+    },
+    {} as Record<string, FranchiseDefinition>,
+  );
+
+export function franchiseForName(name: string): FranchiseDefinition {
+  return (
+    FRANCHISES_BY_NAME[name] ?? {
+      name,
+      shortCode: name
+        .split(" ")
+        .map((part) => part[0] ?? "")
+        .join("")
+        .slice(0, 2)
+        .toUpperCase(),
+      shortLabel: name,
+      accentColor: "#54e98a",
+    }
+  );
+}
+
 export const TIER = {
   TOP_50: 1,
   TOP_25: 2,
@@ -49,11 +126,41 @@ export interface TierDefinition {
 }
 
 export const TIERS: readonly TierDefinition[] = [
-  { id: TIER.RANK_1, name: "RANK_1", rankRequired: 1, stockLimit: 1, displayName: "Rank 1" },
-  { id: TIER.TOP_3, name: "TOP_3", rankRequired: 3, stockLimit: 3, displayName: "Top 3" },
-  { id: TIER.TOP_10, name: "TOP_10", rankRequired: 10, stockLimit: 10, displayName: "Top 10" },
-  { id: TIER.TOP_25, name: "TOP_25", rankRequired: 25, stockLimit: 25, displayName: "Top 25" },
-  { id: TIER.TOP_50, name: "TOP_50", rankRequired: 50, stockLimit: 50, displayName: "Top 50" },
+  {
+    id: TIER.RANK_1,
+    name: "RANK_1",
+    rankRequired: 1,
+    stockLimit: 1,
+    displayName: "Rank 1",
+  },
+  {
+    id: TIER.TOP_3,
+    name: "TOP_3",
+    rankRequired: 3,
+    stockLimit: 3,
+    displayName: "Top 3",
+  },
+  {
+    id: TIER.TOP_10,
+    name: "TOP_10",
+    rankRequired: 10,
+    stockLimit: 10,
+    displayName: "Top 10",
+  },
+  {
+    id: TIER.TOP_25,
+    name: "TOP_25",
+    rankRequired: 25,
+    stockLimit: 25,
+    displayName: "Top 25",
+  },
+  {
+    id: TIER.TOP_50,
+    name: "TOP_50",
+    rankRequired: 50,
+    stockLimit: 50,
+    displayName: "Top 50",
+  },
 ] as const;
 
 export const TIERS_BY_ID: Record<TierId, TierDefinition> = TIERS.reduce(
@@ -76,5 +183,10 @@ export const tierForRank = (rank: number): TierDefinition | null => {
 export const EIP712_DOMAIN_NAME = "BoundaryLine" as const;
 export const EIP712_DOMAIN_VERSION = "1" as const;
 
-export const PLAYER_ROLES = ["batsman", "bowler", "all_rounder", "wicket_keeper"] as const;
+export const PLAYER_ROLES = [
+  "batsman",
+  "bowler",
+  "all_rounder",
+  "wicket_keeper",
+] as const;
 export type PlayerRole = (typeof PLAYER_ROLES)[number];

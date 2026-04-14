@@ -109,6 +109,23 @@ export async function POST(
     );
 
     const result = await database.transaction(async (tx) => {
+      const previousScores = await tx
+        .select({
+          playerId: playerScore.playerId,
+          pointsAwarded: playerScore.pointsAwarded,
+        })
+        .from(playerScore)
+        .where(
+          and(
+            eq(playerScore.matchId, matchId),
+            inArray(playerScore.playerId, ids),
+          ),
+        );
+
+      const previousPointsByPlayer = new Map<number, bigint>(
+        previousScores.map((row) => [row.playerId, row.pointsAwarded]),
+      );
+
       await tx
         .insert(playerScore)
         .values(scoreRows)
@@ -140,13 +157,16 @@ export async function POST(
           ),
         );
 
-      const pointsByPlayer = new Map<number, bigint>(
-        scoreRows.map((r) => [r.playerId, r.pointsAwarded]),
+      const pointsDeltaByPlayer = new Map<number, bigint>(
+        scoreRows.map((row) => [
+          row.playerId,
+          row.pointsAwarded - (previousPointsByPlayer.get(row.playerId) ?? 0n),
+        ]),
       );
 
       const deltaByWallet = new Map<string, bigint>();
       for (const row of affectedTeams) {
-        const pts = pointsByPlayer.get(row.playerId) ?? 0n;
+        const pts = pointsDeltaByPlayer.get(row.playerId) ?? 0n;
         deltaByWallet.set(
           row.wallet,
           (deltaByWallet.get(row.wallet) ?? 0n) + pts,

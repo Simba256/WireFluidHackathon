@@ -37,7 +37,7 @@ export async function signClaimVoucher(voucher: ClaimVoucher): Promise<Hex> {
     primaryType: "ClaimVoucher",
     message: {
       user: voucher.user,
-      tierId: BigInt(voucher.tierId),
+      tierId: voucher.tierId,
       nonce: voucher.nonce,
     },
   });

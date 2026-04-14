@@ -1,14 +1,14 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { sql } from 'drizzle-orm';
-import { getDb } from '../src/client';
-import { player, prize, tournament } from '../src/schema';
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { sql } from "drizzle-orm";
+import { getDb } from "../src/client";
+import { match, player, prize, tournament } from "../src/schema";
 
 interface PlayerSeed {
   externalId: string;
   name: string;
   team: string;
-  role: 'batsman' | 'bowler' | 'all-rounder' | 'wicketkeeper';
+  role: "batsman" | "bowler" | "all-rounder" | "wicketkeeper";
   basePrice: number;
 }
 
@@ -21,17 +21,27 @@ interface PrizeSeed {
   rankRequired: number;
 }
 
-const ROOT = resolve(__dirname, '../../..');
+interface MatchSeed {
+  teamA: string;
+  teamB: string;
+  venue: string;
+  scheduledAt: string;
+  status: "scheduled" | "live" | "completed";
+  playedAt: string | null;
+}
+
+const ROOT = resolve(__dirname, "../../..");
 
 function loadJson<T>(relPath: string): T {
-  return JSON.parse(readFileSync(resolve(ROOT, relPath), 'utf8')) as T;
+  return JSON.parse(readFileSync(resolve(ROOT, relPath), "utf8")) as T;
 }
 
 async function main() {
   const db = getDb();
 
-  const players = loadJson<PlayerSeed[]>('data/psl-2026-players.json');
-  const prizes = loadJson<PrizeSeed[]>('data/prizes.json');
+  const players = loadJson<PlayerSeed[]>("data/psl-2026-players.json");
+  const prizes = loadJson<PrizeSeed[]>("data/prizes.json");
+  const matches = loadJson<MatchSeed[]>("data/matches.json");
 
   console.log(`Seeding ${players.length} players…`);
   await db
@@ -47,7 +57,7 @@ async function main() {
     )
     .onConflictDoNothing({ target: player.externalId });
 
-  console.log('Seeding tournament row…');
+  console.log("Seeding tournament row…");
   const existingTournament = await db.select().from(tournament).limit(1);
   const tournamentId =
     existingTournament[0]?.id ??
@@ -55,14 +65,16 @@ async function main() {
       await db
         .insert(tournament)
         .values({
-          name: 'PSL 2026 — Hackathon Cup',
-          status: 'active',
+          name: "PSL 2026 — Hackathon Cup",
+          status: "active",
           startedAt: sql`now()`,
         })
         .returning({ id: tournament.id })
     )[0]!.id;
 
-  console.log(`Seeding ${prizes.length} prize rows for tournament ${tournamentId}…`);
+  console.log(
+    `Seeding ${prizes.length} prize rows for tournament ${tournamentId}…`,
+  );
   await db
     .insert(prize)
     .values(
@@ -78,7 +90,28 @@ async function main() {
     )
     .onConflictDoNothing({ target: [prize.tournamentId, prize.tierId] });
 
-  console.log('Seed complete.');
+  const existingMatches = await db
+    .select({ id: match.id })
+    .from(match)
+    .limit(1);
+  if (existingMatches.length === 0) {
+    console.log(
+      `Seeding ${matches.length} match rows for tournament ${tournamentId}...`,
+    );
+    await db.insert(match).values(
+      matches.map((m) => ({
+        tournamentId,
+        teamA: m.teamA,
+        teamB: m.teamB,
+        venue: m.venue,
+        scheduledAt: new Date(m.scheduledAt),
+        status: m.status,
+        playedAt: m.playedAt ? new Date(m.playedAt) : null,
+      })),
+    );
+  }
+
+  console.log("Seed complete.");
   process.exit(0);
 }
 

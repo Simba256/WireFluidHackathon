@@ -61,9 +61,11 @@ user {
 ```
 
 **Indexes**
+
 - `PK (wallet)`
 
 **Notes**
+
 - `wallet` is the canonical identity key
 - No email, no password, no off-chain credentials
 - SIWE nonces are **not** stored on this row — they live in their own
@@ -89,10 +91,12 @@ siwe_nonce {
 ```
 
 **Indexes**
+
 - `PK (nonce)`
 - `INDEX (expires_at)` — for the lazy sweep of expired rows
 
 **Notes**
+
 - The nonce is not tied to a wallet at issue time. The wallet is only known
   at `/verify` time, when the signature is recovered. Binding at issue
   would require the client to send its address on `/nonce`, which opens a
@@ -129,6 +133,7 @@ player {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `UNIQUE (external_id)`
 - `INDEX (team)`
@@ -144,6 +149,7 @@ match {
   tournament_id integer       not null
   team_a        text          not null
   team_b        text          not null
+  venue         text          nullable              // optional stadium / ground label for dashboard activity
   scheduled_at  timestamptz   not null
   status        text          not null              // 'scheduled' | 'live' | 'completed'
   played_at     timestamptz   nullable
@@ -152,6 +158,7 @@ match {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `INDEX (tournament_id, status)`
 
@@ -178,6 +185,7 @@ player_score {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `UNIQUE (match_id, player_id)`
 - `INDEX (player_id)`
@@ -199,6 +207,7 @@ team {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `UNIQUE (user_wallet, tournament_id)`
 
@@ -218,6 +227,7 @@ team_player {
 ```
 
 **Indexes**
+
 - `PK (team_id, player_id)`
 - `INDEX (player_id)` — for reverse lookup during match scoring
 
@@ -240,10 +250,12 @@ user_point {
 ```
 
 **Indexes**
+
 - `PK (wallet, tournament_id)`
 - `INDEX (tournament_id, total_points DESC)` — for global leaderboard queries
 
 **Query for global leaderboard**
+
 ```sql
 SELECT wallet, total_points,
        RANK() OVER (ORDER BY total_points DESC) as rank
@@ -276,11 +288,13 @@ synced_record {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `UNIQUE (nonce)`
 - `INDEX (wallet, tournament_id)`
 
 **Purpose**
+
 - `total_synced_for_user = SUM(amount) WHERE wallet = X AND status = 'confirmed'`
 - `unsynced_delta = user_point.total_points - total_synced_for_user`
 
@@ -309,12 +323,14 @@ claim {
 ```
 
 **Indexes**
+
 - `PK (id)`
 - `UNIQUE (nonce)`
 - `UNIQUE (wallet, tournament_id) WHERE status IN ('pending', 'confirmed')` — enforces one active claim per user per tournament
 - `INDEX (tier_id, status)` — for stock calculations
 
 **Stock calculation**
+
 ```sql
 SELECT tier_id, COUNT(*) as claimed
 FROM claim
@@ -349,7 +365,7 @@ prize {
 
 ### `prize_leaderboard_snapshot`
 
-> **v1 status (2026-04-14):** the base table is migrated with `earned_balance`, `rank`, and `snapshot_block` columns, but the `wallet_balance` column and its supporting `(tournament_id, wallet_balance DESC)` index described below are **not yet applied**. The current `GET /api/leaderboard/prize` handler does the multicall + sort in-memory on each request and does not persist to this table. The schema below is the target shape for v1.5; a migration will add the `wallet_balance` column and wire up snapshot upserts when the full lazy-refresh pipeline (Transfer log scan + `tracked_wallet` + `indexer_cursor`) ships.
+> **v1 status (2026-04-14):** the base table is migrated with `earned_balance`, `rank`, and `snapshot_block` columns, but the `wallet_balance` column and its supporting `(tournament_id, wallet_balance DESC)` index described below are **not yet applied**. The current `GET /api/leaderboard/prize` handler does the contract reads + sort in-memory on each request and does not persist to this table. On WireFluid this currently uses plain `readContract()` calls in small batches rather than viem `multicall`, because the chain is not configured with `multicall3`. The schema below is the target shape for v1.5; a migration will add the `wallet_balance` column and wire up snapshot upserts when the full lazy-refresh pipeline (Transfer log scan + `tracked_wallet` + `indexer_cursor`) ships.
 
 Cache of the on-chain prize leaderboard. Refreshed lazily on read from `GET /api/leaderboard/prize` when older than 30s. Populated by a viem multicall of `balanceOf()` + `earnedBalance()` across all `tracked_wallet` entries.
 
@@ -368,16 +384,19 @@ prize_leaderboard_snapshot {
 ```
 
 **Indexes**
+
 - `PK (wallet, tournament_id)`
 - `INDEX (tournament_id, rank)`
 - `INDEX (tournament_id, wallet_balance DESC)` — supports rank recomputation
 
 **Population rules**:
+
 - Only wallets with `earned_balance >= 10_000_000000000000000000` (10,000 BNDY, 18 decimals — same as `MIN_EARNED_TO_CLAIM`) are inserted (qualification filter)
 - Rank is `ROW_NUMBER() OVER (ORDER BY wallet_balance DESC)` among qualified wallets
 - A wallet that previously qualified but has since dropped below the threshold (e.g. after a successful claim that reset its earnedBalance to 0) is deleted from this table on refresh
 
 **Refresh strategy**:
+
 - Lazy refresh: `GET /api/leaderboard/prize` checks `MAX(refreshed_at)` against `now() - interval '30 seconds'` and rebuilds the snapshot if stale
 - No cron — Vercel Hobby crons are daily-only (see `docs/ARCHITECTURE.md` §Indexing Strategy)
 - Client-side 5s polling on the leaderboard page gives the appearance of freshness
@@ -388,7 +407,7 @@ prize_leaderboard_snapshot {
 
 > **v1 status (2026-04-14):** **not yet migrated.** In v1 the `GET /api/leaderboard/prize` handler substitutes `SELECT DISTINCT wallet FROM synced_record WHERE tournament_id = $1` as its wallet source — everyone who has ever been issued a sync voucher is implicitly tracked. The dedicated `tracked_wallet` table ships alongside the Transfer-log scan in v1.5, at which point wallets who received BNDY via transfer but never called `/api/sync` will also be discoverable.
 
-List of wallet addresses the indexer should include in leaderboard multicalls. Populated from two sources: (1) voucher issuance in `/api/sync` and `/api/claim`, (2) Transfer log scanning during lazy refresh.
+List of wallet addresses the indexer should include in leaderboard reads. Populated from two sources: (1) voucher issuance in `/api/sync` and `/api/claim`, (2) Transfer log scanning during lazy refresh.
 
 ```ts
 tracked_wallet {
@@ -400,11 +419,13 @@ tracked_wallet {
 ```
 
 **Indexes**
+
 - `PK (wallet)`
 
 **Notes**
+
 - Never contains wallet balances or earned amounts — those are read from chain at refresh time
-- Contains *all* wallets ever seen, qualified or not; the qualification filter is applied downstream at snapshot-build time
+- Contains _all_ wallets ever seen, qualified or not; the qualification filter is applied downstream at snapshot-build time
 - A wallet that receives dust via transfer is tracked here but will not appear in `prize_leaderboard_snapshot` unless it earns 10,000 BNDY
 
 ---
@@ -424,6 +445,7 @@ indexer_cursor {
 ```
 
 **Notes**
+
 - Initialized at contract deploy block
 - Updated atomically at the end of each lazy refresh after a successful scan
 - Scan uses `eth_getLogs({ address, topics: [Transfer], fromBlock: last_scanned_block + 1, toBlock: 'latest' })`
@@ -483,6 +505,7 @@ pnpm db:seed        # load players + prizes + tournament row
 Loaded from `data/psl-2026-players.json` — roughly 150–200 player records spanning all six PSL franchises.
 
 Prize seed data in `data/prizes.json` — 5 tiers × 1 tournament = 5 prize rows.
+Match seed data in `data/matches.json` — 3 demo fixtures with venue labels for the dashboard activity feed.
 
 Tournament seed: one `tournament` row with `status: 'active'`.
 

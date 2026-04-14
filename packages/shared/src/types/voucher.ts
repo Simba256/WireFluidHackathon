@@ -25,7 +25,7 @@ export const SYNC_VOUCHER_TYPES = {
 export const CLAIM_VOUCHER_TYPES = {
   ClaimVoucher: [
     { name: "user", type: "address" },
-    { name: "tierId", type: "uint256" },
+    { name: "tierId", type: "uint8" },
     { name: "nonce", type: "uint256" },
   ],
 } as const;

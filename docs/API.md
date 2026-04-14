@@ -18,17 +18,21 @@
 ## Authentication
 
 ### `GET /api/auth/nonce`
+
 Returns a fresh nonce the user must include in their SIWE message.
 
 **Response** `200`
+
 ```json
 { "nonce": "a1b2c3d4e5f6" }
 ```
 
 ### `POST /api/auth/verify`
+
 Verifies a SIWE signature and issues a session JWT.
 
 **Request**
+
 ```json
 {
   "message": "<full SIWE message string>",
@@ -37,6 +41,7 @@ Verifies a SIWE signature and issues a session JWT.
 ```
 
 **Response** `200`
+
 ```json
 {
   "token": "eyJhbGc...",
@@ -48,10 +53,12 @@ Verifies a SIWE signature and issues a session JWT.
 ```
 
 **Errors**
+
 - `401` `{ error: "Invalid signature", code: "SIWE_INVALID" }`
 - `400` `{ error: "Nonce mismatch", code: "NONCE_MISMATCH" }`
 
 ### `POST /api/auth/logout`
+
 Invalidates the current session JWT (server-side blacklist).
 
 **Response** `204`
@@ -61,9 +68,11 @@ Invalidates the current session JWT (server-side blacklist).
 ## Players
 
 ### `GET /api/players`
+
 Returns the full PSL 2026 player catalog.
 
 **Response** `200`
+
 ```json
 {
   "players": [
@@ -87,11 +96,13 @@ Returns the full PSL 2026 player catalog.
 ## Teams
 
 ### `POST /api/teams`
+
 Create the authenticated user's team. One team per user per tournament.
 
 **Auth**: required
 
 **Request**
+
 ```json
 {
   "playerIds": [1, 5, 9, 12, 18, 23, 31, 38, 41, 44, 52]
@@ -99,6 +110,7 @@ Create the authenticated user's team. One team per user per tournament.
 ```
 
 **Response** `201`
+
 ```json
 {
   "team": {
@@ -112,17 +124,20 @@ Create the authenticated user's team. One team per user per tournament.
 ```
 
 **Errors**
+
 - `400` `{ error: "Must select exactly 11 players", code: "INVALID_TEAM_SIZE" }`
 - `400` `{ error: "Salary cap exceeded (103/100)", code: "CAP_EXCEEDED" }`
 - `400` `{ error: "Duplicate player", code: "DUPLICATE_PLAYER" }`
 - `409` `{ error: "Team already exists", code: "TEAM_EXISTS" }`
 
 ### `GET /api/teams/me`
+
 Get the authenticated user's team.
 
 **Auth**: required
 
 **Response** `200`
+
 ```json
 {
   "team": {
@@ -139,6 +154,7 @@ Get the authenticated user's team.
 ```
 
 **Errors**
+
 - `404` `{ error: "No team found", code: "NO_TEAM" }`
 
 ---
@@ -146,11 +162,13 @@ Get the authenticated user's team.
 ## Points & Sync
 
 ### `GET /api/points/me`
-Returns the caller's four key numbers: total earned (off-chain), on-chain synced, wallet balance, unsynced delta.
+
+Returns the caller's core score and sync summary. `prizeRank`, `prizeTotal`, `currentTierBand`, and `canClaim` are derived from the on-chain prize leaderboard, not the off-chain global leaderboard. `unsynced` excludes any still-pending sync vouchers.
 
 **Auth**: required
 
 **Response** `200`
+
 ```json
 {
   "wallet": "0xabcd...",
@@ -167,12 +185,91 @@ Returns the caller's four key numbers: total earned (off-chain), on-chain synced
 }
 ```
 
+### `GET /api/dashboard/me`
+
+Aggregated dashboard payload for the authenticated user. Combines user profile, tournament metadata, balances, team status, global standing, prize standing, active claim, and the last 3 scored matches for the user's lineup.
+
+**Auth**: required
+
+**Response** `200`
+
+```json
+{
+  "user": {
+    "wallet": "0xabcd...",
+    "displayName": "Fantasy Manager",
+    "shortWallet": "0xabc...1234"
+  },
+  "tournament": {
+    "id": 1,
+    "name": "PSL 2026 - Hackathon Cup",
+    "seasonLabel": "Season 2026",
+    "subtitle": "PSL Edition - Pro League"
+  },
+  "balances": {
+    "totalEarned": 24830,
+    "onChainEarned": "10000000000000000000000",
+    "walletBalance": "14500000000000000000000",
+    "unsynced": 14830,
+    "pendingSync": "0",
+    "minEarnedToQualify": 10000
+  },
+  "team": {
+    "exists": true,
+    "playerCount": 11,
+    "totalCredits": 98
+  },
+  "global": {
+    "rank": 47,
+    "totalPlayers": 2843,
+    "percentile": 98
+  },
+  "prize": {
+    "qualified": true,
+    "prizeRank": 8,
+    "prizeTotal": 89,
+    "percentile": 92,
+    "currentTier": {
+      "id": 3,
+      "name": "TOP_10",
+      "displayName": "Top 10",
+      "rankRequired": 10
+    },
+    "canClaim": true,
+    "progressLabel": "Standing Across Qualified Wallets",
+    "progressPercent": 92
+  },
+  "claim": null,
+  "recentMatches": [
+    {
+      "id": 18,
+      "teamA": {
+        "name": "Lahore Qalandars",
+        "shortCode": "LQ",
+        "accentColor": "#22c55e"
+      },
+      "teamB": {
+        "name": "Karachi Kings",
+        "shortCode": "KK",
+        "accentColor": "#3b82f6"
+      },
+      "venue": "Gaddafi Stadium",
+      "scheduledAt": "2026-03-14T14:00:00Z",
+      "playedAt": "2026-03-14T18:30:00Z",
+      "points": 4220
+    }
+  ]
+}
+```
+
 ### `POST /api/sync`
+
 Requests a signed mint voucher for the user's currently unsynced points.
 
 **Auth**: required
 
 **Response** `200`
+
 ```json
 {
   "voucher": {
@@ -189,6 +286,7 @@ Requests a signed mint voucher for the user's currently unsynced points.
 The frontend then submits `PSLPoints.sync(amount, nonce, signature)` via wagmi. No follow-up API call is needed; the backend picks up the on-chain `Synced` event and updates caches.
 
 **Errors**
+
 - `400` `{ error: "No points to sync", code: "NOTHING_TO_SYNC" }`
 - `403` `{ error: "Not authenticated", code: "UNAUTHORIZED" }`
 
@@ -197,11 +295,13 @@ The frontend then submits `PSLPoints.sync(amount, nonce, signature)` via wagmi. 
 ## Claims
 
 ### `POST /api/claim`
+
 Requests a signed claim voucher for a specific tier. Server validates eligibility and reserves a tier stock slot before returning.
 
 **Auth**: required
 
 **Request**
+
 ```json
 {
   "tierId": 3
@@ -211,6 +311,7 @@ Requests a signed claim voucher for a specific tier. Server validates eligibilit
 Tier IDs: `1 = TOP_50`, `2 = TOP_25`, `3 = TOP_10`, `4 = TOP_3`, `5 = RANK_1`.
 
 **Response** `200`
+
 ```json
 {
   "voucher": {
@@ -229,28 +330,34 @@ Tier IDs: `1 = TOP_50`, `2 = TOP_25`, `3 = TOP_10`, `4 = TOP_3`, `5 = RANK_1`.
 ```
 
 **Errors**
+
 - `400` `{ error: "Below 10,000 BNDY earned minimum", code: "BELOW_THRESHOLD" }`
 - `400` `{ error: "Not in this tier band", code: "WRONG_TIER" }`
 - `409` `{ error: "Tier out of stock", code: "NO_STOCK" }`
 - `409` `{ error: "Already claimed this tournament", code: "ALREADY_CLAIMED" }`
 
 ### `GET /api/claim/status`
+
 Returns the caller's claim history in the current tournament.
 
 **Auth**: required
 
 **Response** `200`
+
 ```json
 {
   "claim": null
 }
 ```
+
 or once claimed:
+
 ```json
 {
   "claim": {
     "tierId": 3,
-    "tierName": "Top 10",
+    "tierName": "TOP_10",
+    "tierDisplayName": "Top 10",
     "txHash": "0x...",
     "tokenId": 18,
     "claimedAt": "2026-04-13T13:45:00Z",
@@ -264,14 +371,17 @@ or once claimed:
 ## Leaderboards
 
 ### `GET /api/leaderboard/global`
+
 Off-chain global leaderboard. Ranks all registered users by total earned points. Supports pagination.
 
 **Query params**
+
 - `limit` — default `100`, max `500`
 - `offset` — default `0`
 - `around` — optional wallet address; returns `±25` around that user's rank
 
 **Response** `200`
+
 ```json
 {
   "entries": [
@@ -284,17 +394,20 @@ Off-chain global leaderboard. Ranks all registered users by total earned points.
 ```
 
 ### `GET /api/leaderboard/prize`
+
 On-chain prize leaderboard. **Ranked by `balanceOf` (wallet balance), filtered to wallets with `earnedBalance >= 10,000 BNDY`** — the same threshold the on-chain `claimTier()` enforces for prize claims. Reads from cached snapshot (`prize_leaderboard_snapshot`) with lazy refresh on >30s staleness.
 
-> **v1 implementation note (2026-04-14):** the shipped handler performs the multicall + filter + sort **in-memory on every request** against `SELECT DISTINCT wallet FROM synced_record`. It does not yet read from `prize_leaderboard_snapshot`, does not run the 30s cache check, and does not scan Transfer logs. The response shape below is final; only the persistence and cache layers are pending (v1.5). See `docs/ARCHITECTURE.md` §Indexing Strategy → "v1 implementation status".
+> **v1 implementation note (2026-04-14):** the shipped handler performs the contract reads + filter + sort **in-memory on every request** against `SELECT DISTINCT wallet FROM synced_record`. On WireFluid this currently uses plain `readContract()` calls in small batches rather than viem `multicall`, because the chain is not configured with `multicall3`. It does not yet read from `prize_leaderboard_snapshot`, does not run the 30s cache check, and does not scan Transfer logs. The response shape below is final; only the persistence and cache layers are pending (v1.5). See `docs/ARCHITECTURE.md` §Indexing Strategy → "v1 implementation status".
 
 Unqualified wallets (those below the 10,000 BNDY earned threshold) do NOT appear in this response regardless of their wallet balance. This is the core pure-whale mitigation.
 
 **Query params**
+
 - `limit` — default `100`, max `500`
 - `offset` — default `0`
 
 **Response** `200`
+
 ```json
 {
   "entries": [
@@ -315,6 +428,7 @@ Unqualified wallets (those below the 10,000 BNDY earned threshold) do NOT appear
 ```
 
 **Field semantics**
+
 - `rank` — position among qualified wallets, ordered by `walletBalance DESC`
 - `walletBalance` — `PSLPoints.balanceOf(wallet)` as uint256 string, the rank metric
 - `earnedBalance` — `PSLPoints.earnedBalance(wallet)` as uint256 string, the qualification + claim metric
@@ -327,9 +441,11 @@ Unqualified wallets (those below the 10,000 BNDY earned threshold) do NOT appear
 ## Prizes
 
 ### `GET /api/prizes`
+
 Returns the tier catalog with current stock levels.
 
 **Response** `200`
+
 ```json
 {
   "tiers": [
@@ -355,9 +471,11 @@ Returns the tier catalog with current stock levels.
 ## Trophies
 
 ### `GET /api/trophies/:wallet`
+
 Returns the trophy NFTs held by a given wallet. Reads from the `PSLTrophies` contract.
 
 **Response** `200`
+
 ```json
 {
   "wallet": "0xabcd...",
@@ -381,21 +499,26 @@ Returns the trophy NFTs held by a given wallet. Reads from the `PSLTrophies` con
 All admin endpoints require a separate `X-Admin-Key` header matching the `ADMIN_API_KEY` env var.
 
 ### `POST /api/admin/matches`
+
 Create a match record.
 
 **Request**
+
 ```json
 {
   "teamA": "Karachi Kings",
   "teamB": "Lahore Qalandars",
+  "venue": "National Stadium Karachi",
   "scheduledAt": "2026-04-14T15:00:00Z"
 }
 ```
 
 ### `POST /api/admin/matches/:id/scores`
+
 Submit final scores for a match. This triggers point calculation for all teams.
 
 **Request**
+
 ```json
 {
   "playerStats": [
@@ -407,6 +530,7 @@ Submit final scores for a match. This triggers point calculation for all teams.
 ```
 
 **Response** `200`
+
 ```json
 {
   "matchId": 5,
@@ -416,6 +540,7 @@ Submit final scores for a match. This triggers point calculation for all teams.
 ```
 
 ### `POST /api/admin/tournaments/:id/close`
+
 Marks a tournament as closed. No more scoring accepted. Claims remain open for grace period.
 
 ---
@@ -423,6 +548,7 @@ Marks a tournament as closed. No more scoring accepted. Claims remain open for g
 ## Rate Limits (v2)
 
 Current implementation has no rate limiting beyond Vercel's defaults. For v2:
+
 - `/api/auth/nonce`: 10/min per IP
 - `/api/sync`: 1/min per wallet
 - `/api/claim`: 1/min per wallet

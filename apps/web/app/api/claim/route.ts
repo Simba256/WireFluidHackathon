@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq, sql } from "drizzle-orm";
 import type { Address } from "viem";
-import {
-  claim,
-  getActiveTournamentId,
-  getTierStockClaimed,
-  prize,
-  userPoint,
-} from "@boundaryline/db";
+import { claim, getActiveTournamentId, prize } from "@boundaryline/db";
 import {
   API_ERROR_CODES,
   MIN_EARNED_TO_CLAIM_WEI,
   TIERS_BY_ID,
   VOUCHER_TTL_SECONDS,
-  tierForRank,
   type TierId,
 } from "@boundaryline/shared";
 import { z } from "zod";
@@ -25,6 +18,11 @@ import {
   internalError,
   zodToResponse,
 } from "@/lib/errors";
+import {
+  expireStaleClaims,
+  getPrizeLeaderboardState,
+  getPrizeStandingForWallet,
+} from "@/lib/prize-state";
 import { readEarnedBalance } from "@/lib/viem";
 import { generateNonce, signClaimVoucher } from "@/lib/voucher";
 
@@ -58,6 +56,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const database = db();
     const tournamentId = await getActiveTournamentId(database);
+    await expireStaleClaims(database, tournamentId, wallet);
 
     const earned = await readEarnedBalance(wallet as Address);
     if (earned < MIN_EARNED_TO_CLAIM_WEI) {
@@ -67,30 +66,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const [pointRow] = await database
-      .select({
-        rank: sql<number>`(
-          SELECT COUNT(*)::int + 1 FROM ${userPoint} up2
-          WHERE up2.tournament_id = ${tournamentId}
-            AND up2.total_points > ${userPoint.totalPoints}
-        )`.as("rank"),
-      })
-      .from(userPoint)
-      .where(
-        and(
-          eq(userPoint.wallet, wallet),
-          eq(userPoint.tournamentId, tournamentId),
-        ),
-      )
-      .limit(1);
+    const prizeState = await getPrizeLeaderboardState(database, tournamentId, [
+      wallet,
+    ]);
+    const prizeStanding = getPrizeStandingForWallet(prizeState, wallet);
 
-    const rank = pointRow?.rank;
-    if (!rank) {
-      return errorResponse(API_ERROR_CODES.NO_TEAM, "No points recorded", 400);
-    }
-
-    const eligibleTier = tierForRank(rank);
-    if (!eligibleTier || eligibleTier.id !== tierId) {
+    if (
+      !prizeStanding ||
+      !prizeStanding.tier ||
+      prizeStanding.tier.id !== tierId
+    ) {
       return badRequest(
         API_ERROR_CODES.WRONG_TIER,
         `Not in tier band ${tier.displayName}`,
@@ -116,9 +101,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const stockClaimed = await getTierStockClaimed(database, tournamentId);
-    const taken = stockClaimed.find((r) => r.tierId === tierId)?.claimed ?? 0;
-    if (taken >= tier.stockLimit) {
+    if (!prizeStanding.canClaim) {
       return errorResponse(API_ERROR_CODES.NO_STOCK, "Tier out of stock", 409);
     }
 
@@ -132,6 +115,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const nonce = generateNonce();
     const expiresAt = new Date(Date.now() + VOUCHER_TTL_SECONDS * 1000);
+
+    const voucher = {
+      user: wallet as Address,
+      tierId: Number(tierId),
+      nonce,
+    };
+    const signature = await signClaimVoucher(voucher);
 
     try {
       await database.insert(claim).values({
@@ -153,13 +143,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       }
       throw err;
     }
-
-    const voucher = {
-      user: wallet as Address,
-      tierId: Number(tierId),
-      nonce,
-    };
-    const signature = await signClaimVoucher(voucher);
 
     return NextResponse.json({
       voucher: {

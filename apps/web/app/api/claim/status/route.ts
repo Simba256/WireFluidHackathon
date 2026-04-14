@@ -5,6 +5,7 @@ import { TIERS_BY_ID, type TierId } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { internalError } from "@/lib/errors";
+import { expireStaleClaims } from "@/lib/prize-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const database = db();
     const tournamentId = await getActiveTournamentId(database);
+    await expireStaleClaims(database, tournamentId, wallet);
 
     const [row] = await database
       .select()
@@ -38,6 +40,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       claim: {
         tierId: row.tierId,
         tierName: tier?.name ?? null,
+        tierDisplayName: tier?.displayName ?? null,
         status: row.status,
         txHash: row.txHash,
         tokenId: row.trophyTokenId != null ? Number(row.trophyTokenId) : null,

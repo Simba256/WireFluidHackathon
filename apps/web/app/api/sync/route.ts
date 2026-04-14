@@ -77,14 +77,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         : 0n;
 
     if (delta <= 0n) {
-      return badRequest(
-        API_ERROR_CODES.NOTHING_TO_SYNC,
-        "No points to sync",
-      );
+      return badRequest(API_ERROR_CODES.NOTHING_TO_SYNC, "No points to sync");
     }
 
     const nonce = generateNonce();
     const expiresAt = new Date(Date.now() + VOUCHER_TTL_SECONDS * 1000);
+
+    const voucher = {
+      user: wallet as Address,
+      amount: delta,
+      nonce,
+    };
+    const signature = await signSyncVoucher(voucher);
 
     await database.insert(syncedRecord).values({
       wallet,
@@ -94,13 +98,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: "pending",
       voucherExpiresAt: expiresAt,
     });
-
-    const voucher = {
-      user: wallet as Address,
-      amount: delta,
-      nonce,
-    };
-    const signature = await signSyncVoucher(voucher);
 
     return NextResponse.json({
       voucher: {

@@ -8,6 +8,7 @@ import {
 import { TIERS_BY_ID, type TierId } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { internalError } from "@/lib/errors";
+import { expireStaleClaims } from "@/lib/prize-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export async function GET(): Promise<NextResponse> {
   try {
     const database = db();
     const tournamentId = await getActiveTournamentId(database);
+    await expireStaleClaims(database, tournamentId);
 
     const prizeRows = await database
       .select()

@@ -12,6 +12,7 @@ export const dynamic = "force-dynamic";
 const bodySchema = z.object({
   teamA: z.string().min(1),
   teamB: z.string().min(1),
+  venue: z.string().min(1).optional(),
   scheduledAt: z.string().datetime(),
 });
 
@@ -37,6 +38,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         tournamentId,
         teamA: body.teamA,
         teamB: body.teamB,
+        venue: body.venue ?? null,
         scheduledAt: new Date(body.scheduledAt),
         status: "scheduled",
       })
@@ -50,6 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           tournamentId: inserted.tournamentId,
           teamA: inserted.teamA,
           teamB: inserted.teamB,
+          venue: inserted.venue,
           scheduledAt: inserted.scheduledAt.toISOString(),
           status: inserted.status,
           playedAt: inserted.playedAt?.toISOString() ?? null,

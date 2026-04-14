@@ -2,21 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import {
-  claim,
-  getActiveTournamentId,
-  userPoint,
-} from "@boundaryline/db";
-import {
-  BNDY_DECIMALS,
-  MIN_EARNED_TO_CLAIM_WEI,
-  TIERS,
-  tierForRank,
-} from "@boundaryline/shared";
+import { getActiveTournamentId, userPoint } from "@boundaryline/db";
+import { BNDY_DECIMALS, TIERS } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { internalError } from "@/lib/errors";
 import { readEarnedBalance, readWalletBalance } from "@/lib/viem";
+import {
+  expireStaleSyncRecords,
+  getPendingSyncAmount,
+  getPrizeLeaderboardState,
+  getPrizeStandingForWallet,
+} from "@/lib/prize-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -43,16 +40,23 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const totalEarnedPoints = pointRow?.totalPoints ?? 0n;
 
-    const [onChainEarned, walletBalance] = await Promise.all([
-      readEarnedBalance(wallet as Address),
-      readWalletBalance(wallet as Address),
-    ]);
+    await expireStaleSyncRecords(database, tournamentId, wallet);
+
+    const [onChainEarned, walletBalance, pendingWei, prizeState] =
+      await Promise.all([
+        readEarnedBalance(wallet as Address),
+        readWalletBalance(wallet as Address),
+        getPendingSyncAmount(database, wallet, tournamentId),
+        getPrizeLeaderboardState(database, tournamentId, [wallet]),
+      ]);
 
     // Off-chain points are integers; on-chain earned is 18-decimals BNDY.
     // 1 point == 1 BNDY (10^18 wei).
     const totalEarnedWei = totalEarnedPoints * 10n ** BigInt(BNDY_DECIMALS);
     const unsyncedWei =
-      totalEarnedWei > onChainEarned ? totalEarnedWei - onChainEarned : 0n;
+      totalEarnedWei > onChainEarned + pendingWei
+        ? totalEarnedWei - onChainEarned - pendingWei
+        : 0n;
 
     const [rankRow] = await database
       .select({
@@ -85,24 +89,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const globalRank = rankRow?.rank ?? null;
     const globalTotal = totalRow?.count ?? 0;
-
-    const qualified = onChainEarned >= MIN_EARNED_TO_CLAIM_WEI;
-    const tier = globalRank != null ? tierForRank(globalRank) : null;
-
-    const [existingClaim] = await database
-      .select({ id: claim.id })
-      .from(claim)
-      .where(
-        and(
-          eq(claim.wallet, wallet),
-          eq(claim.tournamentId, tournamentId),
-          sql`${claim.status} IN ('pending', 'confirmed')`,
-        ),
-      )
-      .limit(1);
-
-    const canClaim =
-      qualified && tier != null && !existingClaim;
+    const prizeStanding = getPrizeStandingForWallet(prizeState, wallet);
 
     return NextResponse.json({
       wallet,
@@ -112,10 +99,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       unsynced: Number(formatUnits(unsyncedWei, BNDY_DECIMALS).split(".")[0]),
       globalRank,
       globalTotal,
-      prizeRank: null,
-      prizeTotal: 0,
-      currentTierBand: tier?.name ?? null,
-      canClaim,
+      prizeRank: prizeStanding?.rank ?? null,
+      prizeTotal: prizeState.totalQualified,
+      currentTierBand: prizeStanding?.tier?.name ?? null,
+      canClaim: prizeStanding?.canClaim ?? false,
       tiers: TIERS.map((t) => ({
         id: t.id,
         name: t.name,

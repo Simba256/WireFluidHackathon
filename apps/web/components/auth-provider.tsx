@@ -62,6 +62,7 @@ interface AuthContextValue {
   isConnected: boolean;
   isWrongNetwork: boolean;
   status: DerivedStatus;
+  token: string | null;
   connectAndAuthenticate: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -320,6 +321,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isConnected,
       isWrongNetwork,
       status,
+      token: session?.token ?? null,
       connectAndAuthenticate,
       logout,
     }),
@@ -332,6 +334,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isConnected,
       isWrongNetwork,
       logout,
+      session?.token,
       normalizedAddress,
       status,
     ],
