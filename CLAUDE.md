@@ -20,18 +20,22 @@
 This project uses two tracking files. They are **not** redundant.
 
 ### `PROJECT_TRACKER.md` — the dashboard
+
 - **Purpose**: current, recent, and near-term activity. Living snapshot, not history.
 - **Read when**: starting a session.
 - **Update when**: you start a task, finish a task, hit a blocker, make a decision worth logging, or change project status.
 - **Format rules**: absolute dates (YYYY-MM-DD), ~10 recent completions max, roll older items off. Dashboard, not a journal.
 
 ### `BUILD_CHECKLIST.md` — the master scope
+
 - **Purpose**: exhaustive spec-derived checklist covering every item from `docs/*.md`. Tracks scope from spec → shipped across 13 sections (infra, contracts, DB, shared, API, frontend, scoring, sync, claim, leaderboard, security, deployment, demo).
 - **Read when**: planning work, scoping a feature, checking what's left in an area, verifying nothing was missed.
 - **Update when**: any checklist item changes state. Flip `[ ]` → `[~]` when starting, `[~]` → `[x]` when done. Add new items if scope genuinely grows (and cite the doc).
 
 ### MANDATORY: update both after every task
-After completing *any* unit of work — however small:
+
+After completing _any_ unit of work — however small:
+
 1. Flip the relevant box(es) in `BUILD_CHECKLIST.md`.
 2. Move the item in `PROJECT_TRACKER.md` (In Progress → Recently Completed, today's date).
 3. If new work surfaced, add it to both files.
@@ -63,16 +67,16 @@ Stack: **pnpm + Turborepo**, **Next.js 16 App Router** (Fluid Compute on Vercel)
 
 ## 4. WireFluid testnet — platform constants
 
-| | |
-|---|---|
-| Chain ID | `92533` |
-| RPC | `https://evm.wirefluid.com` |
-| Explorer | `https://wirefluidscan.com` |
-| Faucet | `https://faucet.wirefluid.com` |
-| Native currency | WIRE |
-| Finality | ~5s |
-| Gas (sync) | ~$0.0005 |
-| Gas (claim) | ~$0.001 |
+|                 |                                |
+| --------------- | ------------------------------ |
+| Chain ID        | `92533`                        |
+| RPC             | `https://evm.wirefluid.com`    |
+| Explorer        | `https://wirefluidscan.com`    |
+| Faucet          | `https://faucet.wirefluid.com` |
+| Native currency | WIRE                           |
+| Finality        | ~5s                            |
+| Gas (sync)      | ~$0.0005                       |
+| Gas (claim)     | ~$0.001                        |
 
 Never hard-code these outside `packages/shared` — import from the shared chain config.
 
@@ -101,16 +105,18 @@ If a change seems to contradict any of these, stop and ask.
 ## 6. Coding standards
 
 ### General
-- TypeScript everywhere. No `any` unless unavoidable and commented with *why*.
+
+- TypeScript everywhere. No `any` unless unavoidable and commented with _why_.
 - Zod validation at every external boundary (API request bodies, env parsing, external API responses). Never trust internal code boundaries.
 - Server re-derives authoritative state. **Never** trust client-submitted points, ranks, eligibility, or tier bands.
 - No hardcoded secrets. Env vars via `packages/shared` typed env loader.
 - No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM_WEI, TEAM_SIZE, tier stocks, formula multipliers).
 - Handle errors explicitly at boundaries; trust internal code.
 - Write testable code: pure functions, dependency injection for contract/DB clients.
-- Self-documenting names over comments. Comments only explain *why*, not *what*.
+- Self-documenting names over comments. Comments only explain _why_, not _what_.
 
 ### Next.js / frontend (apps/web)
+
 - **App Router** only. Server Components by default; Client Components only when you need state, effects, or wallet hooks.
 - API routes under `app/api/*/route.ts` — Fluid Compute runtime (Node.js, not edge).
 - Standard error shape: `{ error: string, code: string }` on every non-2xx — match `docs/API.md`.
@@ -119,6 +125,7 @@ If a change seems to contradict any of these, stop and ask.
 - Tailwind + shadcn/ui only. No other UI libraries. Follow Impeccable design principles (no gray on color, tinted neutrals, no nested cards, avoid Inter/Arial unless asked).
 
 ### Smart contracts (packages/contracts)
+
 - Solidity `0.8.24`, optimizer runs `200`, OpenZeppelin v5.
 - No `tx.origin`, ever. Use `msg.sender`.
 - Checks-Effects-Interactions pattern on every state-changing function.
@@ -130,6 +137,7 @@ If a change seems to contradict any of these, stop and ask.
 - Never log signer private keys. Deploy artifacts go to `packages/contracts/deployments/wirefluid-testnet.json`.
 
 ### Database (packages/db)
+
 - Drizzle schema in `src/schema.ts`. Migrations committed to repo.
 - Wallet addresses stored **lowercase `0x...`** with CHECK constraint. Normalize on write.
 - Indexes as spec'd in `docs/DATA_MODEL.md` — leaderboard queries depend on them.
@@ -137,6 +145,7 @@ If a change seems to contradict any of these, stop and ask.
 - Unique partial index on `claim(wallet, tournament_id) WHERE status IN ('pending', 'confirmed')` to block double-claims at DB level.
 
 ### API (apps/web/app/api)
+
 - Every route handler: (1) Zod-validate input, (2) auth check (SIWE JWT or admin key), (3) business logic, (4) standard error shape on failure.
 - Admin routes gated by `X-Admin-Key` header against `ADMIN_API_KEY` env.
 - SIWE JWT in `Authorization: Bearer <token>` header on all user-scoped routes.
@@ -162,6 +171,7 @@ From `docs/SECURITY.md`. Any change touching these needs a corresponding test an
 ## 8. Core data flows (memorize)
 
 ### Sync (off-chain points → on-chain BNDY)
+
 1. User clicks Sync on dashboard
 2. `POST /api/sync` → backend computes `delta = totalEarned - onChainEarned`
 3. Backend generates nonce, signs EIP-712 `SyncVoucher { user, amount, nonce }`, stores `synced_record` (status=pending, expires in 5min)
@@ -170,6 +180,7 @@ From `docs/SECURITY.md`. Any change touching these needs a corresponding test an
 6. Backend observes event → updates `synced_record` to confirmed, refreshes prize leaderboard snapshot
 
 ### Claim (earned points → prize + trophy)
+
 1. User picks eligible tier on prizes page
 2. `POST /api/claim { tierId }` → backend checks: `earnedBalance >= 10_000e18`, rank in tier band, stock available, no prior active claim
 3. Backend inserts pending `claim` row (reserves slot), signs EIP-712 `ClaimVoucher { user, tierId, nonce }`, TTL 5min
@@ -184,6 +195,7 @@ Full detail: `docs/ARCHITECTURE.md` §Core Data Flows, `docs/API.md`.
 ## 9. Project data containment
 
 All project data lives **inside** the repo. Nothing in system root, home, or anywhere outside `WireFluid/`:
+
 - `.venv`, `node_modules`, build artifacts, logs, caches, uploaded files, PID/lock files — all project-local.
 - Never `pip install` globally, never write outside project dir, always use relative paths or project-rooted absolute paths.
 - Override any tool default that writes outside (e.g., `--prefix`, `--target`).
@@ -194,23 +206,27 @@ All project data lives **inside** the repo. Nothing in system root, home, or any
 ## 10. Workflow
 
 ### Starting a session
+
 1. Read `PROJECT_TRACKER.md` (current state).
 2. Read `BUILD_CHECKLIST.md` (scope of any area you'll touch).
 3. Read the relevant doc(s) under `docs/` for the task area.
 
 ### During a task
+
 - Do exactly what was asked. No "while I'm here" bonus work, no unsolicited refactors, no speculative abstractions.
 - If uncertain, ask. Don't silently make architectural decisions.
 - Run tests for the affected package before declaring done. If tests don't exist, write them.
 - Keep commits scoped and descriptive. No Claude/Anthropic attribution in commits, PRs, messages, or any generated content.
 
 ### Finishing a task
+
 1. Tests pass.
 2. Update **both** `PROJECT_TRACKER.md` and `BUILD_CHECKLIST.md`.
 3. Commit and push (only when explicitly asked or when finishing a requested unit of work).
 4. If the user explicitly asked for a fix/feature, one complete unit = fix + commit + push.
 
 ### Risky actions — always confirm first
+
 - Destructive git (`reset --hard`, force push, branch -D)
 - Schema-destructive DB ops (dropping tables, destructive migrations on prod)
 - Deploying contracts or re-running `setTrophies`
@@ -223,12 +239,12 @@ Authorization is scoped to what was asked. A green light once is not a green lig
 
 ## 11. Testing expectations
 
-| Area | Framework | Bar |
-|---|---|---|
-| Contracts | Hardhat + Chai | >90% line coverage, Slither clean, solhint clean |
-| DB / scoring | Vitest or Jest with a real Neon branch | Every point-formula edge case |
-| API routes | Route handler integration tests | All error codes exercised |
-| Frontend | Playwright smoke tests on golden-path flows (SIWE → team → score → sync → claim) | Before declaring "demo ready" |
+| Area         | Framework                                                                        | Bar                                              |
+| ------------ | -------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Contracts    | Hardhat + Chai                                                                   | >90% line coverage, Slither clean, solhint clean |
+| DB / scoring | Vitest or Jest with a real Neon branch                                           | Every point-formula edge case                    |
+| API routes   | Route handler integration tests                                                  | All error codes exercised                        |
+| Frontend     | Playwright smoke tests on golden-path flows (SIWE → team → score → sync → claim) | Before declaring "demo ready"                    |
 
 If you touch UI, start the dev server and manually verify the flow in a browser. Type checks and unit tests verify code correctness, not feature correctness — say so explicitly if you can't test visually.
 
@@ -237,6 +253,7 @@ If you touch UI, start the dev server and manually verify the flow in a browser.
 ## 12. Out of scope for v1 (do not build unless asked)
 
 From `docs/ROADMAP.md`:
+
 - P2P point exchange / fixed-price prize catalog
 - Real-world prize fulfillment webhooks
 - Merkle-root commitments for scoring (v2)
@@ -250,19 +267,19 @@ From `docs/ROADMAP.md`:
 
 ## 13. Quick reference
 
-| Need | File |
-|---|---|
-| Current tasks | `PROJECT_TRACKER.md` |
-| Full scope / what's left | `BUILD_CHECKLIST.md` |
-| System design + data flows | `docs/ARCHITECTURE.md` |
-| Contract specs | `docs/CONTRACTS.md` |
-| DB schema + indexes | `docs/DATA_MODEL.md` |
-| API endpoints + error codes | `docs/API.md` |
-| Game rules + scoring formula | `docs/GAME_DESIGN.md` |
-| Token model + invariants | `docs/TOKENOMICS.md` |
-| Threat model + mitigations | `docs/SECURITY.md` |
-| Deploy runbook | `docs/DEPLOYMENT.md` |
-| Chain config | `docs/WIREFLUID.md` |
-| v1.5 / v2 roadmap | `docs/ROADMAP.md` |
-| Local dev setup | `docs/SETUP.md` |
-| Demo tx log (post-deploy) | `docs/DEMO_TRANSACTIONS.md` |
+| Need                         | File                        |
+| ---------------------------- | --------------------------- |
+| Current tasks                | `PROJECT_TRACKER.md`        |
+| Full scope / what's left     | `BUILD_CHECKLIST.md`        |
+| System design + data flows   | `docs/ARCHITECTURE.md`      |
+| Contract specs               | `docs/CONTRACTS.md`         |
+| DB schema + indexes          | `docs/DATA_MODEL.md`        |
+| API endpoints + error codes  | `docs/API.md`               |
+| Game rules + scoring formula | `docs/GAME_DESIGN.md`       |
+| Token model + invariants     | `docs/TOKENOMICS.md`        |
+| Threat model + mitigations   | `docs/SECURITY.md`          |
+| Deploy runbook               | `docs/DEPLOYMENT.md`        |
+| Chain config                 | `docs/WIREFLUID.md`         |
+| v1.5 / v2 roadmap            | `docs/ROADMAP.md`           |
+| Local dev setup              | `docs/SETUP.md`             |
+| Demo tx log (post-deploy)    | `docs/DEMO_TRANSACTIONS.md` |
