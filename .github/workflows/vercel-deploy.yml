@@ -1,0 +1,25 @@
+name: Trigger Vercel Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel deploy hook
+        env:
+          VERCEL_HOOK_MAIN: ${{ secrets.VERCEL_HOOK_MAIN }}
+        run: |
+          if [ -z "$VERCEL_HOOK_MAIN" ]; then
+            echo "VERCEL_HOOK_MAIN secret is not set"
+            exit 1
+          fi
+          HTTP_CODE=$(curl -s -o response.txt -w "%{http_code}" -X POST "$VERCEL_HOOK_MAIN")
+          echo "HTTP $HTTP_CODE"
+          cat response.txt
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            exit 1
+          fi
