@@ -1,6 +1,6 @@
 # BoundaryLine — Master Build Checklist
 
-> Last updated: 2026-04-15 (00:00 PKT)
+> Last updated: 2026-04-15 (01:05 PKT)
 > Companion to `PROJECT_TRACKER.md`. This file is the **exhaustive** work breakdown pulled from every doc under `docs/`. `PROJECT_TRACKER.md` shows recent activity; this file tracks the full scope from spec → shipped.
 
 **Legend:** `[ ]` = not started · `[~]` = partial / in progress · `[x]` = done · `[-]` = skipped / deferred
@@ -16,7 +16,7 @@
 - [x] `pnpm-workspace.yaml` — _SETUP.md_
 - [x] `.env.example` at root — _SETUP.md_
 - [x] `.gitignore` (node*modules, .env.local, .next, artifacts, .turbo) — \_SETUP.md*
-- [~] `.env.local` populated — local database, auth, admin, chain, and contract env set; signer still pending — \_SETUP.md\*
+- [x] `.env.local` populated — local database, auth, admin, chain, contract, and signer env set for app runtime — \_SETUP.md\*
 - [x] Neon project created (main branch, connection string) — _SETUP.md / DEPLOYMENT.md_
 - [ ] Vercel project linked (`vercel link`) — _DEPLOYMENT.md_
 - [ ] `vercel.ts` config (build, framework, headers, crons) — _DEPLOYMENT.md_
@@ -168,6 +168,7 @@
 
 - [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — _API.md_
 - [x] `GET /api/dashboard/me` (aggregated dashboard payload: balances, ranks, claim state, recent match activity) — _API.md_
+- [x] Dashboard upcoming fixtures fallback (scheduled/live matches surfaced when no scored activity is available) — _API.md_
 - [x] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — _API.md_
 
 ### 4.4 Claims
@@ -343,6 +344,7 @@
 - [ ] Env vars set (DATABASE*URL, SIGNER_PRIVATE_KEY, ADMIN_API_KEY, AUTH_SECRET, SIWE\*\*, contracts, RPC) — *DEPLOYMENT.md\*
 - [ ] `pnpm build` passes — _SETUP.md_
 - [ ] `vercel --prod` — _DEPLOYMENT.md_
+- [ ] Public Vercel deployment updated to a build that includes `/dashboard` (current public URL is still on a pre-`265cda5` build) — _DEPLOYMENT.md_
 - [ ] Static assets uploaded (players/, prizes/) — _DEPLOYMENT.md_
 - [-] Preview deploys with Neon branching (v1.5) — _DEPLOYMENT.md_
 
@@ -371,6 +373,7 @@
 - [ ] MetaMask on WireFluid + test WIRE — _SETUP.md_
 - [ ] SIWE sign-in → JWT — _ARCHITECTURE.md_
 - [x] Demo dashboard wallet seeded with team + scored matches in Neon — _PROJECT_TRACKER.md_
+- [x] Demo upcoming match schedule seeded in Neon — _PROJECT_TRACKER.md_
 - [ ] Team creation (11 players, cap enforced) — _GAME_DESIGN.md_
 - [ ] Admin scores a match → user*point updates — \_GAME_DESIGN.md*
 - [ ] Global leaderboard reflects — _API.md_

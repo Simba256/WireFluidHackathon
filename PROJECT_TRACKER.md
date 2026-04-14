@@ -1,6 +1,6 @@
 # Project Tracker
 
-> Last updated: 2026-04-15 (00:00 PKT)
+> Last updated: 2026-04-15 (01:05 PKT)
 
 ## Project Summary
 
@@ -16,6 +16,9 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 
 ## Recently Completed
 
+- [x] Dashboard now falls back to upcoming fixtures and Neon has scheduled matches to show — added `upcomingMatches` to `GET /api/dashboard/me`, fixed the dashboard feed to render scheduled/live fixtures when there are no scored matches to show, corrected the upcoming-match query filter, and updated `data/matches.json` plus `packages/db/seed/index.ts` so new match seeds insert without duplicating existing rows. Seeded 3 scheduled matches into Neon: `Karachi Kings vs Multan Sultans`, `Islamabad United vs Lahore Qalandars`, and `Peshawar Zalmi vs Quetta Gladiators`. Verification: `pnpm --filter @boundaryline/web typecheck`, `pnpm --filter @boundaryline/web build`, and direct Neon query confirmed scheduled match ids `4`, `5`, and `6` — (2026-04-15)
+- [x] Diagnosed public `/dashboard` 404 as a stale Vercel deployment, not a route bug — confirmed the route exists at `apps/web/app/(app)/dashboard/page.tsx`, local `pnpm --filter @boundaryline/web build` includes `○ /dashboard`, and `curl -I https://wire-fluid-hackathon-web.vercel.app/dashboard` returns `404` while the current public deployment predates commit `265cda5` that shipped the dashboard. Verification: local Next build route table + live Vercel response headers — (2026-04-15)
+- [x] Local signer env configured and web backend restarted — verified the provided private key derives to the deployed `trustedSigner` address `0xeCBBF715d35FdD6f56316fb1B64B89C1B329aCd1`, added it to `apps/web/.env.local` as `SIGNER_PRIVATE_KEY`, and restarted the local Next app on `127.0.0.1:3001`. Verification: `curl -I http://127.0.0.1:3001` returned `200` and `lsof -nP -iTCP:3001 -sTCP:LISTEN` shows the app listening locally — (2026-04-15)
 - [x] Sync flow hardened against missing signer env and stuck pending vouchers — found that local sync was failing because `SIGNER_PRIVATE_KEY` is not configured in repo env files, and `POST /api/sync` was inserting a `pending` row before attempting to sign. Reordered both sync and claim voucher flows so signing happens before DB reservation, added `POST /api/sync/cancel` and `POST /api/sync/confirm` for frontend cleanup/receipt confirmation, fixed the shared claim typed-data schema to use `uint8` for `tierId`, and manually expired the stuck pending sync rows for wallet `0x400b9E86dca96E775578aD95dF095e6d9fAC00d6`. Verification: `pnpm --filter @boundaryline/shared typecheck`, `pnpm --filter @boundaryline/web typecheck`, `pnpm --filter @boundaryline/web build`, and direct Neon query confirmed `pendingCount = 0` for that wallet — (2026-04-15)
 - [x] Dashboard copy simplified + demo wallet data populated — updated the dashboard status presentation to remove the confusing "BUILDING" and minimum-earned copy, replacing the lower status card with just `Status`, `Leaderboard Rank`, `Leaderboard %`, and `Total Points`. For wallet `0x400b9E86dca96E775578aD95dF095e6d9fAC00d6`, inserted a demo team (11 players, 55 credits) plus scored rows across the 3 seeded completed matches, which produced `user_point.total_points = 586` and populated the match-performance feed. Verification: `pnpm --filter @boundaryline/web typecheck`, `pnpm --filter @boundaryline/web build`, and direct Neon query confirmed 3 recent matches with points `200`, `258`, and `128` — (2026-04-14)
 - [x] Dashboard prize reads hotfixed for WireFluid RPC compatibility — replaced viem `multicall()` usage in `apps/web/lib/prize-state.ts` with small batched `readContract()` calls because WireFluid is not configured with `multicall3`. Prize rank, qualification, and claimability logic are unchanged; only the RPC fan-out strategy changed. Updated implementation notes in `docs/API.md` and `docs/DATA_MODEL.md`. Verification: `pnpm --filter @boundaryline/web typecheck`, `pnpm --filter @boundaryline/web build`, `curl -i "http://127.0.0.1:3002/api/leaderboard/prize?limit=3"` returned `200`, and `curl -I http://127.0.0.1:3002/dashboard` returned `200` — (2026-04-14)
@@ -42,7 +45,7 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 
 ## Blockers
 
-- None
+- Public Vercel URL `https://wire-fluid-hackathon-web.vercel.app` is serving a pre-dashboard build; `/dashboard` returns `404` until the app is redeployed from current `main`
 
 ## Key Decisions
 

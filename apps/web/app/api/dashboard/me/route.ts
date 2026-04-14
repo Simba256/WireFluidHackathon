@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, desc, eq, gt, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
 import {
@@ -173,6 +173,51 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     let playerCount = 0;
     let recentMatches: DashboardDTO["recentMatches"] = [];
+    let upcomingMatches: DashboardDTO["upcomingMatches"] = [];
+
+    const upcomingRows = await database
+      .select({
+        id: match.id,
+        status: match.status,
+        teamA: match.teamA,
+        teamB: match.teamB,
+        venue: match.venue,
+        scheduledAt: match.scheduledAt,
+        playedAt: match.playedAt,
+      })
+      .from(match)
+      .where(
+        and(
+          eq(match.tournamentId, tournamentId),
+          inArray(match.status, ["scheduled", "live"]),
+        ),
+      )
+      .orderBy(match.scheduledAt)
+      .limit(4);
+
+    upcomingMatches = upcomingRows.map((row) => {
+      const teamA = franchiseForName(row.teamA);
+      const teamB = franchiseForName(row.teamB);
+
+      return {
+        id: row.id,
+        status: row.status as "scheduled" | "live",
+        teamA: {
+          name: row.teamA,
+          shortCode: teamA.shortCode,
+          accentColor: teamA.accentColor,
+        },
+        teamB: {
+          name: row.teamB,
+          shortCode: teamB.shortCode,
+          accentColor: teamB.accentColor,
+        },
+        venue: row.venue,
+        scheduledAt: row.scheduledAt.toISOString(),
+        playedAt: row.playedAt?.toISOString() ?? null,
+        points: null,
+      };
+    });
 
     if (teamRow) {
       const [playerCountRow, activityRows] = await Promise.all([
@@ -184,12 +229,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         database
           .select({
             id: match.id,
+            status: match.status,
             teamA: match.teamA,
             teamB: match.teamB,
             venue: match.venue,
             scheduledAt: match.scheduledAt,
             playedAt: match.playedAt,
-            points: sql<string>`COALESCE(SUM(${playerScore.pointsAwarded})::text, '0')`,
+            points: sql<string>`COALESCE(SUM(${playerScore.pointsAwarded}), 0)::text`,
           })
           .from(teamPlayer)
           .innerJoin(team, eq(teamPlayer.teamId, team.id))
@@ -221,6 +267,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
         return {
           id: row.id,
+          status: row.status as "completed",
           teamA: {
             name: row.teamA,
             shortCode: teamA.shortCode,
@@ -313,6 +360,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             }
           : null,
       recentMatches,
+      upcomingMatches,
     } satisfies DashboardDTO);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";

@@ -133,6 +133,7 @@ export interface TrophiesResponseDTO {
 
 export interface DashboardMatchActivityDTO {
   id: number;
+  status: "scheduled" | "live" | "completed";
   teamA: {
     name: string;
     shortCode: string;
@@ -146,7 +147,7 @@ export interface DashboardMatchActivityDTO {
   venue: string | null;
   scheduledAt: string;
   playedAt: string | null;
-  points: number;
+  points: number | null;
 }
 
 export interface DashboardDTO {
@@ -205,4 +206,5 @@ export interface DashboardDTO {
     fulfillmentStatus: "none" | "pending_shipping" | "shipped" | "delivered";
   } | null;
   recentMatches: DashboardMatchActivityDTO[];
+  upcomingMatches: DashboardMatchActivityDTO[];
 }

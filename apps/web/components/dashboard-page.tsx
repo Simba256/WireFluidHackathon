@@ -138,6 +138,20 @@ function dashboardStatusLabel(dashboard: DashboardDTO): string {
   return "Not Drafted";
 }
 
+function matchStatusLabel(
+  status: DashboardDTO["recentMatches"][number]["status"],
+): string {
+  if (status === "completed") {
+    return "Scored";
+  }
+
+  if (status === "live") {
+    return "Live";
+  }
+
+  return "Upcoming";
+}
+
 function AppChrome({
   children,
   dashboard,
@@ -730,6 +744,17 @@ export function DashboardPage() {
     return <LoadingState />;
   }
 
+  const matchFeed =
+    dashboard.recentMatches.length > 0
+      ? dashboard.recentMatches
+      : dashboard.upcomingMatches;
+  const matchFeedLabel =
+    dashboard.recentMatches.length > 0
+      ? `${dashboard.recentMatches.length} recent matches`
+      : dashboard.upcomingMatches.length > 0
+        ? `${dashboard.upcomingMatches.length} upcoming matches`
+        : "Awaiting fixtures";
+
   return (
     <AppChrome dashboard={dashboard}>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -927,31 +952,28 @@ export function DashboardPage() {
         <div className="space-y-6 lg:col-span-3">
           <div className="flex items-center justify-between px-2">
             <h3 className="font-headline text-xl font-bold tracking-tight">
-              Match Performance
+              Match Activity
             </h3>
             <span className="text-sm font-bold text-primary">
-              {dashboard.recentMatches.length > 0
-                ? `${dashboard.recentMatches.length} recent matches`
-                : "Awaiting scored matches"}
+              {matchFeedLabel}
             </span>
           </div>
 
-          {dashboard.recentMatches.length === 0 ? (
+          {matchFeed.length === 0 ? (
             <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low p-8">
               <p className="font-headline text-2xl font-bold text-on-surface">
-                No match activity yet
+                No fixtures available yet
               </p>
               <p className="mt-3 max-w-xl text-slate-300">
-                Draft a team, score a few PSL matches through the admin flow,
-                and this feed will show how many points your lineup earned in
-                each fixture.
+                Upcoming and scored matches will appear here as soon as the
+                active tournament schedule is populated.
               </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {dashboard.recentMatches.map((matchItem) => (
+              {matchFeed.map((matchItem) => (
                 <div
-                  key={matchItem.id}
+                  key={`${matchItem.status}-${matchItem.id}`}
                   className="flex flex-col items-center gap-6 rounded-[2rem] bg-surface-container-low p-6 transition-colors hover:bg-surface-container-highest md:flex-row"
                 >
                   <div className="flex flex-1 items-center gap-4">
@@ -987,7 +1009,9 @@ export function DashboardPage() {
                         Points
                       </p>
                       <p className="font-headline text-xl font-bold text-primary">
-                        +{formatInteger(matchItem.points)}
+                        {matchItem.points != null
+                          ? `+${formatInteger(matchItem.points)}`
+                          : "-"}
                       </p>
                     </div>
                     <div className="text-center">
@@ -995,7 +1019,7 @@ export function DashboardPage() {
                         Status
                       </p>
                       <p className="font-headline text-xl font-bold text-on-surface">
-                        Scored
+                        {matchStatusLabel(matchItem.status)}
                       </p>
                     </div>
                     <Icon className="text-slate-600" name="chevron_right" />

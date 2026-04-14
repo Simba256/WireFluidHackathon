@@ -91,15 +91,33 @@ async function main() {
     .onConflictDoNothing({ target: [prize.tournamentId, prize.tierId] });
 
   const existingMatches = await db
-    .select({ id: match.id })
+    .select({
+      teamA: match.teamA,
+      teamB: match.teamB,
+      scheduledAt: match.scheduledAt,
+    })
     .from(match)
-    .limit(1);
-  if (existingMatches.length === 0) {
+    .where(sql`${match.tournamentId} = ${tournamentId}`);
+
+  const existingMatchKeys = new Set(
+    existingMatches.map(
+      (row) => `${row.teamA}|${row.teamB}|${row.scheduledAt.toISOString()}`,
+    ),
+  );
+
+  const missingMatches = matches.filter(
+    (m) =>
+      !existingMatchKeys.has(
+        `${m.teamA}|${m.teamB}|${new Date(m.scheduledAt).toISOString()}`,
+      ),
+  );
+
+  if (missingMatches.length > 0) {
     console.log(
-      `Seeding ${matches.length} match rows for tournament ${tournamentId}...`,
+      `Seeding ${missingMatches.length} match rows for tournament ${tournamentId}...`,
     );
     await db.insert(match).values(
-      matches.map((m) => ({
+      missingMatches.map((m) => ({
         tournamentId,
         teamA: m.teamA,
         teamB: m.teamB,
