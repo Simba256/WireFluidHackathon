@@ -294,21 +294,24 @@ export function PrizesPage() {
         {!prizes ? (
           <PrizeGridSkeleton />
         ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {prizes.map((tier) => (
-              <PrizeCard
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-6">
+            {prizes.map((tier, idx) => (
+              <div
                 key={tier.tierId}
-                tier={tier}
-                featured={tier.tierId === 1}
-                userTierId={userTierId}
-                userCanClaim={canClaim}
-                activeClaimTierId={activeClaim?.tierId ?? null}
-                activeClaimStatus={activeClaim?.status ?? null}
-                isBusy={isBusy}
-                pendingTierId={isBusy ? claim.tierId : null}
-                isAuthenticated={isAuthenticated}
-                onClaim={handleClaim}
-              />
+                className={`xl:col-span-2 ${idx === 0 ? "xl:col-start-2" : ""}`}
+              >
+                <PrizeCard
+                  tier={tier}
+                  userTierId={userTierId}
+                  userCanClaim={canClaim}
+                  activeClaimTierId={activeClaim?.tierId ?? null}
+                  activeClaimStatus={activeClaim?.status ?? null}
+                  isBusy={isBusy}
+                  pendingTierId={isBusy ? claim.tierId : null}
+                  isAuthenticated={isAuthenticated}
+                  onClaim={handleClaim}
+                />
+              </div>
             ))}
           </div>
         )}
@@ -460,7 +463,6 @@ function PrizeGridSkeleton() {
 
 function PrizeCard({
   tier,
-  featured,
   userTierId,
   userCanClaim,
   activeClaimTierId,
@@ -471,7 +473,6 @@ function PrizeCard({
   onClaim,
 }: {
   tier: PrizeTierDTO;
-  featured: boolean;
   userTierId: number | null;
   userCanClaim: boolean;
   activeClaimTierId: number | null;
@@ -563,117 +564,84 @@ function PrizeCard({
   const badgeLabel = TIER_BADGE_LABEL[tier.tierId] ?? tier.displayName;
 
   return (
-    <div
-      className={`group relative overflow-hidden rounded-3xl border bg-surface-container-low transition-all ${
-        featured
-          ? "stadium-glow border-white/5 xl:col-span-2"
-          : "border-white/5 hover:border-primary/30"
-      }`}
-    >
-      <div
-        className={`flex h-full ${featured ? "flex-col lg:flex-row" : "flex-col"}`}
-      >
-        <div
-          className={`relative overflow-hidden ${featured ? "h-64 lg:h-auto lg:w-1/2" : "h-56"}`}
-        >
-          {tier.prize.imageUrl ? (
-            <Image
-              src={tier.prize.imageUrl}
-              alt={tier.prize.name}
-              fill
-              sizes={featured ? "(min-width: 1280px) 50vw, 100vw" : "400px"}
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-surface-container">
-              <Icon
-                name={featured ? "emoji_events" : "military_tech"}
-                className="text-7xl text-primary/40"
-                fill
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/5 bg-surface-container-low transition-all hover:border-primary/30">
+      <div className="relative h-56 overflow-hidden">
+        <Image
+          src={`/prizes/tier-${tier.tierId}-v5.png`}
+          alt={tier.prize.name}
+          fill
+          sizes="(min-width: 1280px) 400px, 100vw"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface-container-low/80 via-transparent to-transparent" />
+        <div className="absolute left-4 top-4">
+          <span
+            className={`rounded-full border px-3 py-1 font-headline text-xs font-bold uppercase tracking-tight backdrop-blur-md ${
+              isUsersTier
+                ? "border-primary/40 bg-primary/20 text-primary"
+                : "border-white/10 bg-surface-container-highest/80 text-on-surface-variant"
+            }`}
+          >
+            {badgeLabel}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-between p-6">
+        <div>
+          <div className="mb-3 flex items-start justify-between gap-4">
+            <h3 className="font-headline text-xl font-bold tracking-tight text-on-surface">
+              {tier.prize.name}
+            </h3>
+            <div className="text-right">
+              <span className="block font-headline text-sm font-bold text-primary">
+                {tier.rankRequired === 1
+                  ? "Rank #1"
+                  : `Top ${tier.rankRequired}`}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">
+                Burns full wallet
+              </span>
+            </div>
+          </div>
+          <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
+            {tier.prize.description}
+          </p>
+
+          <div className="mb-6">
+            <div className="mb-2 flex justify-between text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">
+              <span>Availability</span>
+              <span
+                className={
+                  soldOut
+                    ? "text-error"
+                    : remaining <= stock * 0.3
+                      ? "text-secondary"
+                      : "text-primary"
+                }
+              >
+                {soldOut ? "Sold Out" : `${remaining}/${stock} remaining`}
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest">
+              <div
+                className={`h-full transition-all ${
+                  soldOut
+                    ? "bg-error/60"
+                    : remaining <= stock * 0.3
+                      ? "bg-secondary"
+                      : "bg-primary"
+                }`}
+                style={{ width: `${stockPercent}%` }}
               />
             </div>
-          )}
-          <div className="absolute left-4 top-4">
-            <span
-              className={`rounded-full border px-3 py-1 font-headline text-xs font-bold uppercase tracking-tight ${
-                featured
-                  ? "border-secondary/30 bg-surface-container-highest/70 text-secondary backdrop-blur-md"
-                  : isUsersTier
-                    ? "border-primary/40 bg-primary/20 text-primary backdrop-blur-md"
-                    : "border-white/10 bg-surface-container-highest/80 text-on-surface-variant backdrop-blur-md"
-              }`}
-            >
-              {badgeLabel}
-            </span>
           </div>
         </div>
 
-        <div
-          className={`flex flex-1 flex-col justify-between p-6 ${featured ? "lg:p-8" : ""}`}
-        >
-          <div>
-            <div className="mb-3 flex items-start justify-between gap-4">
-              <h3
-                className={`font-headline font-bold tracking-tight text-on-surface ${
-                  featured ? "text-3xl" : "text-xl"
-                }`}
-              >
-                {tier.prize.name}
-              </h3>
-              <div className="text-right">
-                <span
-                  className={`block font-headline font-bold text-primary ${
-                    featured ? "text-xl" : "text-sm"
-                  }`}
-                >
-                  {tier.rankRequired === 1
-                    ? "Rank #1"
-                    : `Top ${tier.rankRequired}`}
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-secondary">
-                  Burns full wallet
-                </span>
-              </div>
-            </div>
-            <p className="mb-6 text-sm leading-relaxed text-on-surface-variant">
-              {tier.prize.description}
-            </p>
-
-            <div className="mb-6">
-              <div className="mb-2 flex justify-between text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">
-                <span>Availability</span>
-                <span
-                  className={
-                    soldOut
-                      ? "text-error"
-                      : remaining <= stock * 0.3
-                        ? "text-secondary"
-                        : "text-primary"
-                  }
-                >
-                  {soldOut ? "Sold Out" : `${remaining}/${stock} remaining`}
-                </span>
-              </div>
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest">
-                <div
-                  className={`h-full transition-all ${
-                    soldOut
-                      ? "bg-error/60"
-                      : remaining <= stock * 0.3
-                        ? "bg-secondary"
-                        : "bg-primary"
-                  }`}
-                  style={{ width: `${stockPercent}%` }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <ClaimButton
-            state={buttonState}
-            onClick={() => onClaim(tier.tierId)}
-          />
-        </div>
+        <ClaimButton
+          state={buttonState}
+          onClick={() => onClaim(tier.tierId)}
+        />
       </div>
     </div>
   );
