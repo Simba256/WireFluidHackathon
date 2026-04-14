@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAuth } from "@/components/auth-provider";
 
@@ -31,12 +32,12 @@ export function LandingNav() {
       </div>
 
       <div className="hidden items-center gap-8 font-headline tracking-tight md:flex">
-        <a
-          className="border-b-2 border-primary pb-1 text-primary transition-colors"
-          href="#"
+        <Link
+          className="text-slate-400 transition-colors hover:text-primary"
+          href="/dashboard"
         >
           Dashboard
-        </a>
+        </Link>
         <a
           className="text-slate-400 transition-colors hover:text-primary"
           href="#"
