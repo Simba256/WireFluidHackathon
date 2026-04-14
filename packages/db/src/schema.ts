@@ -54,6 +54,7 @@ export const player = pgTable(
     name: text("name").notNull(),
     team: text("team").notNull(),
     role: text("role").notNull(),
+    basePrice: integer("base_price").notNull(),
     photoUrl: text("photo_url"),
     active: boolean("active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })

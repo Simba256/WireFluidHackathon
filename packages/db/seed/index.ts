@@ -9,9 +9,9 @@ const ROOT = resolve(__dirname, '../../..');
 const envPath = resolve(ROOT, '.env.local');
 if (existsSync(envPath) && !process.env.DATABASE_URL) {
   for (const line of readFileSync(envPath, 'utf8').split('\n')) {
-    const match = line.match(/^\s*([\w]+)\s*=\s*"?([^"]*)"?\s*$/);
-    if (match && !process.env[match[1]!]) {
-      process.env[match[1]!] = match[2]!;
+    const m = line.match(/^\s*([\w]+)\s*=\s*"?([^"]*)"?\s*$/);
+    if (m && !process.env[m[1]!]) {
+      process.env[m[1]!] = m[2]!;
     }
   }
 }
@@ -42,8 +42,6 @@ interface MatchSeed {
   status: "scheduled" | "live" | "completed";
   playedAt: string | null;
 }
-
-const ROOT = resolve(__dirname, "../../..");
 
 function loadJson<T>(relPath: string): T {
   return JSON.parse(readFileSync(resolve(ROOT, relPath), "utf8")) as T;
