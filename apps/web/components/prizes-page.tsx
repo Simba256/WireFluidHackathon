@@ -450,12 +450,14 @@ function ClaimStatusBanner({ claim }: { claim: ClaimState }) {
 
 function PrizeGridSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-6">
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="h-[420px] animate-pulse rounded-3xl border border-white/5 bg-surface-container-low"
-        />
+          className={`xl:col-span-2 ${i === 0 ? "xl:col-start-2" : ""}`}
+        >
+          <div className="h-[420px] animate-pulse rounded-3xl border border-white/5 bg-surface-container-low" />
+        </div>
       ))}
     </div>
   );
