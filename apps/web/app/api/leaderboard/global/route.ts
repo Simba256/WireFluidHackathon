@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const url = new URL(req.url);
-  const limit = Math.min(500, Math.max(1, Number(url.searchParams.get("limit") ?? 100)));
+  const limit = Math.min(
+    500,
+    Math.max(1, Number(url.searchParams.get("limit") ?? 100)),
+  );
   const offset = Math.max(0, Number(url.searchParams.get("offset") ?? 0));
 
   try {
@@ -20,7 +23,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .select({
         wallet: userPoint.wallet,
         totalPoints: userPoint.totalPoints,
-        displayName: user.displayName,
+        displayName: user.username,
         rank: sql<number>`RANK() OVER (ORDER BY ${userPoint.totalPoints} DESC)`.as(
           "rank",
         ),

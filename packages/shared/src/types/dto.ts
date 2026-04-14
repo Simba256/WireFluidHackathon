@@ -207,3 +207,7 @@ export interface DashboardDTO {
   recentMatches: DashboardMatchActivityDTO[];
   upcomingMatches: DashboardMatchActivityDTO[];
 }
+
+export interface FixturesResponseDTO {
+  fixtures: DashboardMatchActivityDTO[];
+}

@@ -183,7 +183,7 @@ Returns the caller's core score and sync summary. `prizeRank`, `prizeTotal`, `cu
 
 ### `GET /api/dashboard/me`
 
-Aggregated dashboard payload for the authenticated user. Combines user profile, tournament metadata, balances, team status, global standing, prize standing, active claim, and the last 3 scored matches for the user's lineup.
+Aggregated dashboard payload for the authenticated user. Combines user profile, tournament metadata, balances, team status, global standing, prize standing, active claim, and the last 3 scored matches for the user's lineup. `upcomingMatches` is a dashboard preview capped to the next 4 scheduled/live fixtures.
 
 **Auth**: required
 
@@ -252,6 +252,58 @@ Aggregated dashboard payload for the authenticated user. Combines user profile, 
       "scheduledAt": "2026-03-14T14:00:00Z",
       "playedAt": "2026-03-14T18:30:00Z",
       "points": 4220
+    }
+  ],
+  "upcomingMatches": [
+    {
+      "id": 23,
+      "teamA": {
+        "name": "Peshawar Zalmi",
+        "shortCode": "PZ",
+        "accentColor": "#f59e0b"
+      },
+      "teamB": {
+        "name": "Quetta Gladiators",
+        "shortCode": "QG",
+        "accentColor": "#8b5cf6"
+      },
+      "venue": "Karachi",
+      "scheduledAt": "2026-04-15T14:00:00Z",
+      "playedAt": null,
+      "points": null
+    }
+  ]
+}
+```
+
+### `GET /api/fixtures`
+
+Returns the full fixture list for the active tournament in chronological order. Use this for full-schedule views; dashboard widgets should keep using `GET /api/dashboard/me` for the smaller preview.
+
+**Auth**: required
+
+**Response** `200`
+
+```json
+{
+  "fixtures": [
+    {
+      "id": 1,
+      "status": "completed",
+      "teamA": {
+        "name": "Lahore Qalandars",
+        "shortCode": "LQ",
+        "accentColor": "#22c55e"
+      },
+      "teamB": {
+        "name": "Hyderabad Kingsmen",
+        "shortCode": "HK",
+        "accentColor": "#54e98a"
+      },
+      "venue": "Lahore",
+      "scheduledAt": "2026-03-26T14:00:00Z",
+      "playedAt": "2026-03-26T18:30:00Z",
+      "points": null
     }
   ]
 }

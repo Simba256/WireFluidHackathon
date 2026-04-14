@@ -1,14 +1,14 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { sql } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 import { getDb } from "../src/client";
-import { match, player, playerScore, prize, team, teamPlayer, tournament } from "../src/schema";
+import { match, player, playerScore, prize, tournament } from "../src/schema";
 
 // Load .env.local from repo root so DATABASE_URL is available when running standalone
-const ROOT = resolve(__dirname, '../../..');
-const envPath = resolve(ROOT, '.env.local');
+const ROOT = resolve(__dirname, "../../..");
+const envPath = resolve(ROOT, ".env.local");
 if (existsSync(envPath) && !process.env.DATABASE_URL) {
-  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+  for (const line of readFileSync(envPath, "utf8").split("\n")) {
     const m = line.match(/^\s*([\w]+)\s*=\s*"?([^"]*)"?\s*$/);
     if (m && !process.env[m[1]!]) {
       process.env[m[1]!] = m[2]!;
@@ -54,24 +54,31 @@ async function main() {
   const prizes = loadJson<PrizeSeed[]>("data/prizes.json");
   const matches = loadJson<MatchSeed[]>("data/matches.json");
 
-  console.log(`Clearing old data and seeding ${players.length} players…`);
-  await db.delete(playerScore);
-  await db.delete(teamPlayer);
-  await db.delete(team);
-  await db.delete(player);
-  await db
-    .insert(player)
-    .values(
-      players.map((p) => ({
-        externalId: p.externalId,
-        name: p.name,
-        team: p.team,
-        role: p.role,
-        basePrice: p.basePrice,
-        photoUrl: p.photoUrl ?? null,
-      })),
-    )
-    .onConflictDoNothing({ target: player.externalId });
+  const [existingPlayers] = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(player);
+  const existingPlayerCount = existingPlayers?.count ?? 0;
+
+  if (existingPlayerCount === 0) {
+    console.log(`Seeding ${players.length} players…`);
+    await db
+      .insert(player)
+      .values(
+        players.map((p) => ({
+          externalId: p.externalId,
+          name: p.name,
+          team: p.team,
+          role: p.role,
+          basePrice: p.basePrice,
+          photoUrl: p.photoUrl ?? null,
+        })),
+      )
+      .onConflictDoNothing({ target: player.externalId });
+  } else {
+    console.log(
+      `Skipping player seed because ${existingPlayerCount} players already exist in the database.`,
+    );
+  }
 
   console.log("Seeding tournament row…");
   const existingTournament = await db.select().from(tournament).limit(1);
@@ -108,6 +115,7 @@ async function main() {
 
   const existingMatches = await db
     .select({
+      id: match.id,
       teamA: match.teamA,
       teamB: match.teamB,
       scheduledAt: match.scheduledAt,
@@ -115,10 +123,41 @@ async function main() {
     .from(match)
     .where(sql`${match.tournamentId} = ${tournamentId}`);
 
-  const existingMatchKeys = new Set(
-    existingMatches.map(
-      (row) => `${row.teamA}|${row.teamB}|${row.scheduledAt.toISOString()}`,
+  const scoredMatchIds = new Set(
+    (
+      await db
+        .select({ matchId: playerScore.matchId })
+        .from(playerScore)
+        .groupBy(playerScore.matchId)
+    ).map((row) => row.matchId),
+  );
+
+  const sourceMatchKeys = new Set(
+    matches.map(
+      (m) => `${m.teamA}|${m.teamB}|${new Date(m.scheduledAt).toISOString()}`,
     ),
+  );
+
+  const staleUnscoredMatchIds = existingMatches
+    .filter((row) => {
+      const key = `${row.teamA}|${row.teamB}|${row.scheduledAt.toISOString()}`;
+      return !scoredMatchIds.has(row.id) && !sourceMatchKeys.has(key);
+    })
+    .map((row) => row.id);
+
+  if (staleUnscoredMatchIds.length > 0) {
+    console.log(
+      `Removing ${staleUnscoredMatchIds.length} stale unscored match rows for tournament ${tournamentId}...`,
+    );
+    await db.delete(match).where(inArray(match.id, staleUnscoredMatchIds));
+  }
+
+  const existingMatchKeys = new Set(
+    existingMatches
+      .filter((row) => !staleUnscoredMatchIds.includes(row.id))
+      .map(
+        (row) => `${row.teamA}|${row.teamB}|${row.scheduledAt.toISOString()}`,
+      ),
   );
 
   const missingMatches = matches.filter(

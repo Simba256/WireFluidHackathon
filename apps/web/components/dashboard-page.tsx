@@ -186,7 +186,94 @@ function TeamLogoPuck({
   );
 }
 
-function AppChrome({
+function MatchActivitySection({
+  action,
+  emptyDescription,
+  emptyTitle,
+  label,
+  matches,
+  title,
+}: {
+  action?: React.ReactNode;
+  emptyDescription: string;
+  emptyTitle: string;
+  label: string;
+  matches: DashboardDTO["recentMatches"];
+  title: string;
+}) {
+  return (
+    <section className="space-y-4">
+      <div className="flex items-center justify-between px-2">
+        <h4 className="font-headline text-lg font-bold tracking-tight">
+          {title}
+        </h4>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-bold text-primary">{label}</span>
+          {action}
+        </div>
+      </div>
+
+      {matches.length === 0 ? (
+        <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low p-8">
+          <p className="font-headline text-2xl font-bold text-on-surface">
+            {emptyTitle}
+          </p>
+          <p className="mt-3 max-w-xl text-slate-300">{emptyDescription}</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {matches.map((matchItem) => (
+            <div
+              key={`${matchItem.status}-${matchItem.id}`}
+              className="flex flex-col items-center gap-6 rounded-[2rem] bg-surface-container-low p-6 transition-colors hover:bg-surface-container-highest md:flex-row"
+            >
+              <div className="flex flex-1 items-center gap-4">
+                <div className="flex -space-x-4">
+                  {[matchItem.teamA, matchItem.teamB].map((side) => (
+                    <TeamLogoPuck key={side.name} side={side} />
+                  ))}
+                </div>
+                <div>
+                  <h4 className="font-headline font-bold">
+                    {matchItem.teamA.shortCode} vs {matchItem.teamB.shortCode}
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    {matchItem.venue ?? "Venue TBD"} -{" "}
+                    {formatDateLabel(matchItem.playedAt, matchItem.scheduledAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-8">
+                <div className="text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">
+                    Points
+                  </p>
+                  <p className="font-headline text-xl font-bold text-primary">
+                    {matchItem.points != null
+                      ? `+${formatInteger(matchItem.points)}`
+                      : "-"}
+                  </p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] font-bold uppercase text-slate-500">
+                    Status
+                  </p>
+                  <p className="font-headline text-xl font-bold text-on-surface">
+                    {matchStatusLabel(matchItem.status)}
+                  </p>
+                </div>
+                <Icon className="text-slate-600" name="chevron_right" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+export function AppChrome({
   children,
   dashboard,
 }: {
@@ -778,16 +865,14 @@ export function DashboardPage() {
     return <LoadingState />;
   }
 
-  const matchFeed =
+  const recentMatchLabel =
     dashboard.recentMatches.length > 0
-      ? dashboard.recentMatches
-      : dashboard.upcomingMatches;
-  const matchFeedLabel =
-    dashboard.recentMatches.length > 0
-      ? `${dashboard.recentMatches.length} recent matches`
-      : dashboard.upcomingMatches.length > 0
-        ? `${dashboard.upcomingMatches.length} upcoming matches`
-        : "Awaiting fixtures";
+      ? `${dashboard.recentMatches.length} scored`
+      : "No scores yet";
+  const upcomingMatchLabel =
+    dashboard.upcomingMatches.length > 0
+      ? `${dashboard.upcomingMatches.length} fixtures`
+      : "Awaiting fixtures";
 
   return (
     <AppChrome dashboard={dashboard}>
@@ -984,78 +1069,36 @@ export function DashboardPage() {
         </div>
 
         <div className="space-y-6 lg:col-span-3">
-          <div className="flex items-center justify-between px-2">
+          <div className="px-2">
             <h3 className="font-headline text-xl font-bold tracking-tight">
               Match Activity
             </h3>
-            <span className="text-sm font-bold text-primary">
-              {matchFeedLabel}
-            </span>
           </div>
 
-          {matchFeed.length === 0 ? (
-            <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low p-8">
-              <p className="font-headline text-2xl font-bold text-on-surface">
-                No fixtures available yet
-              </p>
-              <p className="mt-3 max-w-xl text-slate-300">
-                Upcoming and scored matches will appear here as soon as the
-                active tournament schedule is populated.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {matchFeed.map((matchItem) => (
-                <div
-                  key={`${matchItem.status}-${matchItem.id}`}
-                  className="flex flex-col items-center gap-6 rounded-[2rem] bg-surface-container-low p-6 transition-colors hover:bg-surface-container-highest md:flex-row"
+          <div className="space-y-6 xl:grid xl:grid-cols-2 xl:gap-6 xl:space-y-0">
+            <MatchActivitySection
+              emptyDescription="Scored lineup matches will appear here once your drafted team has been through a completed fixture."
+              emptyTitle="No scored matches yet"
+              label={recentMatchLabel}
+              matches={dashboard.recentMatches}
+              title="Recent Performance"
+            />
+            <MatchActivitySection
+              action={
+                <Link
+                  className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-primary"
+                  href="/dashboard/fixtures"
                 >
-                  <div className="flex flex-1 items-center gap-4">
-                    <div className="flex -space-x-4">
-                      {[matchItem.teamA, matchItem.teamB].map((side) => (
-                        <TeamLogoPuck key={side.name} side={side} />
-                      ))}
-                    </div>
-                    <div>
-                      <h4 className="font-headline font-bold">
-                        {matchItem.teamA.shortCode} vs{" "}
-                        {matchItem.teamB.shortCode} - Match #{matchItem.id}
-                      </h4>
-                      <p className="text-xs text-slate-400">
-                        {matchItem.venue ?? "Venue TBD"} -{" "}
-                        {formatDateLabel(
-                          matchItem.playedAt,
-                          matchItem.scheduledAt,
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-8">
-                    <div className="text-center">
-                      <p className="text-[10px] font-bold uppercase text-slate-500">
-                        Points
-                      </p>
-                      <p className="font-headline text-xl font-bold text-primary">
-                        {matchItem.points != null
-                          ? `+${formatInteger(matchItem.points)}`
-                          : "-"}
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-[10px] font-bold uppercase text-slate-500">
-                        Status
-                      </p>
-                      <p className="font-headline text-xl font-bold text-on-surface">
-                        {matchStatusLabel(matchItem.status)}
-                      </p>
-                    </div>
-                    <Icon className="text-slate-600" name="chevron_right" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  View all
+                </Link>
+              }
+              emptyDescription="Upcoming fixtures will appear here as soon as the active tournament schedule is populated."
+              emptyTitle="No upcoming fixtures yet"
+              label={upcomingMatchLabel}
+              matches={dashboard.upcomingMatches}
+              title="Upcoming Fixtures"
+            />
+          </div>
         </div>
       </div>
     </AppChrome>

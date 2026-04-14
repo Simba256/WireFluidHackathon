@@ -86,7 +86,7 @@
 
 ### 2.1 Drizzle schema tables
 
-- [x] `user` (wallet PK, display*name, timestamps) — \_DATA_MODEL.md*
+- [x] `user` (wallet PK, username, timestamps) — \_DATA_MODEL.md\*
 - [x] `siwe_nonce` (nonce PK, issued*at, expires_at, consumed_at) — \_DATA_MODEL.md*
 - [x] `player` (id, external*id unique, name, team, role, photo_url, active) — \_DATA_MODEL.md*
 - [x] `match` (id, tournament*id, team_a, team_b, scheduled_at, status, played_at) — \_DATA_MODEL.md*
@@ -121,9 +121,10 @@
 
 - [x] Drizzle migration 0001 generated — _DATA_MODEL.md_
 - [x] Drizzle migration 0003 drops player pricing columns from `player` and `team` — _DATA_MODEL.md_
+- [x] Neon `user` table realigned with current schema by using `username` as the canonical alias column and removing the temporary `display_name` hotfix — _DATA_MODEL.md_
 - [x] `players.json` seed (~150 PSL 2026 players) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
-- [x] `matches.json` seed (3 demo fixtures with venues) — _DATA_MODEL.md_
+- [x] `matches.json` seed (full PSL 2026 schedule with venues and playoff placeholders) — _DATA_MODEL.md_
 - [x] Tournament row seed — _DATA_MODEL.md_
 - [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — _SETUP.md_
 
@@ -169,6 +170,7 @@
 - [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — _API.md_
 - [x] `GET /api/dashboard/me` (aggregated dashboard payload: balances, ranks, claim state, recent match activity) — _API.md_
 - [x] Dashboard upcoming fixtures fallback (scheduled/live matches surfaced when no scored activity is available) — _API.md_
+- [x] `GET /api/fixtures` (full active-tournament schedule for authenticated app views) — _API.md_
 - [x] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — _API.md_
 
 ### 4.4 Claims
@@ -222,7 +224,8 @@
 
 ### 5.3 App pages
 
-- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier, match cards without misleading DB-id numbering) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard/fixtures` (full authenticated tournament schedule list without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
@@ -236,7 +239,7 @@
 
 - [x] ConnectWallet button — _ARCHITECTURE.md_ (SIWE message uses checksummed wallet address)
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
-- [x] Team logos sourced from ESPN Cricinfo, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
+- [x] Team logos sourced from ESPN Cricinfo, including HHK/Rawalpindiz extras, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
 - [x] TeamGrid / selection panel (inline in team-picker-client) — _GAME_DESIGN.md_

@@ -22,7 +22,7 @@ export const user = pgTable(
   "user",
   {
     wallet: text("wallet").primaryKey(),
-    displayName: text("display_name"),
+    username: text("username"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

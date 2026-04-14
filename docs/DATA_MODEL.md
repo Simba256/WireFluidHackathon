@@ -53,10 +53,10 @@
 
 ```ts
 user {
-  wallet        text          primary key          // lowercase 0x...
-  display_name  text          nullable             // optional alias
-  created_at    timestamptz   default now()
-  updated_at    timestamptz   default now()
+  wallet      text          primary key          // lowercase 0x...
+  username    text          nullable             // optional public alias
+  created_at  timestamptz   default now()
+  updated_at  timestamptz   default now()
 }
 ```
 
@@ -503,7 +503,7 @@ pnpm db:seed        # load players + prizes + tournament row
 Loaded from `data/psl-2026-players.json` — roughly 150–200 player records spanning all six PSL franchises.
 
 Prize seed data in `data/prizes.json` — 5 tiers × 1 tournament = 5 prize rows.
-Match seed data in `data/matches.json` — 3 demo fixtures with venue labels for the dashboard activity feed.
+Match seed data in `data/matches.json` — the full PSL 2026 schedule plus playoff placeholders from the Cricinfo fixtures page, with venue labels and UTC kickoff times for the dashboard.
 
 Tournament seed: one `tournament` row with `status: 'active'`.
 
