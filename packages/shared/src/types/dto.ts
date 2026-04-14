@@ -151,7 +151,42 @@ export interface DashboardMatchActivityDTO {
   points: number | null;
 }
 
-export interface DashboardDTO {
+export interface DashboardClaimDTO {
+  status: "pending" | "confirmed";
+  tierId: TierId;
+  tierName: TierName;
+  tierDisplayName: string;
+  txHash: string | null;
+  tokenId: number | null;
+  claimedAt: string;
+  fulfillmentStatus: "none" | "pending_shipping" | "shipped" | "delivered";
+}
+
+export interface DashboardPrizeDTO {
+  qualified: boolean;
+  prizeRank: number | null;
+  prizeTotal: number;
+  percentile: number | null;
+  currentTier: {
+    id: TierId;
+    name: TierName;
+    displayName: string;
+    rankRequired: number;
+  } | null;
+  canClaim: boolean;
+  progressLabel: string;
+  progressPercent: number;
+}
+
+export interface DashboardGlobalDTO {
+  global: {
+    rank: number | null;
+    totalPlayers: number;
+    percentile: number | null;
+  };
+}
+
+export interface DashboardSummaryDTO {
   user: {
     wallet: string;
     username: string;
@@ -166,9 +201,6 @@ export interface DashboardDTO {
   };
   balances: {
     totalEarned: number;
-    onChainEarned: string;
-    walletBalance: string;
-    unsynced: number;
     pendingSync: string;
     minEarnedToQualify: number;
   };
@@ -176,39 +208,35 @@ export interface DashboardDTO {
     exists: boolean;
     playerCount: number;
   };
-  global: {
-    rank: number | null;
-    totalPlayers: number;
-    percentile: number | null;
-  };
-  prize: {
-    qualified: boolean;
-    prizeRank: number | null;
-    prizeTotal: number;
-    percentile: number | null;
-    currentTier: {
-      id: TierId;
-      name: TierName;
-      displayName: string;
-      rankRequired: number;
-    } | null;
-    canClaim: boolean;
-    progressLabel: string;
-    progressPercent: number;
-  };
-  claim: {
-    status: "pending" | "confirmed";
-    tierId: TierId;
-    tierName: TierName;
-    tierDisplayName: string;
-    txHash: string | null;
-    tokenId: number | null;
-    claimedAt: string;
-    fulfillmentStatus: "none" | "pending_shipping" | "shipped" | "delivered";
-  } | null;
+  claim: DashboardClaimDTO | null;
   recentMatches: DashboardMatchActivityDTO[];
   upcomingMatches: DashboardMatchActivityDTO[];
 }
+
+export interface DashboardChainStateDTO {
+  balances: {
+    onChainEarned: string;
+    walletBalance: string;
+    unsynced: number;
+  };
+  prize: DashboardPrizeDTO;
+}
+
+export type DashboardDTO = Omit<DashboardSummaryDTO, "balances"> &
+  Omit<DashboardChainStateDTO, "balances"> &
+  DashboardGlobalDTO & {
+    balances: DashboardSummaryDTO["balances"] &
+      DashboardChainStateDTO["balances"];
+  };
+
+export type DashboardSummaryWithChainDTO = Omit<
+  DashboardSummaryDTO,
+  "balances"
+> &
+  Omit<DashboardChainStateDTO, "balances"> & {
+    balances: DashboardSummaryDTO["balances"] &
+      DashboardChainStateDTO["balances"];
+  };
 
 export interface FixturesResponseDTO {
   fixtures: DashboardMatchActivityDTO[];

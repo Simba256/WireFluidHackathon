@@ -10,7 +10,9 @@ import {
   MIN_EARNED_TO_CLAIM_BNDY,
   PSLPointsAbi,
   explorerTxUrl,
-  type DashboardDTO,
+  type DashboardChainStateDTO,
+  type DashboardSummaryDTO,
+  type DashboardSummaryWithChainDTO,
 } from "@boundaryline/shared";
 import { useAuth } from "@/components/auth-provider";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
@@ -101,7 +103,8 @@ export function PrizesPage() {
   const { writeContractAsync } = useWriteContract();
 
   const [prizes, setPrizes] = useState<PrizeTierDTO[] | null>(null);
-  const [dashboard, setDashboard] = useState<DashboardDTO | null>(null);
+  const [dashboard, setDashboard] =
+    useState<DashboardSummaryWithChainDTO | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [claim, setClaim] = useState<ClaimState>({
     tierId: null,
@@ -132,8 +135,21 @@ export function PrizesPage() {
       return;
     }
     try {
-      const next = await apiFetch<DashboardDTO>("/api/dashboard/me", { token });
-      setDashboard(next);
+      const [summary, chainState] = await Promise.all([
+        apiFetch<DashboardSummaryDTO>("/api/dashboard/me", { token }),
+        apiFetch<DashboardChainStateDTO>("/api/dashboard/chain-state", {
+          token,
+        }),
+      ]);
+
+      setDashboard({
+        ...summary,
+        ...chainState,
+        balances: {
+          ...summary.balances,
+          ...chainState.balances,
+        },
+      } satisfies DashboardSummaryWithChainDTO);
     } catch {
       setDashboard(null);
     }
@@ -273,9 +289,7 @@ export function PrizesPage() {
           </div>
         ) : null}
 
-        {claim.stage !== "idle" ? (
-          <ClaimStatusBanner claim={claim} />
-        ) : null}
+        {claim.stage !== "idle" ? <ClaimStatusBanner claim={claim} /> : null}
 
         {!prizes ? (
           <PrizeGridSkeleton />
@@ -310,7 +324,7 @@ function UserStandingCard({
   walletBalanceLabel,
   isAuthenticated,
 }: {
-  dashboard: DashboardDTO | null;
+  dashboard: DashboardSummaryWithChainDTO | null;
   walletBalanceLabel: string | null;
   isAuthenticated: boolean;
 }) {

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, desc, eq, gt, inArray, sql } from "drizzle-orm";
-import type { Address } from "viem";
-import { formatUnits } from "viem";
+import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import {
   claim,
   getActiveTournamentId,
@@ -14,14 +12,13 @@ import {
   userPoint,
 } from "@boundaryline/db";
 import {
-  BNDY_DECIMALS,
   DASHBOARD_SEASON_LABEL,
   DASHBOARD_TOURNAMENT_SUBTITLE,
   DEFAULT_MANAGER_NAME,
   MIN_EARNED_TO_CLAIM_BNDY,
   TIERS_BY_ID,
   franchiseForName,
-  type DashboardDTO,
+  type DashboardSummaryDTO,
   type TierId,
 } from "@boundaryline/shared";
 import { db } from "@/lib/db";
@@ -31,12 +28,7 @@ import {
   expireStaleClaims,
   expireStaleSyncRecords,
   getPendingSyncAmount,
-  getPrizeLeaderboardState,
-  getPrizeStandingForWallet,
-  qualificationProgressPercent,
-  rankPercentile,
 } from "@/lib/prize-state";
-import { readEarnedBalance, readWalletBalance } from "@/lib/viem";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -71,17 +63,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .where(eq(user.wallet, wallet))
       .limit(1);
 
-    const [
-      pointRow,
-      rankRow,
-      totalRow,
-      teamRow,
-      currentClaim,
-      onChainEarned,
-      walletBalance,
-      pendingSync,
-      prizeState,
-    ] = await Promise.all([
+    const [pointRow, teamRow, currentClaim, pendingSync] = await Promise.all([
       database
         .select({ totalPoints: userPoint.totalPoints })
         .from(userPoint)
@@ -92,33 +74,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           ),
         )
         .limit(1)
-        .then((rows) => rows[0]),
-      database
-        .select({
-          rank: sql<number>`(
-              SELECT COUNT(*)::int + 1 FROM ${userPoint} up2
-              WHERE up2.tournament_id = ${tournamentId}
-                AND up2.total_points > ${userPoint.totalPoints}
-            )`.as("rank"),
-        })
-        .from(userPoint)
-        .where(
-          and(
-            eq(userPoint.wallet, wallet),
-            eq(userPoint.tournamentId, tournamentId),
-          ),
-        )
-        .limit(1)
-        .then((rows) => rows[0]),
-      database
-        .select({ count: sql<number>`COUNT(*)::int` })
-        .from(userPoint)
-        .where(
-          and(
-            eq(userPoint.tournamentId, tournamentId),
-            gt(userPoint.totalPoints, 0n),
-          ),
-        )
         .then((rows) => rows[0]),
       database
         .select({ id: team.id })
@@ -141,39 +96,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         .orderBy(desc(claim.createdAt))
         .limit(1)
         .then((rows) => rows[0]),
-      readEarnedBalance(wallet as Address),
-      readWalletBalance(wallet as Address),
       getPendingSyncAmount(database, wallet, tournamentId),
-      getPrizeLeaderboardState(database, tournamentId, [wallet]),
     ]);
 
     const totalEarnedPoints = pointRow?.totalPoints ?? 0n;
-    const totalEarnedWei = totalEarnedPoints * 10n ** BigInt(BNDY_DECIMALS);
-    const unsyncedWei =
-      totalEarnedWei > onChainEarned + pendingSync
-        ? totalEarnedWei - onChainEarned - pendingSync
-        : 0n;
-
-    const prizeStanding = getPrizeStandingForWallet(prizeState, wallet);
-    const globalRank = rankRow?.rank ?? null;
-    const globalTotal = totalRow?.count ?? 0;
-    const globalPercentile = rankPercentile(globalRank, globalTotal);
-    const prizeRank = prizeStanding?.rank ?? null;
-    const prizePercentile = rankPercentile(
-      prizeRank,
-      prizeState.totalQualified,
-    );
-    const qualified = prizeStanding != null;
-    const progressPercent = qualified
-      ? (prizePercentile ?? 100)
-      : qualificationProgressPercent(onChainEarned);
-    const progressLabel = qualified
-      ? "Standing Across Qualified Wallets"
-      : "Progress to Qualification";
 
     let playerCount = 0;
-    let recentMatches: DashboardDTO["recentMatches"] = [];
-    let upcomingMatches: DashboardDTO["upcomingMatches"] = [];
+    let recentMatches: DashboardSummaryDTO["recentMatches"] = [];
+    let upcomingMatches: DashboardSummaryDTO["upcomingMatches"] = [];
 
     const upcomingRows = await database
       .select({
@@ -309,37 +239,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       },
       balances: {
         totalEarned: Number(totalEarnedPoints),
-        onChainEarned: onChainEarned.toString(),
-        walletBalance: walletBalance.toString(),
-        unsynced: Number(formatUnits(unsyncedWei, BNDY_DECIMALS).split(".")[0]),
         pendingSync: pendingSync.toString(),
         minEarnedToQualify: MIN_EARNED_TO_CLAIM_BNDY,
       },
       team: {
         exists: teamRow != null,
         playerCount,
-      },
-      global: {
-        rank: globalRank,
-        totalPlayers: globalTotal,
-        percentile: globalPercentile,
-      },
-      prize: {
-        qualified,
-        prizeRank,
-        prizeTotal: prizeState.totalQualified,
-        percentile: prizePercentile,
-        currentTier: prizeStanding?.tier
-          ? {
-              id: prizeStanding.tier.id,
-              name: prizeStanding.tier.name,
-              displayName: prizeStanding.tier.displayName,
-              rankRequired: prizeStanding.tier.rankRequired,
-            }
-          : null,
-        canClaim: prizeStanding?.canClaim ?? false,
-        progressLabel,
-        progressPercent,
       },
       claim:
         currentClaim && claimTier
@@ -365,7 +270,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           : null,
       recentMatches,
       upcomingMatches,
-    } satisfies DashboardDTO);
+    } satisfies DashboardSummaryDTO);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";
     return internalError(`Failed to load dashboard: ${msg}`);

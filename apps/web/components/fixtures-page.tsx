@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  type DashboardDTO,
+  type DashboardSummaryDTO,
   type DashboardMatchActivityDTO,
   type FixturesResponseDTO,
 } from "@boundaryline/shared";
@@ -157,7 +157,7 @@ function FixturesErrorState({
 
 export function FixturesPage() {
   const { isAuthenticated, status, token } = useAuth();
-  const [dashboard, setDashboard] = useState<DashboardDTO | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardSummaryDTO | null>(null);
   const [fixtures, setFixtures] = useState<DashboardMatchActivityDTO[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -174,7 +174,7 @@ export function FixturesPage() {
 
     try {
       const [nextDashboard, fixturesResponse] = await Promise.all([
-        apiFetch<DashboardDTO>("/api/dashboard/me", { token }),
+        apiFetch<DashboardSummaryDTO>("/api/dashboard/me", { token }),
         apiFetch<FixturesResponseDTO>("/api/fixtures", { token }),
       ]);
       setDashboard(nextDashboard);

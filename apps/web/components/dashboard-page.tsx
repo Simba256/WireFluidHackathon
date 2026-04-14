@@ -11,7 +11,9 @@ import {
   CONTRACT_ADDRESSES,
   PSLPointsAbi,
   explorerTxUrl,
-  type DashboardDTO,
+  type DashboardChainStateDTO,
+  type DashboardGlobalDTO,
+  type DashboardSummaryDTO,
 } from "@boundaryline/shared";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { ProfilePopover } from "@/components/profile-popover";
@@ -120,7 +122,10 @@ function formatDateLabel(playedAt: string | null, scheduledAt: string): string {
   }).format(new Date(playedAt ?? scheduledAt));
 }
 
-function dashboardStatusLabel(dashboard: DashboardDTO): string {
+function dashboardStatusLabel(
+  dashboard: DashboardSummaryDTO,
+  chainState: DashboardChainStateDTO | null,
+): string {
   if (dashboard.claim?.status === "confirmed") {
     return "Claimed";
   }
@@ -129,7 +134,7 @@ function dashboardStatusLabel(dashboard: DashboardDTO): string {
     return "Claim Pending";
   }
 
-  if (dashboard.prize.qualified) {
+  if (chainState?.prize.qualified) {
     return "Qualified";
   }
 
@@ -141,7 +146,7 @@ function dashboardStatusLabel(dashboard: DashboardDTO): string {
 }
 
 function matchStatusLabel(
-  status: DashboardDTO["recentMatches"][number]["status"],
+  status: DashboardSummaryDTO["recentMatches"][number]["status"],
 ): string {
   if (status === "completed") {
     return "Scored";
@@ -157,7 +162,7 @@ function matchStatusLabel(
 function TeamLogoPuck({
   side,
 }: {
-  side: DashboardDTO["recentMatches"][number]["teamA"];
+  side: DashboardSummaryDTO["recentMatches"][number]["teamA"];
 }) {
   return (
     <div
@@ -187,6 +192,15 @@ function TeamLogoPuck({
   );
 }
 
+function BalanceSkeleton({ className }: { className: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`inline-block animate-pulse rounded-full bg-primary/15 ${className}`}
+    />
+  );
+}
+
 function MatchActivitySection({
   action,
   emptyDescription,
@@ -199,7 +213,7 @@ function MatchActivitySection({
   emptyDescription: string;
   emptyTitle: string;
   label: string;
-  matches: DashboardDTO["recentMatches"];
+  matches: DashboardSummaryDTO["recentMatches"];
   title: string;
 }) {
   return (
@@ -277,9 +291,13 @@ function MatchActivitySection({
 export function AppChrome({
   children,
   dashboard,
+  isWalletBalanceLoading = false,
+  walletBalance = null,
 }: {
   children: React.ReactNode;
-  dashboard: DashboardDTO;
+  dashboard: DashboardSummaryDTO;
+  isWalletBalanceLoading?: boolean;
+  walletBalance?: string | null;
 }) {
   return (
     <>
@@ -309,16 +327,22 @@ export function AppChrome({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 rounded-full border border-outline-variant/15 bg-surface-container px-3 py-1.5">
-            <Icon
-              fill
-              className="text-sm text-primary"
-              name="account_balance_wallet"
-            />
-            <span className="font-headline text-sm font-bold text-primary">
-              BNDY {formatWeiInteger(dashboard.balances.walletBalance)}
-            </span>
-          </div>
+          {isWalletBalanceLoading || walletBalance != null ? (
+            <div className="flex items-center gap-2 rounded-full border border-outline-variant/15 bg-surface-container px-3 py-1.5">
+              <Icon
+                fill
+                className="text-sm text-primary"
+                name="account_balance_wallet"
+              />
+              {isWalletBalanceLoading ? (
+                <BalanceSkeleton className="h-4 w-24 bg-primary/20" />
+              ) : (
+                <span className="font-headline text-sm font-bold text-primary">
+                  BNDY {formatWeiInteger(walletBalance ?? "0")}
+                </span>
+              )}
+            </div>
+          ) : null}
           <ProfilePopover />
         </div>
       </header>
@@ -535,7 +559,17 @@ export function DashboardPage() {
   const { isAuthenticated, status, token } = useAuth();
   const { writeContractAsync } = useWriteContract();
 
-  const [dashboard, setDashboard] = useState<DashboardDTO | null>(null);
+  const [dashboard, setDashboard] = useState<DashboardSummaryDTO | null>(null);
+  const [chainState, setChainState] = useState<DashboardChainStateDTO | null>(
+    null,
+  );
+  const [globalState, setGlobalState] = useState<DashboardGlobalDTO | null>(
+    null,
+  );
+  const [chainStateError, setChainStateError] = useState<string | null>(null);
+  const [globalStateError, setGlobalStateError] = useState<string | null>(null);
+  const [isChainStateLoading, setIsChainStateLoading] = useState(false);
+  const [isGlobalStateLoading, setIsGlobalStateLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [tx, setTx] = useState<TransactionState>({
@@ -587,9 +621,71 @@ export function DashboardPage() {
     [token],
   );
 
+  const loadChainState = useCallback(async () => {
+    if (!token) {
+      setChainState(null);
+      setChainStateError(null);
+      setIsChainStateLoading(false);
+      return;
+    }
+
+    setIsChainStateLoading(true);
+    setChainStateError(null);
+
+    try {
+      const nextChainState = await apiFetch<DashboardChainStateDTO>(
+        "/api/dashboard/chain-state",
+        { token },
+      );
+      setChainState(nextChainState);
+    } catch (err) {
+      setChainState(null);
+      setChainStateError(
+        err instanceof ApiClientError || err instanceof Error
+          ? err.message
+          : "Failed to load live balance",
+      );
+    } finally {
+      setIsChainStateLoading(false);
+    }
+  }, [token]);
+
+  const loadGlobalState = useCallback(async () => {
+    if (!token) {
+      setGlobalState(null);
+      setGlobalStateError(null);
+      setIsGlobalStateLoading(false);
+      return;
+    }
+
+    setIsGlobalStateLoading(true);
+    setGlobalStateError(null);
+
+    try {
+      const nextGlobalState = await apiFetch<DashboardGlobalDTO>(
+        "/api/dashboard/global-standing",
+        { token },
+      );
+      setGlobalState(nextGlobalState);
+    } catch (err) {
+      setGlobalState(null);
+      setGlobalStateError(
+        err instanceof ApiClientError || err instanceof Error
+          ? err.message
+          : "Failed to load global standing",
+      );
+    } finally {
+      setIsGlobalStateLoading(false);
+    }
+  }, [token]);
+
   const loadDashboard = useCallback(async () => {
     if (!token) {
       setDashboard(null);
+      setChainState(null);
+      setGlobalState(null);
+      setChainStateError(null);
+      setGlobalStateError(null);
       return;
     }
 
@@ -597,10 +693,15 @@ export function DashboardPage() {
     setError(null);
 
     try {
-      const nextDashboard = await apiFetch<DashboardDTO>("/api/dashboard/me", {
-        token,
-      });
+      const nextDashboard = await apiFetch<DashboardSummaryDTO>(
+        "/api/dashboard/me",
+        {
+          token,
+        },
+      );
       setDashboard(nextDashboard);
+      void loadChainState();
+      void loadGlobalState();
     } catch (err) {
       setError(
         err instanceof ApiClientError || err instanceof Error
@@ -610,11 +711,17 @@ export function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [loadChainState, loadGlobalState, token]);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
       setDashboard(null);
+      setChainState(null);
+      setGlobalState(null);
+      setChainStateError(null);
+      setGlobalStateError(null);
+      setIsChainStateLoading(false);
+      setIsGlobalStateLoading(false);
       setError(null);
       return;
     }
@@ -668,17 +775,21 @@ export function DashboardPage() {
     tx.nonce,
   ]);
 
-  const hasUnsyncedPoints = (dashboard?.balances.unsynced ?? 0) > 0;
+  const hasUnsyncedPoints = (chainState?.balances.unsynced ?? 0) > 0;
   const hasClaimableTier = Boolean(
-    dashboard?.prize.canClaim && dashboard.prize.currentTier,
+    chainState?.prize.canClaim && chainState.prize.currentTier,
   );
   const isBusy =
     tx.stage === "requesting" ||
     tx.stage === "awaiting_wallet" ||
     tx.stage === "pending";
+  const isChainStateUnavailable =
+    !isChainStateLoading && chainState == null && chainStateError != null;
+  const isGlobalStateUnavailable =
+    !isGlobalStateLoading && globalState == null && globalStateError != null;
 
   const handleSync = useCallback(async () => {
-    if (!token || !hasUnsyncedPoints) {
+    if (!token || !hasUnsyncedPoints || isChainStateLoading) {
       return;
     }
 
@@ -746,13 +857,19 @@ export function DashboardPage() {
   }, [
     cancelPendingSync,
     hasUnsyncedPoints,
+    isChainStateLoading,
     loadDashboard,
     token,
     writeContractAsync,
   ]);
 
   const handleClaim = useCallback(async () => {
-    if (!token || !dashboard?.prize.currentTier || !dashboard.prize.canClaim) {
+    if (
+      !token ||
+      !chainState?.prize.currentTier ||
+      !chainState.prize.canClaim ||
+      isChainStateLoading
+    ) {
       return;
     }
 
@@ -766,7 +883,7 @@ export function DashboardPage() {
 
     try {
       const response = await apiFetch<ClaimVoucherResponse>("/api/claim", {
-        json: { tierId: dashboard.prize.currentTier.id },
+        json: { tierId: chainState.prize.currentTier.id },
         method: "POST",
         token,
       });
@@ -810,8 +927,9 @@ export function DashboardPage() {
       });
     }
   }, [
-    dashboard?.prize.canClaim,
-    dashboard?.prize.currentTier,
+    chainState?.prize.canClaim,
+    chainState?.prize.currentTier,
+    isChainStateLoading,
     token,
     writeContractAsync,
   ]);
@@ -825,18 +943,32 @@ export function DashboardPage() {
       return `Pending ${dashboard.claim.tierDisplayName}`;
     }
 
-    if (dashboard?.prize.canClaim && dashboard.prize.currentTier) {
-      return `Claim ${dashboard.prize.currentTier.displayName}`;
+    if (isChainStateLoading) {
+      return "Checking eligibility...";
+    }
+
+    if (chainStateError) {
+      return "Eligibility unavailable";
+    }
+
+    if (chainState?.prize.canClaim && chainState.prize.currentTier) {
+      return `Claim ${chainState.prize.currentTier.displayName}`;
     }
 
     return "Claim Prize";
   }, [
+    chainState?.prize.canClaim,
+    chainState?.prize.currentTier,
+    chainStateError,
     dashboard?.claim,
-    dashboard?.prize.canClaim,
-    dashboard?.prize.currentTier,
+    isChainStateLoading,
   ]);
 
-  const statusLabel = dashboard ? dashboardStatusLabel(dashboard) : "Active";
+  const statusLabel = dashboard
+    ? dashboardStatusLabel(dashboard, chainState)
+    : "Active";
+  const statusHighlighted =
+    Boolean(dashboard?.claim) || chainState?.prize.qualified;
 
   if (
     !isAuthenticated ||
@@ -869,7 +1001,11 @@ export function DashboardPage() {
       : "Awaiting fixtures";
 
   return (
-    <AppChrome dashboard={dashboard}>
+    <AppChrome
+      dashboard={dashboard}
+      isWalletBalanceLoading={isChainStateLoading}
+      walletBalance={chainState?.balances.walletBalance ?? null}
+    >
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <section className="relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[2rem] bg-surface-container-low p-8 md:col-span-2">
           <div className="relative z-10">
@@ -892,9 +1028,17 @@ export function DashboardPage() {
                 Unsynced Delta
               </span>
               <div className="flex items-center gap-2">
-                <span className="font-headline text-2xl font-bold text-secondary">
-                  +{formatInteger(dashboard.balances.unsynced)}
-                </span>
+                {chainState ? (
+                  <span className="font-headline text-2xl font-bold text-secondary">
+                    +{formatInteger(chainState.balances.unsynced)}
+                  </span>
+                ) : isChainStateUnavailable ? (
+                  <span className="font-headline text-2xl font-bold text-slate-400">
+                    Unavailable
+                  </span>
+                ) : (
+                  <BalanceSkeleton className="h-8 w-28" />
+                )}
                 <Icon
                   className="animate-pulse text-secondary"
                   name="cloud_sync"
@@ -904,13 +1048,24 @@ export function DashboardPage() {
 
             <button
               className="flex items-center gap-3 rounded-full px-8 py-4 font-headline font-bold text-on-primary transition-all pitch-gradient hover:shadow-[0_0_30px_rgba(84,233,138,0.3)] disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={!hasUnsyncedPoints || isBusy}
+              disabled={
+                !hasUnsyncedPoints ||
+                isBusy ||
+                isChainStateLoading ||
+                isChainStateUnavailable
+              }
               onClick={() => {
                 void handleSync();
               }}
               type="button"
             >
-              {hasUnsyncedPoints ? "Sync to Chain" : "Nothing to Sync"}
+              {isChainStateLoading
+                ? "Checking Chain"
+                : isChainStateUnavailable
+                  ? "Balance Unavailable"
+                  : hasUnsyncedPoints
+                    ? "Sync to Chain"
+                    : "Nothing to Sync"}
               <Icon name="bolt" />
             </button>
           </div>
@@ -926,23 +1081,31 @@ export function DashboardPage() {
               </span>
               <Icon
                 className={
-                  dashboard.prize.qualified ? "text-primary" : "text-secondary"
+                  statusHighlighted ? "text-primary" : "text-secondary"
                 }
-                name={dashboard.prize.qualified ? "verified" : "hourglass_top"}
+                name={statusHighlighted ? "verified" : "hourglass_top"}
               />
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-slate-300">Global Rank</span>
-                <span className="font-headline text-xl font-bold">
-                  {formatRank(dashboard.global.rank)}
-                </span>
+                {globalState ? (
+                  <span className="font-headline text-xl font-bold">
+                    {formatRank(globalState.global.rank)}
+                  </span>
+                ) : isGlobalStateUnavailable ? (
+                  <span className="font-headline text-xl font-bold text-slate-400">
+                    Unavailable
+                  </span>
+                ) : (
+                  <BalanceSkeleton className="h-6 w-20" />
+                )}
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-300">Current Status</span>
                 <span
-                  className={`rounded-full px-3 py-1 text-sm font-bold ${dashboard.prize.qualified ? "bg-secondary/20 text-secondary" : "bg-surface-variant text-slate-400"}`}
+                  className={`rounded-full px-3 py-1 text-sm font-bold ${statusHighlighted ? "bg-secondary/20 text-secondary" : "bg-surface-variant text-slate-400"}`}
                 >
                   {statusLabel}
                 </span>
@@ -952,23 +1115,46 @@ export function DashboardPage() {
 
           <div className="mt-8">
             <div className="mb-2 flex justify-between text-xs">
-              <span className="text-slate-400">
-                {dashboard.prize.progressLabel}
-              </span>
-              <span className="font-bold text-primary">
-                {dashboard.prize.progressPercent}%
-              </span>
+              {chainState ? (
+                <>
+                  <span className="text-slate-400">
+                    {chainState.prize.progressLabel}
+                  </span>
+                  <span className="font-bold text-primary">
+                    {chainState.prize.progressPercent}%
+                  </span>
+                </>
+              ) : isChainStateUnavailable ? (
+                <span className="text-slate-400">
+                  Live prize progress unavailable
+                </span>
+              ) : (
+                <>
+                  <BalanceSkeleton className="h-4 w-40" />
+                  <BalanceSkeleton className="h-4 w-12" />
+                </>
+              )}
             </div>
             <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-highest">
-              <div
-                className="h-full rounded-full bg-primary transition-[width]"
-                style={{ width: `${dashboard.prize.progressPercent}%` }}
-              />
+              {chainState ? (
+                <div
+                  className="h-full rounded-full bg-primary transition-[width]"
+                  style={{ width: `${chainState.prize.progressPercent}%` }}
+                />
+              ) : (
+                <div className="h-full w-1/3 animate-pulse rounded-full bg-primary/35" />
+              )}
             </div>
 
             <button
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 font-headline font-bold transition-colors disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-slate-500 enabled:bg-primary enabled:text-on-primary"
-              disabled={!hasClaimableTier || Boolean(dashboard.claim) || isBusy}
+              disabled={
+                !hasClaimableTier ||
+                Boolean(dashboard.claim) ||
+                isBusy ||
+                isChainStateLoading ||
+                isChainStateUnavailable
+              }
               onClick={() => {
                 void handleClaim();
               }}
@@ -1010,11 +1196,11 @@ export function DashboardPage() {
 
             <div className="space-y-3">
               <div
-                className={`flex items-center justify-between rounded-2xl p-4 ${dashboard.prize.qualified ? "border border-primary/20 bg-surface-container-low" : "bg-surface-container-low"}`}
+                className={`flex items-center justify-between rounded-2xl p-4 ${statusHighlighted ? "border border-primary/20 bg-surface-container-low" : "bg-surface-container-low"}`}
               >
                 <span className="text-slate-300">Current Status</span>
                 <span
-                  className={`font-bold ${dashboard.prize.qualified ? "text-primary" : "text-secondary"}`}
+                  className={`font-bold ${statusHighlighted ? "text-primary" : "text-secondary"}`}
                 >
                   {statusLabel}
                 </span>
@@ -1022,18 +1208,30 @@ export function DashboardPage() {
 
               <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
                 <span className="text-slate-300">Leaderboard Rank</span>
-                <span className="font-bold">
-                  {formatRank(dashboard.global.rank)}
-                </span>
+                {globalState ? (
+                  <span className="font-bold">
+                    {formatRank(globalState.global.rank)}
+                  </span>
+                ) : isGlobalStateUnavailable ? (
+                  <span className="font-bold text-slate-400">Unavailable</span>
+                ) : (
+                  <BalanceSkeleton className="h-5 w-16" />
+                )}
               </div>
 
               <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
                 <span className="text-slate-300">Leaderboard %</span>
-                <span className="font-bold text-secondary">
-                  {dashboard.global.percentile != null
-                    ? `${dashboard.global.percentile}%`
-                    : "-"}
-                </span>
+                {globalState ? (
+                  <span className="font-bold text-secondary">
+                    {globalState.global.percentile != null
+                      ? `${globalState.global.percentile}%`
+                      : "-"}
+                  </span>
+                ) : isGlobalStateUnavailable ? (
+                  <span className="font-bold text-slate-400">Unavailable</span>
+                ) : (
+                  <BalanceSkeleton className="h-5 w-12" />
+                )}
               </div>
 
               <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
@@ -1051,13 +1249,37 @@ export function DashboardPage() {
               <p className="mb-1 text-sm font-bold uppercase tracking-widest text-slate-400">
                 Wallet Balance
               </p>
-              <h4 className="font-headline text-4xl font-bold text-on-surface">
-                {formatWeiInteger(dashboard.balances.walletBalance)} BNDY
-              </h4>
-              <p className="mt-2 text-sm text-slate-400">
-                On-chain earned:{" "}
-                {formatWeiInteger(dashboard.balances.onChainEarned)} BNDY
-              </p>
+              {chainState ? (
+                <>
+                  <h4 className="font-headline text-4xl font-bold text-on-surface">
+                    {formatWeiInteger(chainState.balances.walletBalance)} BNDY
+                  </h4>
+                  <p className="mt-2 text-sm text-slate-400">
+                    On-chain earned:{" "}
+                    {formatWeiInteger(chainState.balances.onChainEarned)} BNDY
+                  </p>
+                </>
+              ) : isChainStateUnavailable ? (
+                <>
+                  <h4 className="font-headline text-3xl font-bold text-on-surface">
+                    Live balance unavailable
+                  </h4>
+                  <button
+                    className="mt-3 self-start text-sm font-bold text-primary underline-offset-4 hover:underline"
+                    onClick={() => {
+                      void loadChainState();
+                    }}
+                    type="button"
+                  >
+                    Retry live balance
+                  </button>
+                </>
+              ) : (
+                <>
+                  <BalanceSkeleton className="h-10 w-48" />
+                  <BalanceSkeleton className="mt-3 h-4 w-36" />
+                </>
+              )}
             </div>
           </section>
         </div>

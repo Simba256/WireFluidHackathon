@@ -183,7 +183,7 @@ Returns the caller's core score and sync summary. `prizeRank`, `prizeTotal`, `cu
 
 ### `GET /api/dashboard/me`
 
-Aggregated dashboard payload for the authenticated user. Combines user profile, tournament metadata, balances, team status, global standing, prize standing, active claim, and the last 3 scored matches for the user's lineup. `upcomingMatches` is a dashboard preview capped to the next 4 scheduled/live fixtures.
+Fast dashboard summary payload for the authenticated user. Combines user profile, tournament metadata, off-chain totals, team status, active claim, and the last 3 scored matches for the user's lineup. `upcomingMatches` is a dashboard preview capped to the next 4 scheduled/live fixtures. Live WireFluid balances and prize standing are intentionally split into `GET /api/dashboard/chain-state`, and global leaderboard standing is split into `GET /api/dashboard/global-standing`, so the page can render before slower secondary reads complete.
 
 **Auth**: required
 
@@ -204,35 +204,12 @@ Aggregated dashboard payload for the authenticated user. Combines user profile, 
   },
   "balances": {
     "totalEarned": 24830,
-    "onChainEarned": "10000000000000000000000",
-    "walletBalance": "14500000000000000000000",
-    "unsynced": 14830,
     "pendingSync": "0",
     "minEarnedToQualify": 10000
   },
   "team": {
     "exists": true,
     "playerCount": 11
-  },
-  "global": {
-    "rank": 47,
-    "totalPlayers": 2843,
-    "percentile": 98
-  },
-  "prize": {
-    "qualified": true,
-    "prizeRank": 8,
-    "prizeTotal": 89,
-    "percentile": 92,
-    "currentTier": {
-      "id": 3,
-      "name": "TOP_10",
-      "displayName": "Top 10",
-      "rankRequired": 10
-    },
-    "canClaim": true,
-    "progressLabel": "Standing Across Qualified Wallets",
-    "progressPercent": 92
   },
   "claim": null,
   "recentMatches": [
@@ -273,6 +250,57 @@ Aggregated dashboard payload for the authenticated user. Combines user profile, 
       "points": null
     }
   ]
+}
+```
+
+### `GET /api/dashboard/global-standing`
+
+Secondary dashboard payload for the authenticated user containing only global leaderboard standing. The dashboard UI should request this after `GET /api/dashboard/me` so rank widgets can pulse independently instead of blocking the whole page.
+
+**Auth**: required
+
+**Response** `200`
+
+```json
+{
+  "global": {
+    "rank": 47,
+    "totalPlayers": 2843,
+    "percentile": 98
+  }
+}
+```
+
+### `GET /api/dashboard/chain-state`
+
+Slow WireFluid-derived dashboard state for the authenticated user. Returns on-chain balances, unsynced delta, and prize standing. The dashboard UI should request this separately from `GET /api/dashboard/me` so live chain reads only delay balance-dependent widgets instead of the whole page.
+
+**Auth**: required
+
+**Response** `200`
+
+```json
+{
+  "balances": {
+    "onChainEarned": "10000000000000000000000",
+    "walletBalance": "14500000000000000000000",
+    "unsynced": 14830
+  },
+  "prize": {
+    "qualified": true,
+    "prizeRank": 8,
+    "prizeTotal": 89,
+    "percentile": 92,
+    "currentTier": {
+      "id": 3,
+      "name": "TOP_10",
+      "displayName": "Top 10",
+      "rankRequired": 10
+    },
+    "canClaim": true,
+    "progressLabel": "Standing Across Qualified Wallets",
+    "progressPercent": 92
+  }
 }
 ```
 

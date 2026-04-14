@@ -168,7 +168,9 @@
 ### 4.3 Points & Sync
 
 - [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — _API.md_
-- [x] `GET /api/dashboard/me` (aggregated dashboard payload: balances, ranks, claim state, recent match activity) — _API.md_
+- [x] `GET /api/dashboard/me` (fast dashboard summary payload: off-chain totals, claim state, and recent/upcoming match activity) — _API.md_
+- [x] `GET /api/dashboard/global-standing` (split global rank/percentile so leaderboard widgets do not block dashboard render) — _API.md_
+- [x] `GET /api/dashboard/chain-state` (split WireFluid balances + prize standing so slow chain reads do not block dashboard render) — _API.md_
 - [x] Dashboard upcoming fixtures fallback (scheduled/live matches surfaced when no scored activity is available) — _API.md_
 - [x] `GET /api/fixtures` (full active-tournament schedule for authenticated app views) — _API.md_
 - [x] `POST /api/sync` (delta, nonce, EIP-712 sign, pending record, expires) — _API.md_
@@ -225,6 +227,7 @@
 ### 5.3 App pages
 
 - [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier, match cards without misleading DB-id numbering) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` split-loads WireFluid balance/prize state and global standing, pulsing only those widgets while the rest of the page renders immediately — _API.md_
 - [x] `/dashboard/fixtures` (full authenticated tournament schedule list without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
