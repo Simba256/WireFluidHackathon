@@ -1,14 +1,28 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { sql } from "drizzle-orm";
 import { getDb } from "../src/client";
-import { match, player, prize, tournament } from "../src/schema";
+import { match, player, playerScore, prize, team, teamPlayer, tournament } from "../src/schema";
+
+// Load .env.local from repo root so DATABASE_URL is available when running standalone
+const ROOT = resolve(__dirname, '../../..');
+const envPath = resolve(ROOT, '.env.local');
+if (existsSync(envPath) && !process.env.DATABASE_URL) {
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const match = line.match(/^\s*([\w]+)\s*=\s*"?([^"]*)"?\s*$/);
+    if (match && !process.env[match[1]!]) {
+      process.env[match[1]!] = match[2]!;
+    }
+  }
+}
 
 interface PlayerSeed {
   externalId: string;
   name: string;
   team: string;
   role: "batsman" | "bowler" | "all-rounder" | "wicketkeeper";
+  basePrice: number;
+  photoUrl: string | null;
 }
 
 interface PrizeSeed {
@@ -42,7 +56,11 @@ async function main() {
   const prizes = loadJson<PrizeSeed[]>("data/prizes.json");
   const matches = loadJson<MatchSeed[]>("data/matches.json");
 
-  console.log(`Seeding ${players.length} players…`);
+  console.log(`Clearing old data and seeding ${players.length} players…`);
+  await db.delete(playerScore);
+  await db.delete(teamPlayer);
+  await db.delete(team);
+  await db.delete(player);
   await db
     .insert(player)
     .values(
@@ -51,6 +69,8 @@ async function main() {
         name: p.name,
         team: p.team,
         role: p.role,
+        basePrice: p.basePrice,
+        photoUrl: p.photoUrl ?? null,
       })),
     )
     .onConflictDoNothing({ target: player.externalId });

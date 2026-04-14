@@ -9,7 +9,6 @@
 ## The Pitch
 
 Millions of Pakistanis follow PSL. Existing fantasy cricket apps gatekeep prizes behind entry fees and store scores in opaque databases. **BoundaryLine flips the model**:
-
 - **Free to play** — no entry fees, ever. The only cost is a few cents of gas when you claim.
 - **On-chain prize distribution** — the prize leaderboard lives on WireFluid. Anyone can verify who won.
 - **Real-world rewards** — top-ranked players claim signed gear, tickets, and merch. No tokenized shortcuts.
@@ -25,7 +24,6 @@ Millions of Pakistanis follow PSL. Existing fantasy cricket apps gatekeep prizes
 4. **Sync your points** to your wallet. Once you've earned and synced **10,000 BNDY**, you're on the prize leaderboard.
 5. **Climb rank** by playing more, trading, gifting, or buying BNDY on the market — the leaderboard ranks by wallet balance, not just earned history. Pure whales who never played stay invisible and cannot claim.
 6. **Claim your tier** when your rank hits Top 50, Top 25, Top 10, Top 3, or Rank 1 — burn your tokens, mint a trophy NFT, receive your real prize.
-
 **Play to qualify. Pay to rank. Earn to win. One claim per player per tournament — pick your moment.**
 
 ---

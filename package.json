@@ -19,9 +19,10 @@
     "contracts:deploy:testnet": "pnpm --filter @boundaryline/contracts deploy:testnet"
   },
   "devDependencies": {
+    "prettier": "latest",
+    "tsx": "^4.21.0",
     "turbo": "latest",
-    "typescript": "latest",
-    "prettier": "latest"
+    "typescript": "latest"
   },
   "engines": {
     "node": ">=20",

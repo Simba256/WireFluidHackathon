@@ -6,7 +6,7 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 
 ## Current Status
 
-**Status**: Active — Dashboard shipped, remaining core app pages pending
+**Status**: Active — Team Picker page shipped, remaining app pages pending
 
 ## In Progress
 
@@ -29,6 +29,15 @@ BoundaryLine — a free-to-play fantasy PSL game on WireFluid where players pick
 ## Upcoming / Planned
 
 - [ ] Team picker UI (11-player picker + submit to POST /api/teams) — P0
+- [x] Team Picker page (`/play`) — server component fetches players + current match from DB, client component provides search, role filter tabs (ALL/BAT/BOWL/AR/WK), player card grid with add/remove, selection panel with progress bar, and submit to `POST /api/teams`. Existing team loaded on mount. Includes `GET /api/matches/current` route, `(app)` layout with sidebar/bottom nav (`AppNav`), and all supporting components — (2026-04-14)
+- [x] Fixed SIWE address casing on the frontend — `apps/web/components/auth-provider.tsx` was lowercasing the connected wallet before building the SIWE message, which made `siwe` reject it as an invalid EIP-55 address during verification. The connect flow now keeps the wallet's original checksummed address for the signed message and still stores/compares a lowercased copy for session state. Verification: `pnpm --filter @boundaryline/web typecheck` passes — (2026-04-14)
+- [x] Fixed local nonce 500 by placing app env where Next actually loads it — added `apps/web/.env.local` with the active Neon connection string plus local auth/SIWE settings for `localhost:3001`, then restarted the app server. Confirmed the API recovered with `curl http://localhost:3001/api/auth/nonce` returning `200` and a fresh nonce payload — (2026-04-14)
+- [x] Fixed wallet-link nonce failure caused by over-broad env validation — split `apps/web/lib/env.ts` into scoped loaders so each server path validates only the env it actually needs (`databaseEnv`, `authEnv`, `siweEnv`, `adminEnv`, `signerEnv`). This unblocked `GET /api/auth/nonce` and `POST /api/auth/verify` in local setups where unrelated env like `ADMIN_API_KEY` or `SIGNER_PRIVATE_KEY` were not populated yet. Updated `lib/db.ts`, `lib/jwt.ts`, `lib/siwe.ts`, `lib/admin.ts`, and `lib/voucher.ts` to use the scoped loaders. Verification: `pnpm --filter @boundaryline/web typecheck` and `pnpm --filter @boundaryline/web build` pass — (2026-04-14)
+
+## Upcoming / Planned
+
+- [x] Team picker UI — P0 (done)
+- [ ] Dashboard (points/me, sync button → PSLPoints.sync via wagmi) — P0
 - [ ] Leaderboard page (global + prize tabs, 5s poll on prize) — P0
 - [ ] Prizes page + claim flow (PSLPoints.claimTier via wagmi) — P0
 - [ ] Trophy showcase page — P1

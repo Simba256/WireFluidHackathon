@@ -1,8 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAuth } from "@/components/auth-provider";
+
+const NAV_LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/play", label: "Play" },
+  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/prizes", label: "Prizes" },
+] as const;
 
 function Icon({ name, className }: { name: string; className?: string }) {
   return (
@@ -17,6 +25,7 @@ function shortenAddress(address: string): string {
 }
 
 export function LandingNav() {
+  const pathname = usePathname();
   const { address, isAuthenticated, logout, status } = useAuth();
 
   const walletLabel = address
@@ -27,35 +36,27 @@ export function LandingNav() {
 
   return (
     <nav className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#0e141b] px-6 py-4">
-      <div className="font-headline text-2xl font-bold tracking-tighter text-primary">
+      <Link href="/" className="font-headline text-2xl font-bold tracking-tighter text-primary">
         BoundaryLine
-      </div>
+      </Link>
 
       <div className="hidden items-center gap-8 font-headline tracking-tight md:flex">
-        <Link
-          className="text-slate-400 transition-colors hover:text-primary"
-          href="/dashboard"
-        >
-          Dashboard
-        </Link>
-        <a
-          className="text-slate-400 transition-colors hover:text-primary"
-          href="#"
-        >
-          Play
-        </a>
-        <a
-          className="text-slate-400 transition-colors hover:text-primary"
-          href="#"
-        >
-          Leaderboard
-        </a>
-        <a
-          className="text-slate-400 transition-colors hover:text-primary"
-          href="#"
-        >
-          Prizes
-        </a>
+        {NAV_LINKS.map((link) => {
+          const active = pathname === link.href;
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={
+                active
+                  ? "border-b-2 border-primary pb-1 text-primary transition-colors"
+                  : "text-slate-400 transition-colors hover:text-primary"
+              }
+            >
+              {link.label}
+            </Link>
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-4">

@@ -223,7 +223,7 @@
 ### 5.3 App pages
 
 - [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
-- [ ] `/play` team picker (search, filters, 11-slot submit) — _GAME_DESIGN.md_
+- [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
 - [ ] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [ ] `/trophies` (user's soulbound NFTs) — _API.md_
@@ -238,8 +238,9 @@
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
 - [x] Team logos sourced from ESPN Cricinfo, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
-- [ ] PlayerCard — _GAME_DESIGN.md_
-- [ ] TeamGrid (11 slots + cap bar) — _GAME_DESIGN.md_
+- [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
+- [x] TeamGrid / selection panel (inline in team-picker-client) — _GAME_DESIGN.md_
+- [-] SalaryCapCalculator (salary cap removed from v1) — _GAME_DESIGN.md_
 - [ ] LeaderboardRow — _API.md_
 - [ ] TierCard — _GAME_DESIGN.md_
 - [ ] TrophyNFT display — _API.md_

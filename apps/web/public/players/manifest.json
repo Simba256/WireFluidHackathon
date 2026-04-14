@@ -1,0 +1,482 @@
+{
+  "psl2026-0001": {
+    "name": "Azam Khan",
+    "hasImage": true,
+    "file": "/players/psl2026-0001.png"
+  },
+  "psl2026-0002": {
+    "name": "Rahmanullah Gurbaz",
+    "hasImage": true,
+    "file": "/players/psl2026-0002.png"
+  },
+  "psl2026-0003": {
+    "name": "Colin Munro",
+    "hasImage": true,
+    "file": "/players/psl2026-0003.png"
+  },
+  "psl2026-0004": {
+    "name": "Alex Hales",
+    "hasImage": true,
+    "file": "/players/psl2026-0004.png"
+  },
+  "psl2026-0005": {
+    "name": "Matthew Short",
+    "hasImage": true,
+    "file": "/players/psl2026-0005.png"
+  },
+  "psl2026-0006": {
+    "name": "Haider Ali",
+    "hasImage": true,
+    "file": "/players/psl2026-0006.png"
+  },
+  "psl2026-0007": {
+    "name": "Asif Ali",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0008": {
+    "name": "Shadab Khan",
+    "hasImage": true,
+    "file": "/players/psl2026-0008.png"
+  },
+  "psl2026-0009": {
+    "name": "Imad Wasim",
+    "hasImage": true,
+    "file": "/players/psl2026-0009.png"
+  },
+  "psl2026-0010": {
+    "name": "Faheem Ashraf",
+    "hasImage": true,
+    "file": "/players/psl2026-0010.png"
+  },
+  "psl2026-0011": {
+    "name": "Mubasir Khan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0012": {
+    "name": "Naseem Shah",
+    "hasImage": true,
+    "file": "/players/psl2026-0012.png"
+  },
+  "psl2026-0013": {
+    "name": "Marchant de Lange",
+    "hasImage": true,
+    "file": "/players/psl2026-0013.jpg"
+  },
+  "psl2026-0014": {
+    "name": "Rumman Raees",
+    "hasImage": true,
+    "file": "/players/psl2026-0014.jpg"
+  },
+  "psl2026-0015": {
+    "name": "Zaman Khan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0016": {
+    "name": "Hunain Shah",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0017": {
+    "name": "Tim Seifert",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0018": {
+    "name": "Sarfaraz Ahmed",
+    "hasImage": true,
+    "file": "/players/psl2026-0018.png"
+  },
+  "psl2026-0019": {
+    "name": "Kane Williamson",
+    "hasImage": true,
+    "file": "/players/psl2026-0019.png"
+  },
+  "psl2026-0020": {
+    "name": "Shan Masood",
+    "hasImage": true,
+    "file": "/players/psl2026-0020.jpg"
+  },
+  "psl2026-0021": {
+    "name": "James Vince",
+    "hasImage": true,
+    "file": "/players/psl2026-0021.png"
+  },
+  "psl2026-0022": {
+    "name": "Sharjeel Khan",
+    "hasImage": true,
+    "file": "/players/psl2026-0022.png"
+  },
+  "psl2026-0023": {
+    "name": "Ben Dunk",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0024": {
+    "name": "Kieron Pollard",
+    "hasImage": true,
+    "file": "/players/psl2026-0024.jpg"
+  },
+  "psl2026-0025": {
+    "name": "Irfan Khan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0026": {
+    "name": "Shoaib Malik",
+    "hasImage": true,
+    "file": "/players/psl2026-0026.png"
+  },
+  "psl2026-0027": {
+    "name": "Arafat Minhas",
+    "hasImage": true,
+    "file": "/players/psl2026-0027.png"
+  },
+  "psl2026-0028": {
+    "name": "Mohammad Amir",
+    "hasImage": true,
+    "file": "/players/psl2026-0028.png"
+  },
+  "psl2026-0029": {
+    "name": "Hasan Ali",
+    "hasImage": true,
+    "file": "/players/psl2026-0029.png"
+  },
+  "psl2026-0030": {
+    "name": "Tabraiz Shamsi",
+    "hasImage": true,
+    "file": "/players/psl2026-0030.png"
+  },
+  "psl2026-0031": {
+    "name": "Mir Hamza",
+    "hasImage": true,
+    "file": "/players/psl2026-0031.jpg"
+  },
+  "psl2026-0032": {
+    "name": "Usman Khan Shinwari",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0033": {
+    "name": "Phil Salt",
+    "hasImage": true,
+    "file": "/players/psl2026-0033.jpg"
+  },
+  "psl2026-0034": {
+    "name": "Zeeshan Ashraf",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0035": {
+    "name": "Fakhar Zaman",
+    "hasImage": true,
+    "file": "/players/psl2026-0035.png"
+  },
+  "psl2026-0036": {
+    "name": "Abdullah Shafique",
+    "hasImage": true,
+    "file": "/players/psl2026-0036.jpg"
+  },
+  "psl2026-0037": {
+    "name": "Harry Brook",
+    "hasImage": true,
+    "file": "/players/psl2026-0037.jpg"
+  },
+  "psl2026-0038": {
+    "name": "Kamran Ghulam",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0039": {
+    "name": "Sahibzada Farhan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0040": {
+    "name": "Rashid Khan",
+    "hasImage": true,
+    "file": "/players/psl2026-0040.png"
+  },
+  "psl2026-0041": {
+    "name": "Sikandar Raza",
+    "hasImage": true,
+    "file": "/players/psl2026-0041.png"
+  },
+  "psl2026-0042": {
+    "name": "David Wiese",
+    "hasImage": true,
+    "file": "/players/psl2026-0042.jpg"
+  },
+  "psl2026-0043": {
+    "name": "Mohammad Hafeez",
+    "hasImage": true,
+    "file": "/players/psl2026-0043.png"
+  },
+  "psl2026-0044": {
+    "name": "Shaheen Shah Afridi",
+    "hasImage": true,
+    "file": "/players/psl2026-0044.jpg"
+  },
+  "psl2026-0045": {
+    "name": "Haris Rauf",
+    "hasImage": true,
+    "file": "/players/psl2026-0045.jpg"
+  },
+  "psl2026-0046": {
+    "name": "Ahmed Daniyal",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0047": {
+    "name": "Dilbar Hussain",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0048": {
+    "name": "Maaz Khan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0049": {
+    "name": "Mohammad Rizwan",
+    "hasImage": true,
+    "file": "/players/psl2026-0049.jpg"
+  },
+  "psl2026-0050": {
+    "name": "Ben Duckett",
+    "hasImage": true,
+    "file": "/players/psl2026-0050.jpg"
+  },
+  "psl2026-0051": {
+    "name": "Iftikhar Ahmed",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0052": {
+    "name": "Reeza Hendricks",
+    "hasImage": true,
+    "file": "/players/psl2026-0052.png"
+  },
+  "psl2026-0053": {
+    "name": "Tayyab Tahir",
+    "hasImage": true,
+    "file": "/players/psl2026-0053.png"
+  },
+  "psl2026-0054": {
+    "name": "Sohaib Maqsood",
+    "hasImage": true,
+    "file": "/players/psl2026-0054.png"
+  },
+  "psl2026-0055": {
+    "name": "Johnson Charles",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0056": {
+    "name": "Mohammad Nawaz",
+    "hasImage": true,
+    "file": "/players/psl2026-0056.png"
+  },
+  "psl2026-0057": {
+    "name": "Tim David",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0058": {
+    "name": "Khushdil Shah",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0059": {
+    "name": "David Willey",
+    "hasImage": true,
+    "file": "/players/psl2026-0059.png"
+  },
+  "psl2026-0060": {
+    "name": "Usama Mir",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0061": {
+    "name": "Chris Jordan",
+    "hasImage": true,
+    "file": "/players/psl2026-0061.png"
+  },
+  "psl2026-0062": {
+    "name": "Abbas Afridi",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0063": {
+    "name": "Shahnawaz Dahani",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0064": {
+    "name": "Imran Tahir",
+    "hasImage": true,
+    "file": "/players/psl2026-0064.png"
+  },
+  "psl2026-0065": {
+    "name": "Mohammad Haris",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0066": {
+    "name": "Kamran Akmal",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0067": {
+    "name": "Babar Azam",
+    "hasImage": true,
+    "file": "/players/psl2026-0067.png"
+  },
+  "psl2026-0068": {
+    "name": "Saim Ayub",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0069": {
+    "name": "Tom Kohler-Cadmore",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0070": {
+    "name": "Rovman Powell",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0071": {
+    "name": "Yasir Khan",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0072": {
+    "name": "Daniel Sams",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0073": {
+    "name": "Liam Livingstone",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0074": {
+    "name": "Daryl Mitchell",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0075": {
+    "name": "Paul Walter",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0076": {
+    "name": "Wahab Riaz",
+    "hasImage": true,
+    "file": "/players/psl2026-0076.png"
+  },
+  "psl2026-0077": {
+    "name": "Luke Wood",
+    "hasImage": true,
+    "file": "/players/psl2026-0077.jpg"
+  },
+  "psl2026-0078": {
+    "name": "Mehran Mumtaz",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0079": {
+    "name": "Sufiyan Muqeem",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0080": {
+    "name": "Arshad Iqbal",
+    "hasImage": true,
+    "file": "/players/psl2026-0080.png"
+  },
+  "psl2026-0081": {
+    "name": "Umar Akmal",
+    "hasImage": true,
+    "file": "/players/psl2026-0081.png"
+  },
+  "psl2026-0082": {
+    "name": "Will Smeed",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0083": {
+    "name": "Rilee Rossouw",
+    "hasImage": true,
+    "file": "/players/psl2026-0083.png"
+  },
+  "psl2026-0084": {
+    "name": "Saud Shakeel",
+    "hasImage": true,
+    "file": "/players/psl2026-0084.jpg"
+  },
+  "psl2026-0085": {
+    "name": "Jason Roy",
+    "hasImage": true,
+    "file": "/players/psl2026-0085.png"
+  },
+  "psl2026-0086": {
+    "name": "Chris Gayle",
+    "hasImage": true,
+    "file": "/players/psl2026-0086.png"
+  },
+  "psl2026-0087": {
+    "name": "Omair Bin Yousuf",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0088": {
+    "name": "Sherfane Rutherford",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0089": {
+    "name": "Akeal Hosein",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0090": {
+    "name": "Ben Cutting",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0091": {
+    "name": "Anwar Ali",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0092": {
+    "name": "Mohammad Wasim Jr",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0093": {
+    "name": "Mohammad Hasnain",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0094": {
+    "name": "Khurram Shahzad",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0095": {
+    "name": "Usman Tariq",
+    "hasImage": false,
+    "file": null
+  },
+  "psl2026-0096": {
+    "name": "Sohail Khan",
+    "hasImage": true,
+    "file": "/players/psl2026-0096.png"
+  }
+}
