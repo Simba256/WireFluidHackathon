@@ -39,3 +39,4 @@ styles/               Tailwind globals
 ```
 
 See [`../../docs/`](../../docs) for the full project documentation.
+
