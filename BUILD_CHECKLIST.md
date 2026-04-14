@@ -225,7 +225,7 @@
 - [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
-- [ ] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
+- [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [ ] `/trophies` (user's soulbound NFTs) — _API.md_
 
 ### 5.4 Admin
