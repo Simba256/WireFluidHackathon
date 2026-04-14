@@ -160,20 +160,23 @@ function TeamLogoPuck({
 }) {
   return (
     <div
-      className="relative flex h-12 w-12 items-center justify-center overflow-hidden rounded-full border-2 border-background bg-white shadow-xl"
-      style={{ boxShadow: `0 10px 24px ${side.accentColor}33` }}
+      className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-surface-container-high p-1 shadow-xl md:h-16 md:w-16"
+      style={{
+        boxShadow: `0 12px 30px ${side.accentColor}26`,
+        outline: `1px solid ${side.accentColor}55`,
+      }}
     >
       {side.logoPath ? (
         <Image
           src={side.logoPath}
           alt={side.name}
           fill
-          className="object-contain p-1"
-          sizes="48px"
+          className="object-contain p-1.5"
+          sizes="64px"
         />
       ) : (
         <span
-          className="font-headline text-sm font-bold"
+          className="font-headline text-base font-bold"
           style={{ color: side.accentColor }}
         >
           {side.shortCode}

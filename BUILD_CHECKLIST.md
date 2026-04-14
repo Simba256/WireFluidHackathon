@@ -88,10 +88,10 @@
 
 - [x] `user` (wallet PK, display*name, timestamps) — \_DATA_MODEL.md*
 - [x] `siwe_nonce` (nonce PK, issued*at, expires_at, consumed_at) — \_DATA_MODEL.md*
-- [x] `player` (id, external*id unique, name, team, role, base_price, photo_url, active) — \_DATA_MODEL.md*
+- [x] `player` (id, external*id unique, name, team, role, photo_url, active) — \_DATA_MODEL.md*
 - [x] `match` (id, tournament*id, team_a, team_b, scheduled_at, status, played_at) — \_DATA_MODEL.md*
 - [x] `player_score` (match*id, player_id, runs, wickets, catches, run_outs, stumpings, dismissed_for_zero, points_awarded) — \_DATA_MODEL.md*
-- [x] `team` (id, user*wallet, tournament_id, total_credits) — \_DATA_MODEL.md*
+- [x] `team` (id, user*wallet, tournament_id) — \_DATA_MODEL.md*
 - [x] `team_player` (team*id, player_id composite PK) — \_DATA_MODEL.md*
 - [x] `user_point` (wallet, tournament*id, total_points, last_match_id) — \_DATA_MODEL.md*
 - [x] `synced_record` (wallet, amount, nonce, tx*hash, block_number, status, voucher_expires_at) — \_DATA_MODEL.md*
@@ -120,6 +120,7 @@
 ### 2.3 Migrations & seeds
 
 - [x] Drizzle migration 0001 generated — _DATA_MODEL.md_
+- [x] Drizzle migration 0003 drops player pricing columns from `player` and `team` — _DATA_MODEL.md_
 - [x] `players.json` seed (~150 PSL 2026 players) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `matches.json` seed (3 demo fixtures with venues) — _DATA_MODEL.md_
@@ -145,7 +146,7 @@
 - [x] `SyncVoucher` / `ClaimVoucher` TS types + EIP-712 typed-data structs — _ARCHITECTURE.md_
 - [x] User / Player / Team / Match / Prize / Leaderboard DTOs — _API.md_
 - [x] Error type `{ error, code }` + full code catalog — _API.md_
-- [x] Game constants (SALARY*CAP, MIN_EARNED, TEAM_SIZE, tier stocks, formula multipliers) — \_GAME_DESIGN.md*
+- [x] Game constants (MIN_EARNED, TEAM_SIZE, tier stocks, formula multipliers) — \_GAME_DESIGN.md\*
 
 ---
 
@@ -160,7 +161,7 @@
 ### 4.2 Players & Teams
 
 - [x] `GET /api/players` (cached 1h) — _API.md_
-- [x] `POST /api/teams` (validate 11 players, salary cap, no dup, no existing team) — _API.md_
+- [x] `POST /api/teams` (validate 11 players, no dup, no existing team) — _API.md_
 - [x] `GET /api/teams/me` — _API.md_
 
 ### 4.3 Points & Sync
@@ -222,7 +223,7 @@
 ### 5.3 App pages
 
 - [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier) — _API.md / GAME_DESIGN.md_
-- [ ] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
+- [ ] `/play` team picker (search, filters, 11-slot submit) — _GAME_DESIGN.md_
 - [ ] `/leaderboard` (global + prize tabs) — _API.md_
 - [ ] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [ ] `/trophies` (user's soulbound NFTs) — _API.md_
@@ -235,11 +236,10 @@
 
 - [x] ConnectWallet button — _ARCHITECTURE.md_ (SIWE message uses checksummed wallet address)
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
-- [x] Team logos sourced from ESPN Cricinfo and stored locally under `apps/web/public/team-logos` — _README.md_
+- [x] Team logos sourced from ESPN Cricinfo, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [ ] PlayerCard — _GAME_DESIGN.md_
 - [ ] TeamGrid (11 slots + cap bar) — _GAME_DESIGN.md_
-- [ ] SalaryCapCalculator — _GAME_DESIGN.md_
 - [ ] LeaderboardRow — _API.md_
 - [ ] TierCard — _GAME_DESIGN.md_
 - [ ] TrophyNFT display — _API.md_
