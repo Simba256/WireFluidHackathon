@@ -231,7 +231,7 @@
 - [x] `/dashboard` split-loads WireFluid balance/prize state and global standing, pulsing only those widgets while the rest of the page renders immediately — _API.md_
 - [x] `/dashboard/fixtures` (full authenticated tournament schedule list without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
-- [ ] `/leaderboard` (global + prize tabs) — _API.md_
+- [x] `/leaderboard` (global + prize tabs) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [ ] `/trophies` (user's soulbound NFTs) — _API.md_
 
@@ -250,7 +250,7 @@
 - [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
 - [x] TeamGrid / selection panel (inline in team-picker-client) — _GAME_DESIGN.md_
 - [-] SalaryCapCalculator (salary cap removed from v1) — _GAME_DESIGN.md_
-- [ ] LeaderboardRow — _API.md_
+- [x] LeaderboardRow — _API.md_
 - [ ] TierCard — _GAME_DESIGN.md_
 - [ ] TrophyNFT display — _API.md_
 - [x] TransactionStatus (tx hash → explorer) — _ARCHITECTURE.md_

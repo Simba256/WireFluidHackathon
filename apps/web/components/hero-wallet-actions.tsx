@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAuth } from "@/components/auth-provider";
 
@@ -27,9 +28,12 @@ export function HeroWalletActions() {
           icon={<Icon name="rocket_launch" />}
         />
 
-        <button className="rounded-full border border-outline-variant bg-surface-container-high px-10 py-5 font-headline text-xl font-bold text-on-surface transition-colors hover:bg-surface-bright">
+        <Link
+          href="/leaderboard"
+          className="rounded-full border border-outline-variant bg-surface-container-high px-10 py-5 font-headline text-xl font-bold text-on-surface text-center transition-colors hover:bg-surface-bright"
+        >
           View Leaderboard
-        </button>
+        </Link>
       </div>
 
       {error ? (

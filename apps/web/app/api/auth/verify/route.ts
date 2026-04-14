@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
-import { siweNonce, user } from "@boundaryline/db";
+import { getActiveTournamentId, siweNonce, user, userPoint } from "@boundaryline/db";
 import { SiweMessage } from "siwe";
 import { API_ERROR_CODES } from "@boundaryline/shared";
 import { db } from "@/lib/db";
@@ -94,6 +94,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     if (existing.length === 0) {
       await database.insert(user).values({ wallet: verified.address });
+      const tournamentId = await getActiveTournamentId(database);
+      await database
+        .insert(userPoint)
+        .values({ wallet: verified.address, tournamentId, totalPoints: 0n })
+        .onConflictDoNothing();
       isNewUser = true;
     } else {
       await database
