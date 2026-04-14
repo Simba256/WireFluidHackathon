@@ -39,7 +39,10 @@ type DerivedStatus =
 interface SessionState {
   token: string;
   wallet: string;
-  username: string | null;
+}
+
+interface ProfileState {
+  username: string;
   avatarUrl: string | null;
 }
 
@@ -48,7 +51,15 @@ interface VerifyResponse {
   isNewUser: boolean;
   user: {
     wallet: string;
-    username: string | null;
+    username: string;
+    avatarUrl: string | null;
+  };
+}
+
+interface ProfileResponse {
+  user: {
+    wallet: string;
+    username: string;
     avatarUrl: string | null;
   };
 }
@@ -85,6 +96,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const EMPTY_PROFILE: ProfileState = { username: "", avatarUrl: null };
 
 function normalizeWallet(wallet: string): string {
   return wallet.toLowerCase();
@@ -109,6 +121,7 @@ function formatAuthError(error: unknown): string {
   }
 
   if (
+    lower.includes("metamask extension not found") ||
     lower.includes("connector not found") ||
     lower.includes("provider not found")
   ) {
@@ -138,10 +151,6 @@ function readStoredSession(): SessionState | null {
     return {
       token: parsed.token,
       wallet: normalizeWallet(parsed.wallet),
-      username:
-        typeof parsed.username === "string" ? parsed.username : null,
-      avatarUrl:
-        typeof parsed.avatarUrl === "string" ? parsed.avatarUrl : null,
     };
   } catch {
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -168,6 +177,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { switchChainAsync } = useSwitchChain();
 
   const [session, setSession] = useState<SessionState | null>(null);
+  const [profile, setProfile] = useState<ProfileState>(EMPTY_PROFILE);
+  const [isProfileLoaded, setIsProfileLoaded] = useState(false);
   const [pendingState, setPendingState] = useState<PendingState>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -177,6 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const clearSession = useCallback(() => {
     setSession(null);
+    setProfile(EMPTY_PROFILE);
+    setIsProfileLoaded(false);
     writeStoredSession(null);
   }, []);
 
@@ -202,6 +215,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearSession, normalizedAddress, session]);
 
+  useEffect(() => {
+    if (!isAuthenticated || !session?.token || isProfileLoaded) {
+      return;
+    }
+
+    let cancelled = false;
+
+    void apiFetch<ProfileResponse>("/api/auth/me", {
+      token: session.token,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setProfile({
+          username: result.user.username,
+          avatarUrl: result.user.avatarUrl,
+        });
+        setIsProfileLoaded(true);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+
+        if (err instanceof ApiClientError && err.status === 401) {
+          clearSession();
+          return;
+        }
+
+        setError(formatAuthError(err));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clearSession, isAuthenticated, isProfileLoaded, session?.token]);
+
+  const selectPreferredConnector = useCallback(() => {
+    const readyConnectors = connectors.filter((connector) => connector.ready);
+    const availableConnectors =
+      readyConnectors.length > 0 ? readyConnectors : connectors;
+
+    return (
+      availableConnectors.find((connector) => connector.id === "metaMask") ??
+      availableConnectors[0] ??
+      null
+    );
+  }, [connectors]);
+
   const connectAndAuthenticate = useCallback(async () => {
     setError(null);
 
@@ -211,7 +270,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       let nextChainId = chainId;
 
       if (!isConnected) {
-        const connector = connectors[0];
+        const connector = selectPreferredConnector();
         if (!connector) {
           throw new Error("Connector not found");
         }
@@ -268,9 +327,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       persistSession({
         token: verified.token,
         wallet: normalizeWallet(verified.user.wallet),
+      });
+      setProfile({
         username: verified.user.username,
         avatarUrl: verified.user.avatarUrl,
       });
+      setIsProfileLoaded(true);
       setPendingState("idle");
     } catch (err) {
       setPendingState("idle");
@@ -285,6 +347,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isConnected,
     normalizedAddress,
     persistSession,
+    selectPreferredConnector,
     signMessageAsync,
     switchChainAsync,
   ]);
@@ -318,21 +381,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (newUsername: string) => {
       if (!session?.token) throw new Error("Not authenticated");
 
-      const result = await apiFetch<SetUsernameResponse>(
-        "/api/auth/username",
-        {
-          json: { username: newUsername },
-          method: "POST",
-          token: session.token,
-        },
-      );
-
-      persistSession({
-        ...session,
-        username: result.username,
+      const result = await apiFetch<SetUsernameResponse>("/api/auth/username", {
+        json: { username: newUsername },
+        method: "POST",
+        token: session.token,
       });
+
+      setProfile({
+        username: result.username,
+        avatarUrl: profile.avatarUrl,
+      });
+      setIsProfileLoaded(true);
     },
-    [persistSession, session],
+    [profile.avatarUrl, session?.token],
   );
 
   const updateAvatar = useCallback(
@@ -345,15 +406,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: session.token,
       });
 
-      persistSession({
-        ...session,
+      setProfile({
+        username: profile.username,
         avatarUrl: result.avatarUrl,
       });
+      setIsProfileLoaded(true);
     },
-    [persistSession, session],
+    [profile.username, session?.token],
   );
 
-  const needsUsername = isAuthenticated && session?.username == null;
+  const needsUsername =
+    isAuthenticated && isProfileLoaded && profile.username === "";
 
   const status: DerivedStatus = useMemo(() => {
     if (pendingState !== "idle") {
@@ -378,7 +441,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       address: normalizedAddress,
-      avatarUrl: session?.avatarUrl ?? null,
+      avatarUrl: profile.avatarUrl,
       error,
       hasSession,
       isAuthenticated,
@@ -388,7 +451,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       needsUsername,
       status,
       token: session?.token ?? null,
-      username: session?.username ?? null,
+      username: profile.username === "" ? null : profile.username,
       connectAndAuthenticate,
       logout,
       setUsername,
@@ -404,9 +467,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isWrongNetwork,
       logout,
       needsUsername,
-      session?.avatarUrl,
+      profile.avatarUrl,
       session?.token,
-      session?.username,
+      profile.username,
       normalizedAddress,
       setUsername,
       updateAvatar,

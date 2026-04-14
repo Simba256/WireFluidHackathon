@@ -156,8 +156,9 @@
 ### 4.1 Auth
 
 - [x] `GET /api/auth/nonce` — _API.md_
-- [x] `POST /api/auth/verify` (SIWE → JWT, upsert user) — _API.md_
+- [x] `POST /api/auth/verify` (SIWE → JWT, upsert user, verify against current request host in local dev) — _API.md_
 - [x] `POST /api/auth/logout` (JWT blacklist) — _API.md_
+- [x] `GET /api/auth/me` (hydrate username/avatar from DB for authenticated clients) — _API.md_
 
 ### 4.2 Players & Teams
 
@@ -240,7 +241,7 @@
 
 ### 5.5 Components
 
-- [x] ConnectWallet button — _ARCHITECTURE.md_ (SIWE message uses checksummed wallet address)
+- [x] ConnectWallet button — _ARCHITECTURE.md_ (SIWE message uses checksummed wallet address; prefers ready MetaMask connector before generic injected fallback)
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
 - [x] Team logos sourced from ESPN Cricinfo, including HHK/Rawalpindiz extras, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [x] Dashboard chrome deduplicated (persistent left rail only; app branding kept in header bar) — _README.md_

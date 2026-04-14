@@ -13,12 +13,13 @@ export interface VerifiedSiwe {
 export async function verifySiwe(
   message: string,
   signature: string,
+  expectedDomain?: string,
 ): Promise<VerifiedSiwe> {
   const env = siweEnv();
   const siwe = new SiweMessage(message);
   const result = await siwe.verify({
     signature,
-    domain: env.SIWE_DOMAIN,
+    domain: expectedDomain ?? env.SIWE_DOMAIN,
     nonce: siwe.nonce,
     time: new Date().toISOString(),
   });
