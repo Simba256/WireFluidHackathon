@@ -54,12 +54,6 @@ interface TransactionState {
     | "error";
 }
 
-const TOP_NAV_ITEMS = [
-  { label: "Dashboard", current: true },
-  { label: "Play", current: false },
-  { label: "Leaderboard", current: false },
-] as const;
-
 const SIDE_NAV_ITEMS = [
   { icon: "dashboard", label: "Dashboard", current: true },
   { icon: "sports_cricket", label: "Play", current: false },
@@ -311,21 +305,6 @@ export function AppChrome({
           </Link>
         </div>
 
-        <div className="hidden items-center gap-8 md:flex">
-          {TOP_NAV_ITEMS.map((item) => (
-            <span
-              key={item.label}
-              className={
-                item.current
-                  ? "border-b-2 border-primary pb-1 font-headline tracking-tight text-primary"
-                  : "font-headline tracking-tight text-slate-400"
-              }
-            >
-              {item.label}
-            </span>
-          ))}
-        </div>
-
         <div className="flex items-center gap-4">
           {isWalletBalanceLoading || walletBalance != null ? (
             <div className="flex items-center gap-2 rounded-full border border-outline-variant/15 bg-surface-container px-3 py-1.5">
@@ -412,9 +391,6 @@ export function AppChrome({
       <footer className="border-t border-outline-variant/5 bg-background px-8 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex flex-col items-center gap-2 md:items-start">
-            <span className="font-headline text-xl font-bold text-primary">
-              {APP_NAME}
-            </span>
             <p className="text-sm text-slate-500">
               © 2026 BoundaryLine. Powered by WireFluid Testnet.
             </p>
