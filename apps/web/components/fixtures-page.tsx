@@ -253,7 +253,7 @@ export function FixturesPage() {
   }
 
   return (
-    <AppChrome dashboard={dashboard}>
+    <AppChrome>
       <div className="space-y-8">
         <section className="rounded-[2rem] bg-surface-container-low p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

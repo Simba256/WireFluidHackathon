@@ -54,22 +54,6 @@ interface TransactionState {
     | "error";
 }
 
-const SIDE_NAV_ITEMS = [
-  { icon: "dashboard", label: "Dashboard", current: true },
-  { icon: "sports_cricket", label: "Play", current: false },
-  { icon: "leaderboard", label: "Leaderboard", current: false },
-  { icon: "emoji_events", label: "Prizes", current: false },
-  { icon: "military_tech", label: "Trophies", current: false },
-] as const;
-
-const MOBILE_NAV_ITEMS = [
-  { icon: "grid_view", label: "Dashboard", current: true },
-  { icon: "bolt", label: "Play", current: false },
-  { icon: "trophy", label: "Rankings", current: false },
-  { icon: "payments", label: "Prizes", current: false },
-  { icon: "stars", label: "Awards", current: false },
-] as const;
-
 function Icon({
   fill = false,
   name,
@@ -317,12 +301,10 @@ function MatchActivitySection({
 
 export function AppChrome({
   children,
-  dashboard,
   isWalletBalanceLoading = false,
   walletBalance = null,
 }: {
   children: React.ReactNode;
-  dashboard: DashboardSummaryDTO;
   isWalletBalanceLoading?: boolean;
   walletBalance?: string | null;
 }) {
@@ -359,67 +341,11 @@ export function AppChrome({
         </div>
       </header>
 
-      <div className="flex min-h-screen pt-16">
-        <aside className="sticky top-16 hidden h-[calc(100vh-64px)] w-64 flex-col bg-background py-8 shadow-2xl md:flex">
-          <div className="mb-8 px-6">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-              <Icon
-                className="text-3xl text-on-primary"
-                name="sports_cricket"
-              />
-            </div>
-            <h2 className="font-headline text-xl font-black uppercase tracking-tight text-primary">
-              {dashboard.tournament.seasonLabel}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {dashboard.tournament.subtitle}
-            </p>
-          </div>
-
-          <nav className="flex-1 space-y-2">
-            {SIDE_NAV_ITEMS.map((item) => (
-              <div
-                key={item.label}
-                className={
-                  item.current
-                    ? "flex translate-x-1 items-center gap-4 border-l-4 border-primary bg-gradient-to-r from-primary/20 to-transparent px-6 py-3 text-primary"
-                    : "flex items-center gap-4 px-6 py-3 text-slate-400"
-                }
-              >
-                <Icon name={item.icon} />
-                <span className="font-headline font-medium">{item.label}</span>
-              </div>
-            ))}
-          </nav>
-
-          <div className="mt-auto px-6">
-            <button
-              className="w-full rounded-full px-5 py-3 font-headline font-bold text-on-primary shadow-lg shadow-primary/20 pitch-gradient"
-              type="button"
-            >
-              {dashboard.team.exists ? "Team Locked" : "Draft Team"}
-            </button>
-          </div>
-        </aside>
-
-        <main className="mx-auto w-full max-w-7xl flex-1 px-6 pb-24 pt-6 md:px-10 md:pb-10">
+      <div className="min-h-screen pt-16">
+        <main className="mx-auto w-full max-w-7xl px-6 pb-24 pt-6 md:px-10 md:pb-10">
           {children}
         </main>
       </div>
-
-      <nav className="fixed bottom-0 left-0 z-50 flex h-20 w-full items-center justify-around rounded-t-3xl border-t border-white/10 bg-background/90 px-4 backdrop-blur-xl md:hidden">
-        {MOBILE_NAV_ITEMS.map((item) => (
-          <div
-            key={item.label}
-            className={`flex flex-col items-center justify-center ${item.current ? "scale-110 text-primary" : "text-slate-500"}`}
-          >
-            <Icon fill={item.current} name={item.icon} />
-            <span className="mt-1 text-[10px] font-bold uppercase">
-              {item.label}
-            </span>
-          </div>
-        ))}
-      </nav>
 
       <footer className="border-t border-outline-variant/5 bg-background px-8 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
@@ -1009,7 +935,6 @@ export function DashboardPage() {
 
   return (
     <AppChrome
-      dashboard={dashboard}
       isWalletBalanceLoading={isChainStateLoading}
       walletBalance={chainState?.balances.walletBalance ?? null}
     >
