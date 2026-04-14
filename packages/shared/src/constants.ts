@@ -43,6 +43,13 @@ export interface FranchiseDefinition {
 
 export const FRANCHISES: readonly FranchiseDefinition[] = [
   {
+    name: "Hyderabad Kingsmen",
+    shortCode: "HHK",
+    shortLabel: "Hyderabad",
+    accentColor: "#c084fc",
+    logoPath: "/team-logos/hyderabad-kingsmen.png",
+  },
+  {
     name: "Islamabad United",
     shortCode: "IU",
     shortLabel: "Islamabad",
@@ -83,6 +90,13 @@ export const FRANCHISES: readonly FranchiseDefinition[] = [
     shortLabel: "Quetta",
     accentColor: "#8b5cf6",
     logoPath: "/team-logos/quetta-gladiators.png",
+  },
+  {
+    name: "Rawalpindiz",
+    shortCode: "RWP",
+    shortLabel: "Rawalpindi",
+    accentColor: "#fb7185",
+    logoPath: "/team-logos/rawalpindiz.png",
   },
 ] as const;
 
