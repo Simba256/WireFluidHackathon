@@ -23,6 +23,7 @@ export const user = pgTable(
   {
     wallet: text("wallet").primaryKey(),
     username: text("username"),
+    avatarUrl: text("avatar_url"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -30,7 +31,10 @@ export const user = pgTable(
       .defaultNow()
       .notNull(),
   },
-  (t) => [walletCheck("wallet")],
+  (t) => [
+    walletCheck("wallet"),
+    uniqueIndex("user_username_key").on(t.username),
+  ],
 );
 
 export const siweNonce = pgTable(

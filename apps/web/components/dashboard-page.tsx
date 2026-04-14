@@ -14,6 +14,7 @@ import {
   type DashboardDTO,
 } from "@boundaryline/shared";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
+import { ProfilePopover } from "@/components/profile-popover";
 import { useAuth } from "@/components/auth-provider";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
 
@@ -308,14 +309,6 @@ export function AppChrome({
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden flex-col items-end sm:flex">
-            <span className="text-xs font-bold text-slate-300">
-              {dashboard.user.displayName}
-            </span>
-            <span className="font-mono text-[10px] tracking-wider text-primary">
-              {dashboard.user.shortWallet}
-            </span>
-          </div>
           <div className="flex items-center gap-2 rounded-full border border-outline-variant/15 bg-surface-container px-3 py-1.5">
             <Icon
               fill
@@ -326,6 +319,7 @@ export function AppChrome({
               BNDY {formatWeiInteger(dashboard.balances.walletBalance)}
             </span>
           </div>
+          <ProfilePopover />
         </div>
       </header>
 

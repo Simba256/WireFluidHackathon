@@ -86,7 +86,7 @@
 
 ### 2.1 Drizzle schema tables
 
-- [x] `user` (wallet PK, username, timestamps) — \_DATA_MODEL.md\*
+- [x] `user` (wallet PK, username unique nullable, avatar_url nullable, timestamps) — \_DATA_MODEL.md*
 - [x] `siwe_nonce` (nonce PK, issued*at, expires_at, consumed_at) — \_DATA_MODEL.md*
 - [x] `player` (id, external*id unique, name, team, role, photo_url, active) — \_DATA_MODEL.md*
 - [x] `match` (id, tournament*id, team_a, team_b, scheduled_at, status, played_at) — \_DATA_MODEL.md*

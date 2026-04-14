@@ -76,25 +76,37 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   try {
-    const rows = await database
-      .insert(user)
-      .values({ wallet: verified.address })
-      .onConflictDoUpdate({
-        target: user.wallet,
-        set: { updatedAt: sql`now()` },
+    const existing = await database
+      .select({
+        wallet: user.wallet,
+        username: user.username,
+        avatarUrl: user.avatarUrl,
       })
-      .returning({ wallet: user.wallet, createdAt: user.createdAt });
+      .from(user)
+      .where(eq(user.wallet, verified.address))
+      .limit(1);
 
-    const upserted = rows[0];
-    if (!upserted) return internalError("Failed to upsert user");
+    let isNewUser = false;
+
+    if (existing.length === 0) {
+      await database.insert(user).values({ wallet: verified.address });
+      isNewUser = true;
+    } else {
+      await database
+        .update(user)
+        .set({ updatedAt: sql`now()` })
+        .where(eq(user.wallet, verified.address));
+    }
 
     const token = await issueSessionToken(verified.address);
 
     return NextResponse.json({
       token,
+      isNewUser,
       user: {
-        wallet: upserted.wallet,
-        createdAt: upserted.createdAt.toISOString(),
+        wallet: verified.address,
+        username: existing[0]?.username ?? null,
+        avatarUrl: existing[0]?.avatarUrl ?? null,
       },
     });
   } catch (err) {

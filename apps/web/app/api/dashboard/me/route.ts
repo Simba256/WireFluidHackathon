@@ -66,7 +66,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .limit(1);
 
     const [userRow] = await database
-      .select({ username: user.username })
+      .select({ username: user.username, avatarUrl: user.avatarUrl })
       .from(user)
       .where(eq(user.wallet, wallet))
       .limit(1);
@@ -297,7 +297,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({
       user: {
         wallet,
-        displayName: userRow?.username ?? DEFAULT_MANAGER_NAME,
+        username: userRow?.username ?? DEFAULT_MANAGER_NAME,
+        avatarUrl: userRow?.avatarUrl ?? null,
         shortWallet: shortWallet(wallet),
       },
       tournament: {

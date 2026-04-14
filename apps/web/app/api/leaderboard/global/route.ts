@@ -23,7 +23,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .select({
         wallet: userPoint.wallet,
         totalPoints: userPoint.totalPoints,
-        displayName: user.username,
+        username: user.username,
         rank: sql<number>`RANK() OVER (ORDER BY ${userPoint.totalPoints} DESC)`.as(
           "rank",
         ),
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       entries: rows.map((r) => ({
         rank: Number(r.rank),
         wallet: r.wallet,
-        displayName: r.displayName,
+        username: r.username,
         totalPoints: Number(r.totalPoints),
       })),
       totalPlayers: totalRow?.count ?? 0,

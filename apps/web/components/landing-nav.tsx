@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { useAuth } from "@/components/auth-provider";
+import { ProfilePopover } from "@/components/profile-popover";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -26,7 +27,7 @@ function shortenAddress(address: string): string {
 
 export function LandingNav() {
   const pathname = usePathname();
-  const { address, isAuthenticated, logout, status } = useAuth();
+  const { address, isAuthenticated, status } = useAuth();
 
   const walletLabel = address
     ? shortenAddress(address)
@@ -77,17 +78,7 @@ export function LandingNav() {
           linkedLabel="Link Wallet"
         />
 
-        {isAuthenticated ? (
-          <button
-            className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-secondary"
-            onClick={() => {
-              void logout();
-            }}
-            type="button"
-          >
-            Unlink
-          </button>
-        ) : null}
+        {isAuthenticated ? <ProfilePopover /> : null}
       </div>
     </nav>
   );

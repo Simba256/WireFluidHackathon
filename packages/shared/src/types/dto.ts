@@ -2,7 +2,8 @@ import type { PlayerRole, TierId, TierName } from "../constants";
 
 export interface UserDTO {
   wallet: string;
-  displayName: string | null;
+  username: string | null;
+  avatarUrl: string | null;
   createdAt: string;
 }
 
@@ -66,7 +67,7 @@ export interface PointsSummaryDTO {
 export interface LeaderboardEntryDTO {
   rank: number;
   wallet: string;
-  displayName: string | null;
+  username: string | null;
   totalPoints: number;
 }
 
@@ -153,7 +154,8 @@ export interface DashboardMatchActivityDTO {
 export interface DashboardDTO {
   user: {
     wallet: string;
-    displayName: string;
+    username: string;
+    avatarUrl: string | null;
     shortWallet: string;
   };
   tournament: {

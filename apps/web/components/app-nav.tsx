@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
+import { ProfilePopover } from "@/components/profile-popover";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: "grid_view" },
@@ -57,12 +58,15 @@ export function AppNav() {
         </nav>
 
         {isAuthenticated && address ? (
-          <div className="border-t border-outline-variant/20 px-4 py-4">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">
-              Wallet
-            </div>
-            <div className="mt-0.5 font-mono text-xs font-bold text-primary">
-              {shortenAddress(address)}
+          <div className="flex items-center gap-3 border-t border-outline-variant/20 px-4 py-4">
+            <ProfilePopover />
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/60">
+                Wallet
+              </div>
+              <div className="mt-0.5 truncate font-mono text-xs font-bold text-primary">
+                {shortenAddress(address)}
+              </div>
             </div>
           </div>
         ) : null}

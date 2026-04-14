@@ -39,14 +39,26 @@ type DerivedStatus =
 interface SessionState {
   token: string;
   wallet: string;
+  username: string | null;
+  avatarUrl: string | null;
 }
 
 interface VerifyResponse {
   token: string;
+  isNewUser: boolean;
   user: {
     wallet: string;
-    createdAt: string;
+    username: string | null;
+    avatarUrl: string | null;
   };
+}
+
+interface SetUsernameResponse {
+  username: string;
+}
+
+interface SetAvatarResponse {
+  avatarUrl: string;
 }
 
 interface NonceResponse {
@@ -55,16 +67,21 @@ interface NonceResponse {
 
 interface AuthContextValue {
   address: string | null;
+  avatarUrl: string | null;
   error: string | null;
   hasSession: boolean;
   isAuthenticated: boolean;
   isBusy: boolean;
   isConnected: boolean;
   isWrongNetwork: boolean;
+  needsUsername: boolean;
   status: DerivedStatus;
   token: string | null;
+  username: string | null;
   connectAndAuthenticate: () => Promise<void>;
   logout: () => Promise<void>;
+  setUsername: (username: string) => Promise<void>;
+  updateAvatar: (dataUrl: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -121,6 +138,10 @@ function readStoredSession(): SessionState | null {
     return {
       token: parsed.token,
       wallet: normalizeWallet(parsed.wallet),
+      username:
+        typeof parsed.username === "string" ? parsed.username : null,
+      avatarUrl:
+        typeof parsed.avatarUrl === "string" ? parsed.avatarUrl : null,
     };
   } catch {
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -247,6 +268,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       persistSession({
         token: verified.token,
         wallet: normalizeWallet(verified.user.wallet),
+        username: verified.user.username,
+        avatarUrl: verified.user.avatarUrl,
       });
       setPendingState("idle");
     } catch (err) {
@@ -291,6 +314,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [clearSession, disconnectAsync, isConnected, session?.token]);
 
+  const setUsername = useCallback(
+    async (newUsername: string) => {
+      if (!session?.token) throw new Error("Not authenticated");
+
+      const result = await apiFetch<SetUsernameResponse>(
+        "/api/auth/username",
+        {
+          json: { username: newUsername },
+          method: "POST",
+          token: session.token,
+        },
+      );
+
+      persistSession({
+        ...session,
+        username: result.username,
+      });
+    },
+    [persistSession, session],
+  );
+
+  const updateAvatar = useCallback(
+    async (dataUrl: string) => {
+      if (!session?.token) throw new Error("Not authenticated");
+
+      const result = await apiFetch<SetAvatarResponse>("/api/auth/avatar", {
+        json: { avatarUrl: dataUrl },
+        method: "POST",
+        token: session.token,
+      });
+
+      persistSession({
+        ...session,
+        avatarUrl: result.avatarUrl,
+      });
+    },
+    [persistSession, session],
+  );
+
+  const needsUsername = isAuthenticated && session?.username == null;
+
   const status: DerivedStatus = useMemo(() => {
     if (pendingState !== "idle") {
       return pendingState;
@@ -314,16 +378,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       address: normalizedAddress,
+      avatarUrl: session?.avatarUrl ?? null,
       error,
       hasSession,
       isAuthenticated,
       isBusy,
       isConnected,
       isWrongNetwork,
+      needsUsername,
       status,
       token: session?.token ?? null,
+      username: session?.username ?? null,
       connectAndAuthenticate,
       logout,
+      setUsername,
+      updateAvatar,
     }),
     [
       connectAndAuthenticate,
@@ -334,8 +403,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isConnected,
       isWrongNetwork,
       logout,
+      needsUsername,
+      session?.avatarUrl,
       session?.token,
+      session?.username,
       normalizedAddress,
+      setUsername,
+      updateAvatar,
       status,
     ],
   );
