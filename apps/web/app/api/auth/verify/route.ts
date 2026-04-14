@@ -69,7 +69,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   let verified;
   try {
-    verified = await verifySiwe(body.message, body.signature);
+    const requestHost =
+      req.headers.get("x-forwarded-host") ??
+      req.headers.get("host") ??
+      undefined;
+    verified = await verifySiwe(body.message, body.signature, requestHost);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Invalid signature";
     return errorResponse(API_ERROR_CODES.SIWE_INVALID, msg, 401);
@@ -105,7 +109,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       isNewUser,
       user: {
         wallet: verified.address,
-        username: existing[0]?.username ?? null,
+        username: existing[0]?.username ?? "",
         avatarUrl: existing[0]?.avatarUrl ?? null,
       },
     });

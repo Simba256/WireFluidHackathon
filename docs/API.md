@@ -31,6 +31,8 @@ Returns a fresh nonce the user must include in their SIWE message.
 
 Verifies a SIWE signature and issues a session JWT.
 
+For local development, SIWE domain verification follows the current request host so `localhost` and `127.0.0.1` do not invalidate each other's signatures.
+
 **Request**
 
 ```json
@@ -45,9 +47,11 @@ Verifies a SIWE signature and issues a session JWT.
 ```json
 {
   "token": "eyJhbGc...",
+  "isNewUser": false,
   "user": {
     "wallet": "0xabcd...",
-    "createdAt": "2026-04-13T09:30:00Z"
+    "username": "kingbabarazam",
+    "avatarUrl": null
   }
 }
 ```
@@ -62,6 +66,24 @@ Verifies a SIWE signature and issues a session JWT.
 Invalidates the current session JWT (server-side blacklist).
 
 **Response** `204`
+
+### `GET /api/auth/me`
+
+Returns the authenticated user's current profile fields from the database. Frontend auth state should hydrate username and avatar from this route instead of trusting cached client storage.
+
+**Auth**: required
+
+**Response** `200`
+
+```json
+{
+  "user": {
+    "wallet": "0xabcd...",
+    "username": "kingbabarazam",
+    "avatarUrl": null
+  }
+}
+```
 
 ---
 
