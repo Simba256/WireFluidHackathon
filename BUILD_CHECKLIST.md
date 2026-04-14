@@ -244,6 +244,7 @@
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
 - [x] Team logos sourced from ESPN Cricinfo, including HHK/Rawalpindiz extras, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [x] Dashboard chrome deduplicated (persistent left rail only; app branding kept in header bar) — _README.md_
+- [x] Dashboard match activity unified into one vertical feed (live first, then upcoming, then scored) — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
 - [x] TeamGrid / selection panel (inline in team-picker-client) — _GAME_DESIGN.md_

@@ -153,6 +153,39 @@ function matchStatusLabel(
   return "Upcoming";
 }
 
+function compareMatchActivity(
+  a: DashboardSummaryDTO["recentMatches"][number],
+  b: DashboardSummaryDTO["recentMatches"][number],
+): number {
+  const statusOrder = (
+    status: DashboardSummaryDTO["recentMatches"][number]["status"],
+  ): number => {
+    switch (status) {
+      case "live":
+        return 0;
+      case "scheduled":
+        return 1;
+      case "completed":
+      default:
+        return 2;
+    }
+  };
+
+  const orderDiff = statusOrder(a.status) - statusOrder(b.status);
+  if (orderDiff !== 0) {
+    return orderDiff;
+  }
+
+  if (a.status === "completed" && b.status === "completed") {
+    return (
+      new Date(b.playedAt ?? b.scheduledAt).getTime() -
+      new Date(a.playedAt ?? a.scheduledAt).getTime()
+    );
+  }
+
+  return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
+}
+
 function TeamLogoPuck({
   side,
 }: {
@@ -967,14 +1000,12 @@ export function DashboardPage() {
     return <LoadingState />;
   }
 
-  const recentMatchLabel =
-    dashboard.recentMatches.length > 0
-      ? `${dashboard.recentMatches.length} scored`
-      : "No scores yet";
-  const upcomingMatchLabel =
-    dashboard.upcomingMatches.length > 0
-      ? `${dashboard.upcomingMatches.length} fixtures`
-      : "Awaiting fixtures";
+  const matchActivity = [
+    ...dashboard.recentMatches,
+    ...dashboard.upcomingMatches,
+  ].sort(compareMatchActivity);
+  const matchActivityLabel =
+    matchActivity.length > 0 ? `${matchActivity.length} matches` : "No matches";
 
   return (
     <AppChrome
@@ -1267,30 +1298,21 @@ export function DashboardPage() {
             </h3>
           </div>
 
-          <div className="space-y-6 xl:grid xl:grid-cols-2 xl:gap-6 xl:space-y-0">
-            <MatchActivitySection
-              emptyDescription="Scored lineup matches will appear here once your drafted team has been through a completed fixture."
-              emptyTitle="No scored matches yet"
-              label={recentMatchLabel}
-              matches={dashboard.recentMatches}
-              title="Recent Performance"
-            />
-            <MatchActivitySection
-              action={
-                <Link
-                  className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-primary"
-                  href="/dashboard/fixtures"
-                >
-                  View all
-                </Link>
-              }
-              emptyDescription="Upcoming fixtures will appear here as soon as the active tournament schedule is populated."
-              emptyTitle="No upcoming fixtures yet"
-              label={upcomingMatchLabel}
-              matches={dashboard.upcomingMatches}
-              title="Upcoming Fixtures"
-            />
-          </div>
+          <MatchActivitySection
+            action={
+              <Link
+                className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-primary"
+                href="/dashboard/fixtures"
+              >
+                View all
+              </Link>
+            }
+            emptyDescription="Live, upcoming, and scored fixtures will appear here as soon as the active tournament schedule is populated."
+            emptyTitle="No match activity yet"
+            label={matchActivityLabel}
+            matches={matchActivity}
+            title="Match Activity"
+          />
         </div>
       </div>
     </AppChrome>
