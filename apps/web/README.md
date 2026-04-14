@@ -38,4 +38,4 @@ public/               Static assets (player photos, prize images)
 styles/               Tailwind globals
 ```
 
-See [`../../docs/`](../../docs) for full project documentation.
+See [`../../docs/`](../../docs) for the full project documentation.
