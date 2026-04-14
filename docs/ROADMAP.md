@@ -9,10 +9,11 @@
 **Goal**: A fully playable end-to-end demo on WireFluid testnet. One tournament. Everything working: team picking → scoring → syncing → claiming → trophy NFTs.
 
 ### Shipped
+
 - ✅ Transferable ERC-20 `BNDY` with `earnedBalance` tracking
 - ✅ Soulbound ERC-721 `PSLTrophies`
 - ✅ SIWE wallet auth
-- ✅ Team picker (11 players, salary cap)
+- ✅ Team picker (11 players)
 - ✅ Off-chain scoring engine (admin panel)
 - ✅ Dual leaderboard (global off-chain + prize on-chain)
 - ✅ Sync flow with EIP-712 vouchers
@@ -21,6 +22,7 @@
 - ✅ Vercel + Neon deployment
 
 ### Known limits
+
 - Admin panel enters match scores manually (no oracle)
 - Single tournament, single season
 - No mobile app, web only
@@ -34,6 +36,7 @@
 **Goal**: Harden the demo into something a real audience could play, still using testnet.
 
 ### Planned
+
 - [ ] Captain / vice-captain multipliers (×2 / ×1.5)
 - [ ] Proper team role constraints (min WK, min bowlers, max per franchise)
 - [ ] Tournament lifecycle UI (open → active → closed → archived)
@@ -55,6 +58,7 @@
 **Goal**: Launch for a real PSL tournament with real prizes, real partnerships, and significantly reduced trust assumptions.
 
 ### Contracts
+
 - [ ] **Upgradable signer** via admin multisig (for operational safety against key compromise)
 - [ ] **Admin-updatable `MIN_EARNED_TO_CLAIM`** to allow tuning between tournaments
 - [ ] **Emergency pause** on sync/claim via `Pausable` (triggered by multisig)
@@ -64,12 +68,14 @@
 - [ ] **Audit** by a third-party firm (e.g. Zellic, Spearbit, Code4rena)
 
 ### Oracle & Data
+
 - [ ] **Chainlink Functions** integration for pulling PSL stats from an official API
 - [ ] **Redundant data sources** (Cricbuzz + ESPNCricinfo + official) with majority voting
 - [ ] **Live scoring**: update points near-real-time during matches instead of batch after full match
-- [ ] **Player form dynamics**: adjust base prices between matchdays based on recent performance
+- [ ] **Player availability refreshes** between matchdays based on squad news and injuries
 
 ### Platform
+
 - [ ] **Mobile web optimization** + PWA
 - [ ] **Native mobile app** (React Native or Flutter) for wider reach
 - [ ] **Localized UI** (Urdu support)
@@ -77,17 +83,20 @@
 - [ ] **Onboarding walkthrough** for users new to crypto wallets
 
 ### Partnerships
+
 - [ ] **PSL franchise partnerships** for real merch, signed gear, tickets
 - [ ] **PCB engagement** (if possible) for official endorsement
 - [ ] **Brand sponsorships** for prize pool expansion
 - [ ] **Broadcaster partnership** for TV/stream callouts during matches
 
 ### Governance & Community
+
 - [ ] **Public proposal forum** for rule changes (Discord / forum)
 - [ ] **Opt-in email list** for tournament announcements
 - [ ] **Creator program**: top analysts can publish team picks that others can follow
 
 ### Security
+
 - [ ] **Formal verification** of `PSLPoints.claimTier()` and `earnedBalance` invariants
 - [ ] **Bug bounty program** via Immunefi or similar
 - [ ] **Multi-sig admin** via Safe
@@ -95,6 +104,7 @@
 - [ ] **Incident response playbook** with on-call rotation
 
 ### Tokenomics Evolution
+
 - [ ] **Decision**: what to do with residual BNDY after tournaments? Options:
   - Reset `earnedBalance` between tournaments, keep wallet balances
   - Migrate to a new `BNDY-v2` contract each season
@@ -108,6 +118,7 @@
 **Goal**: BoundaryLine is no longer just PSL. It's a framework for on-chain fantasy leagues across sports.
 
 ### Ideas
+
 - [ ] **Multi-sport support**: cricket (PSL, BPL, IPL, Big Bash), football (PSL, Pakistan national), etc.
 - [ ] **Tournament templates**: creators can launch their own fantasy contests with custom rules
 - [ ] **WireFluid-native asset compositions**: use IBC to bring assets from other Cosmos chains as prizes
@@ -115,6 +126,7 @@
 - [ ] **Revenue model**: small fee on transferable token movements (opt-in), sponsorship slots, premium features
 
 ### Stretch: cross-chain prize redemption
+
 - Via IBC, allow a BoundaryLine winner on WireFluid to redeem their trophy for native assets on another Cosmos chain (e.g. Osmosis liquidity position, ATOM staking rewards, Stargaze NFTs)
 - This is the moonshot version that truly leverages WireFluid's unique capabilities
 

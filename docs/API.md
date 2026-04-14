@@ -81,7 +81,6 @@ Returns the full PSL 2026 player catalog.
       "name": "Babar Azam",
       "team": "Karachi Kings",
       "role": "batsman",
-      "basePrice": 14,
       "photoUrl": "/players/babar-azam.jpg"
     },
     ...
@@ -117,7 +116,6 @@ Create the authenticated user's team. One team per user per tournament.
     "id": 42,
     "wallet": "0xabcd...",
     "playerIds": [1, 5, 9, ...],
-    "totalCredits": 98,
     "createdAt": "2026-04-13T10:15:00Z"
   }
 }
@@ -126,7 +124,6 @@ Create the authenticated user's team. One team per user per tournament.
 **Errors**
 
 - `400` `{ error: "Must select exactly 11 players", code: "INVALID_TEAM_SIZE" }`
-- `400` `{ error: "Salary cap exceeded (103/100)", code: "CAP_EXCEEDED" }`
 - `400` `{ error: "Duplicate player", code: "DUPLICATE_PLAYER" }`
 - `409` `{ error: "Team already exists", code: "TEAM_EXISTS" }`
 
@@ -144,10 +141,9 @@ Get the authenticated user's team.
     "id": 42,
     "wallet": "0xabcd...",
     "players": [
-      { "id": 1, "name": "Babar Azam", "role": "batsman", "basePrice": 14 },
+      { "id": 1, "name": "Babar Azam", "role": "batsman" },
       ...
     ],
-    "totalCredits": 98,
     "createdAt": "2026-04-13T10:15:00Z"
   }
 }
@@ -216,8 +212,7 @@ Aggregated dashboard payload for the authenticated user. Combines user profile, 
   },
   "team": {
     "exists": true,
-    "playerCount": 11,
-    "totalCredits": 98
+    "playerCount": 11
   },
   "global": {
     "rank": 47,

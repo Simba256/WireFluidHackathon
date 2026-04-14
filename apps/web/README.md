@@ -29,7 +29,7 @@ app/
 components/
 ├── ui/               shadcn-style primitives
 ├── wallet/           Connect button, chain guard, SIWE flow
-├── team/             Player card, team grid, salary cap
+├── team/             Player card, team grid
 └── leaderboard/      Row, tabs, rank change animations
 
 lib/                  Server helpers, auth, signers, chain config

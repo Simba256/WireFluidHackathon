@@ -125,7 +125,6 @@ player {
   name         text          not null
   team         text          not null              // PSL franchise
   role         text          not null              // 'batsman' | 'bowler' | 'all-rounder' | 'wicketkeeper'
-  base_price   integer       not null              // credits for salary cap
   photo_url    text          nullable
   active       boolean       default true
   created_at   timestamptz   default now()
@@ -201,7 +200,6 @@ team {
   id             serial       primary key
   user_wallet    text         references user(wallet) not null
   tournament_id  integer      not null
-  total_credits  integer      not null
   created_at     timestamptz  default now()
 }
 ```

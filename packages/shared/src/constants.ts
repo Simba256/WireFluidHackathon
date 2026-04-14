@@ -8,7 +8,6 @@ export const DASHBOARD_SEASON_LABEL = "Season 2026" as const;
 export const DASHBOARD_TOURNAMENT_SUBTITLE =
   "PSL Edition - Pro League" as const;
 
-export const SALARY_CAP = 100 as const;
 export const TEAM_SIZE = 11 as const;
 
 export const MIN_EARNED_TO_CLAIM_BNDY = 10_000 as const;

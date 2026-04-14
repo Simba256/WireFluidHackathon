@@ -7,7 +7,7 @@
 
 ## 1. What this project is
 
-**BoundaryLine** is a free-to-play fantasy cricket game for the Pakistan Super League (PSL 2026), deployed on WireFluid testnet (chain ID `92533`). Players pick 11-player teams under a salary cap, earn points from real match performance, sync those points on-chain as **BNDY** (ERC-20), and claim real-world prizes via **soulbound trophy NFTs**.
+**BoundaryLine** is a free-to-play fantasy cricket game for the Pakistan Super League (PSL 2026), deployed on WireFluid testnet (chain ID `92533`). Players pick 11-player teams, earn points from real match performance, sync those points on-chain as **BNDY** (ERC-20), and claim real-world prizes via **soulbound trophy NFTs**.
 
 **Hybrid architecture:** gameplay + scoring are off-chain (Postgres) for speed and zero gas; sync, claim, and trophy mint are on-chain for trust and verifiability.
 
@@ -110,7 +110,7 @@ If a change seems to contradict any of these, stop and ask.
 - Zod validation at every external boundary (API request bodies, env parsing, external API responses). Never trust internal code boundaries.
 - Server re-derives authoritative state. **Never** trust client-submitted points, ranks, eligibility, or tier bands.
 - No hardcoded secrets. Env vars via `packages/shared` typed env loader.
-- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (SALARY_CAP, MIN_EARNED_TO_CLAIM_WEI, TEAM_SIZE, tier stocks, formula multipliers).
+- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (MIN_EARNED_TO_CLAIM_WEI, TEAM_SIZE, tier stocks, formula multipliers).
 - Handle errors explicitly at boundaries; trust internal code.
 - Write testable code: pure functions, dependency injection for contract/DB clients.
 - Self-documenting names over comments. Comments only explain _why_, not _what_.
@@ -149,7 +149,7 @@ If a change seems to contradict any of these, stop and ask.
 - Every route handler: (1) Zod-validate input, (2) auth check (SIWE JWT or admin key), (3) business logic, (4) standard error shape on failure.
 - Admin routes gated by `X-Admin-Key` header against `ADMIN_API_KEY` env.
 - SIWE JWT in `Authorization: Bearer <token>` header on all user-scoped routes.
-- Error codes match `docs/API.md` exactly: `SIWE_INVALID`, `NONCE_MISMATCH`, `INVALID_TEAM_SIZE`, `CAP_EXCEEDED`, `DUPLICATE_PLAYER`, `TEAM_EXISTS`, `NO_TEAM`, `NOTHING_TO_SYNC`, `UNAUTHORIZED`, `BELOW_THRESHOLD`, `WRONG_TIER`, `NO_STOCK`, `ALREADY_CLAIMED`.
+- Error codes match `docs/API.md` exactly: `SIWE_INVALID`, `NONCE_MISMATCH`, `INVALID_TEAM_SIZE`, `DUPLICATE_PLAYER`, `TEAM_EXISTS`, `NO_TEAM`, `NOTHING_TO_SYNC`, `UNAUTHORIZED`, `BELOW_THRESHOLD`, `WRONG_TIER`, `NO_STOCK`, `ALREADY_CLAIMED`.
 
 ---
 

@@ -26,7 +26,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const teamRows = await database
       .select({
         id: team.id,
-        totalCredits: team.totalCredits,
         createdAt: team.createdAt,
       })
       .from(team)
@@ -46,7 +45,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         name: player.name,
         team: player.team,
         role: player.role,
-        basePrice: player.basePrice,
         photoUrl: player.photoUrl,
       })
       .from(teamPlayer)
@@ -58,7 +56,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         id: t.id,
         wallet,
         players,
-        totalCredits: t.totalCredits,
         createdAt: t.createdAt.toISOString(),
       },
     });

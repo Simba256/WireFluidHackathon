@@ -169,7 +169,7 @@ const STEPS = [
     icon: "sports_cricket",
     title: "Pick team",
     description:
-      "Select 11 stars within the $100M salary cap. Balance risk and reward for maximum impact.",
+      "Select 11 stars from the PSL squads and lock your team for the tournament.",
     accent: "primary" as const,
   },
   {

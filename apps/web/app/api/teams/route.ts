@@ -7,7 +7,7 @@ import {
   team,
   teamPlayer,
 } from "@boundaryline/db";
-import { API_ERROR_CODES, SALARY_CAP, TEAM_SIZE } from "@boundaryline/shared";
+import { API_ERROR_CODES, TEAM_SIZE } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import {
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const selectedPlayers = await database
-      .select({ id: player.id, basePrice: player.basePrice })
+      .select({ id: player.id })
       .from(player)
       .where(and(inArray(player.id, body.playerIds), eq(player.active, true)));
 
@@ -82,24 +82,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const totalCredits = selectedPlayers.reduce(
-      (sum, p) => sum + p.basePrice,
-      0,
-    );
-    if (totalCredits > SALARY_CAP) {
-      return badRequest(
-        API_ERROR_CODES.CAP_EXCEEDED,
-        `Salary cap exceeded (${totalCredits}/${SALARY_CAP})`,
-      );
-    }
-
     const created = await database.transaction(async (tx) => {
       const [inserted] = await tx
         .insert(team)
         .values({
           userWallet: wallet,
           tournamentId,
-          totalCredits,
         })
         .returning({
           id: team.id,
@@ -123,7 +111,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           id: created.id,
           wallet,
           playerIds: body.playerIds,
-          totalCredits,
           createdAt: created.createdAt.toISOString(),
         },
       },

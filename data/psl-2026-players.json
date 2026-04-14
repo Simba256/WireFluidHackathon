@@ -3,1050 +3,900 @@
     "externalId": "psl2026-0001",
     "name": "Shadab Khan",
     "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 13
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0002",
     "name": "Colin Munro",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 12
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0003",
     "name": "Azam Khan",
     "team": "Islamabad United",
-    "role": "wicketkeeper",
-    "basePrice": 11
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0004",
     "name": "Naseem Shah",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 13
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0005",
     "name": "Imad Wasim",
     "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 11
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0006",
     "name": "Matthew Short",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 10
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0007",
     "name": "Rumman Raees",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 9
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0008",
     "name": "Haider Ali",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 9
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0009",
     "name": "Islamabad Squad 1",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0010",
     "name": "Islamabad Squad 2",
     "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0011",
     "name": "Islamabad Squad 3",
     "team": "Islamabad United",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0012",
     "name": "Islamabad Squad 4",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0013",
     "name": "Islamabad Squad 5",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0014",
     "name": "Islamabad Squad 6",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0015",
     "name": "Islamabad Squad 7",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0016",
     "name": "Islamabad Squad 8",
     "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0017",
     "name": "Islamabad Reserve 1",
     "team": "Islamabad United",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0018",
     "name": "Islamabad Reserve 2",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0019",
     "name": "Islamabad Reserve 3",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0020",
     "name": "Islamabad Reserve 4",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0021",
     "name": "Islamabad Reserve 5",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0022",
     "name": "Islamabad Reserve 6",
     "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0023",
     "name": "Islamabad Reserve 7",
     "team": "Islamabad United",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0024",
     "name": "Islamabad Reserve 8",
     "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0025",
     "name": "Islamabad Reserve 9",
     "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0026",
     "name": "Shan Masood",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 12
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0027",
     "name": "Kane Williamson",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 14
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0028",
     "name": "Mohammad Amir",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 12
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0029",
     "name": "Hasan Ali",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 11
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0030",
     "name": "James Vince",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 11
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0031",
     "name": "Irfan Khan",
     "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 9
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0032",
     "name": "Arafat Minhas",
     "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 8
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0033",
     "name": "Tim Seifert",
     "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 10
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0034",
     "name": "Karachi Squad 1",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0035",
     "name": "Karachi Squad 2",
     "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0036",
     "name": "Karachi Squad 3",
     "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0037",
     "name": "Karachi Squad 4",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0038",
     "name": "Karachi Squad 5",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0039",
     "name": "Karachi Squad 6",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0040",
     "name": "Karachi Squad 7",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0041",
     "name": "Karachi Squad 8",
     "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0042",
     "name": "Karachi Reserve 1",
     "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0043",
     "name": "Karachi Reserve 2",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0044",
     "name": "Karachi Reserve 3",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0045",
     "name": "Karachi Reserve 4",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0046",
     "name": "Karachi Reserve 5",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0047",
     "name": "Karachi Reserve 6",
     "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0048",
     "name": "Karachi Reserve 7",
     "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0049",
     "name": "Karachi Reserve 8",
     "team": "Karachi Kings",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0050",
     "name": "Karachi Reserve 9",
     "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0051",
     "name": "Shaheen Shah Afridi",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 14
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0052",
     "name": "Fakhar Zaman",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 13
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0053",
     "name": "Rashid Khan",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 15
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0054",
     "name": "Sikandar Raza",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 12
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0055",
     "name": "David Wiese",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 10
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0056",
     "name": "Mohammad Hafeez",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 9
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0057",
     "name": "Haris Rauf",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 13
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0058",
     "name": "Abdullah Shafique",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 10
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0059",
     "name": "Lahore Squad 1",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0060",
     "name": "Lahore Squad 2",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0061",
     "name": "Lahore Squad 3",
     "team": "Lahore Qalandars",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0062",
     "name": "Lahore Squad 4",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0063",
     "name": "Lahore Squad 5",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0064",
     "name": "Lahore Squad 6",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0065",
     "name": "Lahore Squad 7",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0066",
     "name": "Lahore Squad 8",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0067",
     "name": "Lahore Reserve 1",
     "team": "Lahore Qalandars",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0068",
     "name": "Lahore Reserve 2",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0069",
     "name": "Lahore Reserve 3",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0070",
     "name": "Lahore Reserve 4",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0071",
     "name": "Lahore Reserve 5",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0072",
     "name": "Lahore Reserve 6",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0073",
     "name": "Lahore Reserve 7",
     "team": "Lahore Qalandars",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0074",
     "name": "Lahore Reserve 8",
     "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0075",
     "name": "Lahore Reserve 9",
     "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0076",
     "name": "Mohammad Rizwan",
     "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 15
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0077",
     "name": "Iftikhar Ahmed",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 11
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0078",
     "name": "Mohammad Nawaz",
     "team": "Multan Sultans",
-    "role": "all-rounder",
-    "basePrice": 10
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0079",
     "name": "Usama Mir",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 9
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0080",
     "name": "Reeza Hendricks",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 10
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0081",
     "name": "Chris Jordan",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 11
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0082",
     "name": "Tayyab Tahir",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0083",
     "name": "Abbas Afridi",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 9
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0084",
     "name": "Multan Squad 1",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0085",
     "name": "Multan Squad 2",
     "team": "Multan Sultans",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0086",
     "name": "Multan Squad 3",
     "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0087",
     "name": "Multan Squad 4",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0088",
     "name": "Multan Squad 5",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0089",
     "name": "Multan Squad 6",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0090",
     "name": "Multan Squad 7",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0091",
     "name": "Multan Squad 8",
     "team": "Multan Sultans",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0092",
     "name": "Multan Reserve 1",
     "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0093",
     "name": "Multan Reserve 2",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0094",
     "name": "Multan Reserve 3",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0095",
     "name": "Multan Reserve 4",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0096",
     "name": "Multan Reserve 5",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0097",
     "name": "Multan Reserve 6",
     "team": "Multan Sultans",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0098",
     "name": "Multan Reserve 7",
     "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0099",
     "name": "Multan Reserve 8",
     "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0100",
     "name": "Multan Reserve 9",
     "team": "Multan Sultans",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0101",
     "name": "Babar Azam",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 15
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0102",
     "name": "Saim Ayub",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 11
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0103",
     "name": "Mehran Mumtaz",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0104",
     "name": "Luke Wood",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 10
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0105",
     "name": "Daniel Sams",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 10
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0106",
     "name": "Sufiyan Muqeem",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 9
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0107",
     "name": "Paul Walter",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 8
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0108",
     "name": "Mohammad Haris",
     "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 10
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0109",
     "name": "Peshawar Squad 1",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0110",
     "name": "Peshawar Squad 2",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0111",
     "name": "Peshawar Squad 3",
     "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0112",
     "name": "Peshawar Squad 4",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0113",
     "name": "Peshawar Squad 5",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0114",
     "name": "Peshawar Squad 6",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0115",
     "name": "Peshawar Squad 7",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0116",
     "name": "Peshawar Squad 8",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0117",
     "name": "Peshawar Reserve 1",
     "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0118",
     "name": "Peshawar Reserve 2",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0119",
     "name": "Peshawar Reserve 3",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0120",
     "name": "Peshawar Reserve 4",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0121",
     "name": "Peshawar Reserve 5",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0122",
     "name": "Peshawar Reserve 6",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0123",
     "name": "Peshawar Reserve 7",
     "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0124",
     "name": "Peshawar Reserve 8",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0125",
     "name": "Peshawar Reserve 9",
     "team": "Peshawar Zalmi",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0126",
     "name": "Saud Shakeel",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 11
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0127",
     "name": "Rilee Rossouw",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 12
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0128",
     "name": "Mohammad Wasim Jr",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 11
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0129",
     "name": "Akeal Hosein",
     "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 9
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0130",
     "name": "Omair Bin Yousuf",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0131",
     "name": "Khurram Shahzad",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 9
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0132",
     "name": "Sherfane Rutherford",
     "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 10
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0133",
     "name": "Usman Tariq",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0134",
     "name": "Quetta Squad 1",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0135",
     "name": "Quetta Squad 2",
     "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0136",
     "name": "Quetta Squad 3",
     "team": "Quetta Gladiators",
-    "role": "wicketkeeper",
-    "basePrice": 7
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0137",
     "name": "Quetta Squad 4",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0138",
     "name": "Quetta Squad 5",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0139",
     "name": "Quetta Squad 6",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 8
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0140",
     "name": "Quetta Squad 7",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 8
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0141",
     "name": "Quetta Squad 8",
     "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 7
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0142",
     "name": "Quetta Reserve 1",
     "team": "Quetta Gladiators",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0143",
     "name": "Quetta Reserve 2",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0144",
     "name": "Quetta Reserve 3",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0145",
     "name": "Quetta Reserve 4",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   },
   {
     "externalId": "psl2026-0146",
     "name": "Quetta Reserve 5",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0147",
     "name": "Quetta Reserve 6",
     "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 5
+    "role": "all-rounder"
   },
   {
     "externalId": "psl2026-0148",
     "name": "Quetta Reserve 7",
     "team": "Quetta Gladiators",
-    "role": "wicketkeeper",
-    "basePrice": 5
+    "role": "wicketkeeper"
   },
   {
     "externalId": "psl2026-0149",
     "name": "Quetta Reserve 8",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 6
+    "role": "bowler"
   },
   {
     "externalId": "psl2026-0150",
     "name": "Quetta Reserve 9",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 6
+    "role": "batsman"
   }
 ]

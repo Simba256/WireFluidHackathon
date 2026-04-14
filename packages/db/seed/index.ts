@@ -9,7 +9,6 @@ interface PlayerSeed {
   name: string;
   team: string;
   role: "batsman" | "bowler" | "all-rounder" | "wicketkeeper";
-  basePrice: number;
 }
 
 interface PrizeSeed {
@@ -52,7 +51,6 @@ async function main() {
         name: p.name,
         team: p.team,
         role: p.role,
-        basePrice: p.basePrice,
       })),
     )
     .onConflictDoNothing({ target: player.externalId });

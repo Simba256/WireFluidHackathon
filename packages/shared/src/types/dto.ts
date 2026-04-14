@@ -11,7 +11,6 @@ export interface PlayerDTO {
   name: string;
   team: string;
   role: PlayerRole;
-  basePrice: number;
   photoUrl: string | null;
 }
 
@@ -20,7 +19,6 @@ export interface TeamDTO {
   wallet: string;
   tournamentId: number;
   playerIds: number[];
-  totalCredits: number;
   createdAt: string;
 }
 
@@ -175,7 +173,6 @@ export interface DashboardDTO {
   team: {
     exists: boolean;
     playerCount: number;
-    totalCredits: number | null;
   };
   global: {
     rank: number | null;

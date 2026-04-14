@@ -17,7 +17,6 @@ export async function GET(): Promise<NextResponse> {
         name: player.name,
         team: player.team,
         role: player.role,
-        basePrice: player.basePrice,
         photoUrl: player.photoUrl,
       })
       .from(player)
@@ -26,7 +25,11 @@ export async function GET(): Promise<NextResponse> {
 
     return NextResponse.json(
       { players: rows },
-      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=300" } },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=300",
+        },
+      },
     );
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";

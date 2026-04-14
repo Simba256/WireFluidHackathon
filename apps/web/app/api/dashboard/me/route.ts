@@ -121,7 +121,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         )
         .then((rows) => rows[0]),
       database
-        .select({ id: team.id, totalCredits: team.totalCredits })
+        .select({ id: team.id })
         .from(team)
         .where(
           and(eq(team.userWallet, wallet), eq(team.tournamentId, tournamentId)),
@@ -317,7 +317,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       team: {
         exists: teamRow != null,
         playerCount,
-        totalCredits: teamRow?.totalCredits ?? null,
       },
       global: {
         rank: globalRank,

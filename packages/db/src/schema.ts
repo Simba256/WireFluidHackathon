@@ -54,7 +54,6 @@ export const player = pgTable(
     name: text("name").notNull(),
     team: text("team").notNull(),
     role: text("role").notNull(),
-    basePrice: integer("base_price").notNull(),
     photoUrl: text("photo_url"),
     active: boolean("active").default(true).notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
@@ -121,7 +120,6 @@ export const team = pgTable(
       .notNull()
       .references(() => user.wallet),
     tournamentId: integer("tournament_id").notNull(),
-    totalCredits: integer("total_credits").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

@@ -77,6 +77,7 @@ BoundaryLine is a **hybrid on-chain / off-chain** application. Gameplay and scor
 ## Component Responsibilities
 
 ### Next.js App (Vercel, Fluid Compute)
+
 **Single deployable unit** containing both the frontend and backend. Route handlers under `app/api/*` serve as the backend.
 
 - **Pages**: landing, team picker, dashboard, leaderboards, prizes, trophies, admin
@@ -85,7 +86,9 @@ BoundaryLine is a **hybrid on-chain / off-chain** application. Gameplay and scor
 - **API handlers**: auth, business logic, EIP-712 voucher signing, admin-only operations
 
 ### Neon Postgres (via Drizzle)
+
 Single source of truth for **off-chain state**:
+
 - User accounts (by wallet address)
 - Player catalog (PSL 2026 squads)
 - Team compositions
@@ -98,14 +101,18 @@ Single source of truth for **off-chain state**:
 Never stores private keys, passwords, or anything sensitive.
 
 ### WireFluid Testnet Contracts
+
 Source of truth for **prize eligibility and ownership**:
+
 - `PSLPoints` — the BNDY token, transferable, with monotonic `earnedBalance` mapping
 - `PSLTrophies` — soulbound achievement NFTs
 
 Both deployed to WireFluid testnet. See [`CONTRACTS.md`](./CONTRACTS.md).
 
 ### Signer Wallet (Backend EOA)
+
 A dedicated wallet owned by the backend. Private key stored in a Vercel environment variable. Used to:
+
 - Sign EIP-712 **sync vouchers** (authorizing `PSLPoints.sync()` calls)
 - Sign EIP-712 **claim vouchers** (authorizing `PSLPoints.claimTier()` calls)
 
@@ -116,6 +123,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 ## Core Data Flows
 
 ### Flow 1 — User Registration
+
 1. User clicks **Connect Wallet** on frontend
 2. Frontend requests nonce from `/api/auth/nonce`
 3. User signs SIWE message in wallet
@@ -124,13 +132,15 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 6. Subsequent API calls include JWT → scoped to user's wallet address
 
 ### Flow 2 — Team Creation
-1. Authenticated user GETs `/api/players` → list of PSL players with base prices
-2. User selects 11 players under salary cap in the UI
+
+1. Authenticated user GETs `/api/players` → list of PSL players
+2. User selects 11 players in the UI
 3. POST `/api/teams` with `{ playerIds: number[11] }`
-4. Backend validates: user has no existing team, 11 players, roles balance, cap not exceeded
+4. Backend validates: user has no existing team, 11 players, no duplicates, all players active
 5. Writes to `teams` + `team_players` tables
 
 ### Flow 3 — Match Scoring (Admin)
+
 1. Admin authenticates via separate admin key
 2. POST `/api/admin/matches/:id/scores` with per-player stats
 3. Backend computes `points = runs + wickets*25 + catches*10` for each player
@@ -138,6 +148,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 5. Global leaderboard (DB view) updates immediately
 
 ### Flow 4 — Sync (Off-chain → On-chain)
+
 1. User clicks **Sync** in dashboard
 2. Frontend POST `/api/sync`
 3. Backend calculates `delta = total_earned - already_synced`
@@ -153,6 +164,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 9. Prize leaderboard cache refreshes
 
 ### Flow 5 — Claim
+
 1. User sees their prize rank hits a tier band with stock available
 2. User clicks **Claim Top N Prize**
 3. Frontend POST `/api/claim` with `{ tierId }`
@@ -174,6 +186,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 ## Leaderboards
 
 ### Global Leaderboard (off-chain)
+
 - Reads from `user_points` table, ordered by `total_points DESC`
 - Includes every player, qualified or not, synced or not
 - Updates instantly after each match scoring event
@@ -181,6 +194,7 @@ A dedicated wallet owned by the backend. Private key stored in a Vercel environm
 - Endpoint: `GET /api/leaderboard/global`
 
 ### Prize Leaderboard (on-chain, qualification-gated)
+
 - **Rank metric**: `PSLPoints.balanceOf(wallet)` — transferable wallet balance
 - **Qualification filter**: `PSLPoints.earnedBalance(wallet) >= 10,000 BNDY` — the same threshold enforced on-chain by `claimTier()`, mirrored in the backend leaderboard filter so visibility and claim eligibility are the same set
 - Unqualified wallets never appear in the response even if their `balanceOf` is huge (pure-whale block)
@@ -197,6 +211,7 @@ See [`GAME_DESIGN.md`](./GAME_DESIGN.md) for the strategic implications and [`TO
 The prize leaderboard depends on `balanceOf`, which can change on any `Transfer` event — not just our voucher-issued `Synced`/`TierClaimed` events. That means the leaderboard must react to on-chain state we didn't personally authorize. However, we **do not** run a long-running indexer daemon. Everything is request-scoped inside Vercel Functions.
 
 ### Why no daemon
+
 - Vercel Hobby cron jobs are limited to **once per day** (not useful for a 30s-refresh leaderboard)
 - Running a separate indexer service on Railway/Fly doubles deployment surface, secret management, and cost
 - Vercel Fluid Compute functions give us **up to 300s per request** on Hobby, which is plenty for a multicall + log-scan sweep
@@ -205,14 +220,18 @@ The prize leaderboard depends on `balanceOf`, which can change on any `Transfer`
 ### Three-layer strategy
 
 #### Layer 1 — Voucher-aware tracking (write path)
+
 Every time the backend issues a `SyncVoucher` or `ClaimVoucher`, it:
+
 1. Inserts a `synced_record` / `claim` row
 2. Upserts the user wallet into `tracked_wallet`
 
-This covers 100% of activity we authorize. The only wallets we need to discover *separately* are recipients of BNDY via transfer who never interacted with our API.
+This covers 100% of activity we authorize. The only wallets we need to discover _separately_ are recipients of BNDY via transfer who never interacted with our API.
 
 #### Layer 2 — Lazy refresh on read (primary path)
+
 `GET /api/leaderboard/prize` handler:
+
 ```ts
 1. SELECT * FROM prize_leaderboard_snapshot WHERE tournament_id = $1
 2. IF MAX(refreshed_at) > now() - 30s → return as-is (cache hit)
@@ -232,23 +251,28 @@ This covers 100% of activity we authorize. The only wallets we need to discover 
 This is the whole "indexer." One function handler, triggered only when someone reads the leaderboard. Completes in well under 1s for <1k wallets.
 
 #### Layer 3 — Client polling (UI freshness)
+
 The `/leaderboard` page polls `GET /api/leaderboard/prize` every 5s via a React hook. This:
+
 - Keeps open leaderboard pages fresh without user interaction
 - Combined with the 30s server cache, each poll either gets a cache hit (cheap) or triggers a refresh (bounded to ~1 per 30s per server instance)
 
 ### What this covers
-| Event | Detected by | Lag |
-|---|---|---|
-| User calls `sync()` | Layer 1 (voucher record) → Layer 2 refresh on next read | ≤30s |
-| User calls `claimTier()` | Layer 1 (claim record) → Layer 2 refresh on next read | ≤30s |
-| User calls `transfer()` to another user | Layer 2 log scan finds the new recipient | ≤30s |
-| Attacker bypasses our UI and calls `sync()` directly via Etherscan | Layer 2 log scan discovers the wallet via Transfer events (mint emits Transfer from 0x0) | ≤30s |
-| Attacker transfers dust to 10k wallets | Layer 2 picks them up but qualification filter keeps them off the leaderboard | N/A (filtered) |
+
+| Event                                                              | Detected by                                                                              | Lag            |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | -------------- |
+| User calls `sync()`                                                | Layer 1 (voucher record) → Layer 2 refresh on next read                                  | ≤30s           |
+| User calls `claimTier()`                                           | Layer 1 (claim record) → Layer 2 refresh on next read                                    | ≤30s           |
+| User calls `transfer()` to another user                            | Layer 2 log scan finds the new recipient                                                 | ≤30s           |
+| Attacker bypasses our UI and calls `sync()` directly via Etherscan | Layer 2 log scan discovers the wallet via Transfer events (mint emits Transfer from 0x0) | ≤30s           |
+| Attacker transfers dust to 10k wallets                             | Layer 2 picks them up but qualification filter keeps them off the leaderboard            | N/A (filtered) |
 
 ### What it does NOT cover
+
 - **Sub-5s realtime rank movement on an already-open page** — poll interval is 5s and server cache is 30s, so worst case is ~35s lag between an on-chain event and a client seeing it. For hackathon demo purposes this is fine. If we ever need realtime, the upgrade path is WebSocket push + event listener daemon on Railway/Fly (v2).
 
 ### Additional DB tables this requires
+
 - **`tracked_wallet`** — list of wallets seen through any path (voucher, transfer event, mint)
 - **`indexer_cursor`** — `(contract_address, last_scanned_block)` to checkpoint the Transfer log scan
 - **`prize_leaderboard_snapshot`** — extended with a `wallet_balance` column alongside `earned_balance`
@@ -270,13 +294,13 @@ Gap vs spec: attackers who call `PSLPoints.sync()` directly without going throug
 
 ## Trust Model
 
-| Actor | Trusted for | NOT trusted for |
-|---|---|---|
-| Backend | Off-chain scoring, voucher signing, leaderboard ordering | Custodying user funds; can't spend user tokens |
-| Signer key | Authorizing sync/claim deltas | Controlling user wallets |
-| User wallet | Owning tokens, signing txs | Determining their own point total |
-| Admin | Submitting match results | Claiming prizes or minting to self arbitrarily |
-| WireFluid chain | Finalizing txs, storing `earnedBalance` truth | Calculating points |
+| Actor           | Trusted for                                              | NOT trusted for                                |
+| --------------- | -------------------------------------------------------- | ---------------------------------------------- |
+| Backend         | Off-chain scoring, voucher signing, leaderboard ordering | Custodying user funds; can't spend user tokens |
+| Signer key      | Authorizing sync/claim deltas                            | Controlling user wallets                       |
+| User wallet     | Owning tokens, signing txs                               | Determining their own point total              |
+| Admin           | Submitting match results                                 | Claiming prizes or minting to self arbitrarily |
+| WireFluid chain | Finalizing txs, storing `earnedBalance` truth            | Calculating points                             |
 
 **Single point of trust**: the backend signer. If compromised, attacker could mint arbitrary BNDY to any wallet. Mitigations in [`SECURITY.md`](./SECURITY.md).
 
@@ -286,14 +310,14 @@ Gap vs spec: attackers who call `PSLPoints.sync()` directly without going throug
 
 ## Failure Modes
 
-| Failure | Impact | Recovery |
-|---|---|---|
-| User tx fails after voucher issued | Reserved claim slot held | 5-min expiry on voucher, backend releases slot |
-| Backend signer key rotation | In-flight vouchers invalid | Document new signer addr in contract via admin setter (v2) |
-| Postgres down | App unavailable | Neon auto-failover; on-chain state unaffected |
-| WireFluid RPC down | Sync/claim/leaderboard refresh fail | Retry with backoff; game continues off-chain |
-| Chain reorg | Voucher nonce collision theoretically possible | 5s finality on WireFluid makes this vanishingly unlikely |
-| Replay attack on voucher | Duplicate mint/claim | `usedNonces` mapping in contract |
+| Failure                            | Impact                                         | Recovery                                                   |
+| ---------------------------------- | ---------------------------------------------- | ---------------------------------------------------------- |
+| User tx fails after voucher issued | Reserved claim slot held                       | 5-min expiry on voucher, backend releases slot             |
+| Backend signer key rotation        | In-flight vouchers invalid                     | Document new signer addr in contract via admin setter (v2) |
+| Postgres down                      | App unavailable                                | Neon auto-failover; on-chain state unaffected              |
+| WireFluid RPC down                 | Sync/claim/leaderboard refresh fail            | Retry with backoff; game continues off-chain               |
+| Chain reorg                        | Voucher nonce collision theoretically possible | 5s finality on WireFluid makes this vanishingly unlikely   |
+| Replay attack on voucher           | Duplicate mint/claim                           | `usedNonces` mapping in contract                           |
 
 ---
 

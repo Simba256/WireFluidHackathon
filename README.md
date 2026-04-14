@@ -20,7 +20,7 @@ Millions of Pakistanis follow PSL. Existing fantasy cricket apps gatekeep prizes
 ## How It Works
 
 1. **Connect your wallet** using Sign-In With Ethereum (SIWE).
-2. **Pick your 11 players** from the PSL 2026 squads under a salary cap.
+2. **Pick your 11 players** from the PSL 2026 squads.
 3. **Earn points** as real matches play out — runs, wickets, catches all count.
 4. **Sync your points** to your wallet. Once you've earned and synced **10,000 BNDY**, you're on the prize leaderboard.
 5. **Climb rank** by playing more, trading, gifting, or buying BNDY on the market — the leaderboard ranks by wallet balance, not just earned history. Pure whales who never played stay invisible and cannot claim.
@@ -84,15 +84,15 @@ All project documentation lives in [`docs/`](./docs):
 
 ## Tech Stack
 
-| Layer | Tech |
-|---|---|
-| Blockchain | WireFluid testnet (EVM + CometBFT, chain ID `92533`) |
-| Contracts | Solidity 0.8.24 + OpenZeppelin + Hardhat + TypeScript |
-| Frontend | Next.js 15 (App Router) + Tailwind + shadcn/ui + Framer Motion |
-| Wallet | wagmi v2 + viem + RainbowKit + SIWE |
-| Backend | Next.js API routes + EIP-712 voucher signer |
-| Database | Neon Postgres + Drizzle ORM |
-| Deploy | Vercel (Fluid Compute) |
+| Layer      | Tech                                                           |
+| ---------- | -------------------------------------------------------------- |
+| Blockchain | WireFluid testnet (EVM + CometBFT, chain ID `92533`)           |
+| Contracts  | Solidity 0.8.24 + OpenZeppelin + Hardhat + TypeScript          |
+| Frontend   | Next.js 15 (App Router) + Tailwind + shadcn/ui + Framer Motion |
+| Wallet     | wagmi v2 + viem + RainbowKit + SIWE                            |
+| Backend    | Next.js API routes + EIP-712 voucher signer                    |
+| Database   | Neon Postgres + Drizzle ORM                                    |
+| Deploy     | Vercel (Fluid Compute)                                         |
 
 ---
 
