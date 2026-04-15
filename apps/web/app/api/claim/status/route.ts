@@ -12,7 +12,7 @@ import {
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { internalError } from "@/lib/errors";
-import { expireStaleClaims } from "@/lib/prize-state";
+import { expireStaleClaims, invalidatePrizeStateCache } from "@/lib/prize-state";
 import { publicClient } from "@/lib/viem";
 
 export const runtime = "nodejs";
@@ -43,6 +43,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         fromBlock,
         toBlock: latestBlock,
       });
+      if (logs.length > 0) invalidatePrizeStateCache();
       for (const log of logs) {
         const args = log.args as {
           tierId?: number;

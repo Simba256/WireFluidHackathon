@@ -6,6 +6,7 @@ import { getActiveTournamentId, syncedRecord } from "@boundaryline/db";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { badRequest, internalError, zodToResponse } from "@/lib/errors";
+import { invalidatePrizeStateCache } from "@/lib/prize-state";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,6 +61,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         confirmedAt: new Date(),
       })
       .where(eq(syncedRecord.id, record.id));
+
+    invalidatePrizeStateCache();
 
     return NextResponse.json({ confirmed: true });
   } catch (err) {

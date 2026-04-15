@@ -15,7 +15,26 @@ import {
 import type { Address, PublicClient } from "viem";
 import { publicClient } from "@/lib/viem";
 
-const CONTRACT_READ_BATCH_SIZE = 20;
+const PRIZE_STATE_TTL_MS = 30_000;
+
+type CacheEntry = {
+  expiresAt: number;
+  state: PrizeLeaderboardState;
+};
+
+const prizeStateCache = new Map<string, CacheEntry>();
+
+function cacheKey(tournamentId: number, includeWallets: string[]): string {
+  const extras =
+    includeWallets.length > 0
+      ? [...new Set(includeWallets.map((w) => w.toLowerCase()))].sort().join(",")
+      : "";
+  return `${tournamentId}|${extras}`;
+}
+
+export function invalidatePrizeStateCache(): void {
+  prizeStateCache.clear();
+}
 
 export interface PrizeLeaderboardRow {
   wallet: string;
@@ -118,53 +137,31 @@ async function readWalletPointState(
     earnedBalance: bigint;
   }>
 > {
-  const rows: Array<{
-    wallet: Address;
-    walletBalance: bigint;
-    earnedBalance: bigint;
-  }> = [];
-
-  for (
-    let start = 0;
-    start < wallets.length;
-    start += CONTRACT_READ_BATCH_SIZE
-  ) {
-    const batch = wallets.slice(start, start + CONTRACT_READ_BATCH_SIZE);
-    const batchRows = await Promise.all(
-      batch.map(async (wallet) => {
-        const [walletBalance, earnedBalance] = await Promise.all([
-          client
-            .readContract({
-              address: CONTRACT_ADDRESSES.PSLPoints,
-              abi: PSLPointsAbi,
-              functionName: "balanceOf",
-              args: [wallet],
-            })
-            .then((result) => result as bigint)
-            .catch(() => 0n),
-          client
-            .readContract({
-              address: CONTRACT_ADDRESSES.PSLPoints,
-              abi: PSLPointsAbi,
-              functionName: "earnedBalance",
-              args: [wallet],
-            })
-            .then((result) => result as bigint)
-            .catch(() => 0n),
-        ]);
-
-        return {
-          wallet,
-          walletBalance,
-          earnedBalance,
-        };
-      }),
-    );
-
-    rows.push(...batchRows);
-  }
-
-  return rows;
+  return Promise.all(
+    wallets.map(async (wallet) => {
+      const [walletBalance, earnedBalance] = await Promise.all([
+        client
+          .readContract({
+            address: CONTRACT_ADDRESSES.PSLPoints,
+            abi: PSLPointsAbi,
+            functionName: "balanceOf",
+            args: [wallet],
+          })
+          .then((r) => r as bigint)
+          .catch(() => 0n),
+        client
+          .readContract({
+            address: CONTRACT_ADDRESSES.PSLPoints,
+            abi: PSLPointsAbi,
+            functionName: "earnedBalance",
+            args: [wallet],
+          })
+          .then((r) => r as bigint)
+          .catch(() => 0n),
+      ]);
+      return { wallet, walletBalance, earnedBalance };
+    }),
+  );
 }
 
 export async function getPrizeLeaderboardState(
@@ -172,6 +169,12 @@ export async function getPrizeLeaderboardState(
   tournamentId: number,
   includeWallets: string[] = [],
 ): Promise<PrizeLeaderboardState> {
+  const key = cacheKey(tournamentId, includeWallets);
+  const cached = prizeStateCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.state;
+  }
+
   await expireStaleClaims(database, tournamentId);
 
   const wallets = await getTrackedWallets(
@@ -181,12 +184,17 @@ export async function getPrizeLeaderboardState(
   );
   const updatedAt = new Date().toISOString();
   if (wallets.length === 0) {
-    return {
+    const empty: PrizeLeaderboardState = {
       entries: [],
       totalQualified: 0,
       snapshotBlock: 0,
       updatedAt,
     };
+    prizeStateCache.set(key, {
+      expiresAt: Date.now() + PRIZE_STATE_TTL_MS,
+      state: empty,
+    });
+    return empty;
   }
 
   const client = publicClient();
@@ -246,12 +254,17 @@ export async function getPrizeLeaderboardState(
     };
   });
 
-  return {
+  const state: PrizeLeaderboardState = {
     entries,
     totalQualified: entries.length,
     snapshotBlock: Number(block),
     updatedAt,
   };
+  prizeStateCache.set(key, {
+    expiresAt: Date.now() + PRIZE_STATE_TTL_MS,
+    state,
+  });
+  return state;
 }
 
 export function getPrizeStandingForWallet(
