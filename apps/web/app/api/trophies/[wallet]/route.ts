@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq, isNotNull } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import { claim } from "@boundaryline/db";
 import {
@@ -32,6 +32,78 @@ export async function GET(
 
   try {
     const database = db();
+    const client = publicClient();
+
+    const burnedByTokenId = new Map<string, string>();
+    const tierClaimEvents: Array<{
+      tierId: number;
+      trophyTokenId: bigint;
+      burnedAmount: bigint;
+      txHash: `0x${string}`;
+      blockNumber: bigint;
+    }> = [];
+
+    try {
+      const latestBlock = await client.getBlockNumber();
+      const fromBlock = latestBlock > 9000n ? latestBlock - 9000n : 0n;
+      const logs = await client.getContractEvents({
+        address: CONTRACT_ADDRESSES.PSLPoints,
+        abi: PSLPointsAbi,
+        eventName: "TierClaimed",
+        args: { user: wallet as Address },
+        fromBlock,
+        toBlock: latestBlock,
+      });
+      for (const log of logs) {
+        const args = log.args as {
+          tierId?: number;
+          trophyTokenId?: bigint;
+          burnedAmount?: bigint;
+        };
+        if (
+          args.tierId != null &&
+          args.trophyTokenId != null &&
+          args.burnedAmount != null
+        ) {
+          burnedByTokenId.set(
+            args.trophyTokenId.toString(),
+            args.burnedAmount.toString(),
+          );
+          tierClaimEvents.push({
+            tierId: Number(args.tierId),
+            trophyTokenId: args.trophyTokenId,
+            burnedAmount: args.burnedAmount,
+            txHash: log.transactionHash,
+            blockNumber: log.blockNumber,
+          });
+        }
+      }
+    } catch {
+      // swallow — reconciliation and burnedAmount both gracefully degrade
+    }
+
+    // Lazy-reconcile: if a TierClaimed event exists on-chain but the matching
+    // claim row is still pending/expired (backend observer missed it), patch
+    // the row to confirmed so the trophy is visible again.
+    for (const event of tierClaimEvents) {
+      await database
+        .update(claim)
+        .set({
+          status: "confirmed",
+          trophyTokenId: event.trophyTokenId,
+          txHash: event.txHash,
+          blockNumber: event.blockNumber,
+          confirmedAt: sql`now()`,
+        })
+        .where(
+          and(
+            eq(claim.wallet, wallet),
+            eq(claim.tierId, event.tierId),
+            inArray(claim.status, ["pending", "expired"]),
+            isNull(claim.trophyTokenId),
+          ),
+        );
+    }
 
     const rows = await database
       .select()
@@ -43,37 +115,6 @@ export async function GET(
           isNotNull(claim.trophyTokenId),
         ),
       );
-
-    const client = publicClient();
-
-    const burnedByTokenId = new Map<string, string>();
-    try {
-      const latestBlock = await client.getBlockNumber();
-      const fromBlock =
-        latestBlock > 9000n ? latestBlock - 9000n : 0n;
-      const logs = await client.getContractEvents({
-        address: CONTRACT_ADDRESSES.PSLPoints,
-        abi: PSLPointsAbi,
-        eventName: "TierClaimed",
-        args: { user: wallet as Address },
-        fromBlock,
-        toBlock: latestBlock,
-      });
-      for (const log of logs) {
-        const args = log.args as {
-          trophyTokenId?: bigint;
-          burnedAmount?: bigint;
-        };
-        if (args.trophyTokenId != null && args.burnedAmount != null) {
-          burnedByTokenId.set(
-            args.trophyTokenId.toString(),
-            args.burnedAmount.toString(),
-          );
-        }
-      }
-    } catch {
-      // swallow — burnedAmount will simply be omitted
-    }
 
     const trophies = await Promise.all(
       rows.map(async (row) => {
