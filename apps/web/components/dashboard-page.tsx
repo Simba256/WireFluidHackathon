@@ -1308,11 +1308,7 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
-                  <p className="max-w-[16rem] text-xs text-slate-400">
-                    Global rank tracks all fantasy managers, while prize
-                    standing only counts qualified on-chain wallets.
-                  </p>
+                <div className="mt-6 flex justify-end rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
                   <Link
                     className="shrink-0 text-sm font-bold text-primary transition-colors hover:text-secondary"
                     href="/leaderboard"
