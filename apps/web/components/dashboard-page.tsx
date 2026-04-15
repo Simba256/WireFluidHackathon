@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import {
-  APP_NAME,
   BNDY_DECIMALS,
   CONTRACT_ADDRESSES,
   PSLPointsAbi,
@@ -399,50 +398,13 @@ function MatchActivitySection({
 
 export function AppChrome({
   children,
-  isWalletBalanceLoading = false,
-  walletBalance = null,
 }: {
   children: React.ReactNode;
-  isWalletBalanceLoading?: boolean;
-  walletBalance?: string | null;
 }) {
   return (
     <>
-      <header className="fixed top-0 z-50 flex h-16 w-full items-center justify-between bg-[#161d26] px-6 py-4">
-        <div className="flex items-center gap-3">
-          <Link
-            className="font-headline text-2xl font-bold tracking-tighter text-primary"
-            href="/"
-          >
-            {APP_NAME}
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {isWalletBalanceLoading || walletBalance != null ? (
-            <div className="flex items-center gap-2 rounded-full border border-outline-variant/15 bg-surface-container px-3 py-1.5">
-              <Icon
-                fill
-                className="text-sm text-primary"
-                name="account_balance_wallet"
-              />
-              {isWalletBalanceLoading ? (
-                <BalanceSkeleton className="h-4 w-24 bg-primary/20" />
-              ) : (
-                <span className="font-headline text-sm font-bold text-primary">
-                  BNDY {formatWeiInteger(walletBalance ?? "0")}
-                </span>
-              )}
-            </div>
-          ) : null}
-          <ProfilePopover />
-        </div>
-      </header>
-
-      <div className="min-h-screen pt-16">
-        <main className="mx-auto w-full max-w-[96rem] px-6 pb-24 pt-6 md:px-10 md:pb-10 xl:px-12">
-          {children}
-        </main>
+      <div className="mx-auto w-full max-w-[96rem] px-6 pb-24 pt-6 md:px-10 md:pb-10 xl:px-12">
+        {children}
       </div>
 
       <footer className="border-t border-outline-variant/5 bg-background px-8 py-12">
@@ -799,7 +761,6 @@ export function DashboardPage() {
   const isGlobalStateUnavailable =
     !isGlobalStateLoading && globalState == null && globalStateError != null;
   const isDashboardLoading = dashboard == null && error == null;
-  const isChainStatePending = chainState == null && chainStateError == null;
 
   const handleSync = useCallback(async () => {
     if (!token || !hasUnsyncedPoints || isChainStateLoading) {
@@ -1006,10 +967,7 @@ export function DashboardPage() {
     Boolean(dashboard?.claim) || chainState?.prize.qualified;
 
   return (
-    <AppChrome
-      isWalletBalanceLoading={isChainStatePending}
-      walletBalance={chainState?.balances.walletBalance ?? null}
-    >
+    <AppChrome>
       {error && !dashboard ? (
         <ErrorState error={error} onRetry={() => void loadDashboard()} />
       ) : (
