@@ -4,7 +4,7 @@
     "name": "PSL 2026 Grand Prize",
     "description": "Signed PSL 2026 jersey, signed match bat, and VIP final tickets for two.",
     "imageUrl": "/prizes/tier-1.png",
-    "stockLimit": 1,
+    "stockLimit": 1000,
     "rankRequired": 1
   },
   {
@@ -12,7 +12,7 @@
     "name": "VIP Final Experience",
     "description": "VIP final ticket plus a post-match meet & greet with a marquee player.",
     "imageUrl": "/prizes/tier-2.png",
-    "stockLimit": 3,
+    "stockLimit": 1000,
     "rankRequired": 3
   },
   {
@@ -20,7 +20,7 @@
     "name": "Signed Match Bat",
     "description": "Tournament-used cricket bat signed by a PSL 2026 captain.",
     "imageUrl": "/prizes/tier-3.png",
-    "stockLimit": 10,
+    "stockLimit": 1000,
     "rankRequired": 10
   },
   {
@@ -28,7 +28,7 @@
     "name": "Signed Poster + Jersey",
     "description": "Team jersey plus a signed squad poster.",
     "imageUrl": "/prizes/tier-4.png",
-    "stockLimit": 25,
+    "stockLimit": 1000,
     "rankRequired": 25
   },
   {
@@ -36,7 +36,7 @@
     "name": "Team Merch Bundle",
     "description": "Cap, scarf, and sticker pack from your favourite franchise.",
     "imageUrl": "/prizes/tier-5.png",
-    "stockLimit": 50,
+    "stockLimit": 1000,
     "rankRequired": 50
   }
 ]
