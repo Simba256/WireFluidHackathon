@@ -36,15 +36,17 @@ export interface ScoreInput {
 export function calculatePlayerPoints(s: ScoreInput): bigint {
   let pts =
     s.runs +
-    s.wickets * 25 +
+    s.wickets * 40 +
     s.catches * 10 +
     s.runOuts * 10 +
     s.stumpings * 10;
-  if (s.runs >= 100) pts += 50;
-  else if (s.runs >= 50) pts += 20;
-  if (s.wickets >= 5) pts += 50;
+  if (s.runs >= 100) pts += 100;
+  else if (s.runs >= 50) pts += 40;
+  if (s.wickets >= 5) pts += 100;
   if (s.dismissedForZero) pts -= 5;
-  return BigInt(pts);
+  const scaled = pts * 3;
+  const withCompletionBonus = scaled + 200;
+  return BigInt(Math.max(0, withCompletionBonus));
 }
 
 export async function getGlobalLeaderboard(
