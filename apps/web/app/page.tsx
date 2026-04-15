@@ -2,6 +2,7 @@ import Image from "next/image";
 import { LandingNav } from "@/components/landing-nav";
 import { HeroWalletActions } from "@/components/hero-wallet-actions";
 import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
+import { ScrollReveal, ScrollRevealItem } from "@/components/scroll-reveal";
 
 const HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAtbiBkfh0n1iYWKJMjnClUdsWtk1Q4C62aZY8v6bwhAq7VX1D2aWH5tm13PHdZP6YfsEoRJPLzBMToJhuDf9piAyi87MeHaifldMn71CHd8GhG4ROP83ViTOJ0DBTWmUlFY7iizvt7m74oQB8fe61Az0Q0lbsEl3cT4xkzEsdl_vgm9AXXjlDkNzWsiH1wuqQwdY43Bv-Lcsy0RSE0mpRwH-LM9CvALwzFiZm72EZm4qmXx3fbswmCjEB9TGfvRISB5XZ7j0D_Pgau";
@@ -212,21 +213,25 @@ function HowItWorks() {
   return (
     <section className="py-24 bg-surface">
       <div className="container mx-auto px-6">
-        <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-5xl font-headline font-bold mb-4 tracking-tight">
-            The Winning Loop
-          </h2>
-          <p className="text-slate-400 max-w-xl mx-auto">
-            From drafting your first XI to claiming rewards on the WireFluid
-            testnet, BoundaryLine is built for performance.
-          </p>
-        </div>
+        <ScrollReveal className="text-center mb-20">
+          <ScrollRevealItem>
+            <h2 className="text-4xl md:text-5xl font-headline font-bold mb-4 tracking-tight">
+              The Winning Loop
+            </h2>
+          </ScrollRevealItem>
+          <ScrollRevealItem>
+            <p className="text-slate-400 max-w-xl mx-auto">
+              From drafting your first XI to claiming rewards on the WireFluid
+              testnet, BoundaryLine is built for performance.
+            </p>
+          </ScrollRevealItem>
+        </ScrollReveal>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <ScrollReveal className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STEPS.map((step) => {
             const cls = ACCENT_CLASSES[step.accent];
             return (
-              <div
+              <ScrollRevealItem
                 key={step.title}
                 className={`bg-surface-container-low p-8 rounded-[2rem] border-b-4 ${cls.border} hover:-translate-y-2 transition-transform`}
               >
@@ -241,10 +246,10 @@ function HowItWorks() {
                 <p className="text-slate-400 leading-relaxed">
                   {step.description}
                 </p>
-              </div>
+              </ScrollRevealItem>
             );
           })}
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
