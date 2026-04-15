@@ -14,6 +14,7 @@ import { requireAuth } from "@/lib/auth";
 import { internalError } from "@/lib/errors";
 import { expireStaleClaims, invalidatePrizeStateCache } from "@/lib/prize-state";
 import { invalidateTrophiesCache } from "@/app/api/trophies/[wallet]/route";
+import { invalidateDashboardMeCache } from "@/app/api/dashboard/me/route";
 import { publicClient } from "@/lib/viem";
 
 export const runtime = "nodejs";
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       if (logs.length > 0) {
         invalidatePrizeStateCache();
         invalidateTrophiesCache(wallet);
+        invalidateDashboardMeCache(wallet);
       }
       for (const log of logs) {
         const args = log.args as {

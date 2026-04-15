@@ -16,6 +16,7 @@ import {
   internalError,
   zodToResponse,
 } from "@/lib/errors";
+import { invalidateDashboardMeCache } from "@/app/api/dashboard/me/route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -104,6 +105,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
       return inserted;
     });
+
+    invalidateDashboardMeCache(wallet);
 
     return NextResponse.json(
       {

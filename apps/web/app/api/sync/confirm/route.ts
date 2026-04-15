@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { badRequest, internalError, zodToResponse } from "@/lib/errors";
 import { invalidatePrizeStateCache } from "@/lib/prize-state";
+import { invalidateDashboardMeCache } from "@/app/api/dashboard/me/route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       .where(eq(syncedRecord.id, record.id));
 
     invalidatePrizeStateCache();
+    invalidateDashboardMeCache(wallet);
 
     return NextResponse.json({ confirmed: true });
   } catch (err) {

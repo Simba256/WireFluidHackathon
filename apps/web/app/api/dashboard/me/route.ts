@@ -33,6 +33,23 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const DASHBOARD_ME_TTL_MS = 10_000;
+
+type DashboardMeCacheEntry = {
+  expiresAt: number;
+  payload: DashboardSummaryDTO;
+};
+
+const dashboardMeCache = new Map<string, DashboardMeCacheEntry>();
+
+export function invalidateDashboardMeCache(wallet?: string): void {
+  if (!wallet) {
+    dashboardMeCache.clear();
+    return;
+  }
+  dashboardMeCache.delete(wallet.toLowerCase());
+}
+
 function shortWallet(wallet: string): string {
   return `${wallet.slice(0, 5)}...${wallet.slice(-4)}`;
 }
@@ -85,6 +102,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   if (!auth.ok) return auth.response;
   const wallet = auth.claims.sub;
 
+  const cached = dashboardMeCache.get(wallet);
+  if (cached && cached.expiresAt > Date.now()) {
+    return NextResponse.json(cached.payload);
+  }
+
   try {
     const database = db();
     const tournamentId = await getActiveTournamentId(database);
@@ -94,19 +116,26 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       expireStaleSyncRecords(database, tournamentId, wallet),
     ]);
 
-    const [tournamentRow] = await database
-      .select({ id: tournament.id, name: tournament.name })
-      .from(tournament)
-      .where(eq(tournament.id, tournamentId))
-      .limit(1);
-
-    const [userRow] = await database
-      .select({ username: user.username, avatarUrl: user.avatarUrl })
-      .from(user)
-      .where(eq(user.wallet, wallet))
-      .limit(1);
-
-    const [pointRow, teamRow, currentClaim, pendingSync] = await Promise.all([
+    const [
+      tournamentRow,
+      userRow,
+      pointRow,
+      teamRow,
+      currentClaim,
+      pendingSync,
+    ] = await Promise.all([
+      database
+        .select({ id: tournament.id, name: tournament.name })
+        .from(tournament)
+        .where(eq(tournament.id, tournamentId))
+        .limit(1)
+        .then((rows) => rows[0]),
+      database
+        .select({ username: user.username, avatarUrl: user.avatarUrl })
+        .from(user)
+        .where(eq(user.wallet, wallet))
+        .limit(1)
+        .then((rows) => rows[0]),
       database
         .select({ totalPoints: userPoint.totalPoints })
         .from(userPoint)
@@ -169,7 +198,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         .where(
           and(eq(match.tournamentId, tournamentId), eq(match.status, "live")),
         )
-        .orderBy(match.scheduledAt),
+        .orderBy(match.scheduledAt)
+        .limit(10),
       database
         .select({
           id: match.id,
@@ -260,7 +290,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       ? TIERS_BY_ID[currentClaim.tierId as TierId]
       : null;
 
-    return NextResponse.json({
+    const payload: DashboardSummaryDTO = {
       user: {
         wallet,
         username: userRow?.username ?? DEFAULT_MANAGER_NAME,
@@ -306,7 +336,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           : null,
       recentMatches,
       upcomingMatches,
-    } satisfies DashboardSummaryDTO);
+    };
+    dashboardMeCache.set(wallet, {
+      expiresAt: Date.now() + DASHBOARD_ME_TTL_MS,
+      payload,
+    });
+    return NextResponse.json(payload);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";
     return internalError(`Failed to load dashboard: ${msg}`);
