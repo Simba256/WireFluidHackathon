@@ -5,6 +5,10 @@ All transactions below were executed on **WireFluid Testnet** (chain ID `92533`)
 - **Explorer**: https://wirefluidscan.com
 - **App**: https://wire-fluid-hackathon-web.vercel.app
 - **Tx URL format**: `https://wirefluidscan.com/tx/<hash>`
+- **BNDY Token Address**: `0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc`
+  - https://wirefluidscan.com/token/0x785FAE9B7C7801173bc1Dc1e38A9ae827137abBc
+- **PSLTrophies NFT Address**: `0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7`
+  - https://wirefluidscan.com/token/0x6F42EC722461Eb6fDe4B4cD8793b297eB34924F7
 
 ---
 
