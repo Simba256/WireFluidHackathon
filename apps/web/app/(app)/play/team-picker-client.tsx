@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/auth-provider";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
+import { fetchers, queryKeys } from "@/lib/queries";
 
 const ROLE_LABELS: Record<string, string> = {
   batsman: "BAT",
@@ -85,7 +87,7 @@ export function TeamPickerClient({
   currentMatch,
   teamSize,
 }: Props) {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, address, token } = useAuth();
 
   const [selected, setSelected] = useState<PlayerData[]>([]);
   const [search, setSearch] = useState("");
@@ -93,7 +95,6 @@ export function TeamPickerClient({
   const [submitting, setSubmitting] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
   const [playing, setPlaying] = useState(false);
   const [matchStatus, setMatchStatus] = useState<string>(
     currentMatch?.status ?? "scheduled",
@@ -102,39 +103,25 @@ export function TeamPickerClient({
   const isLocked = matchStatus !== "scheduled";
   const matchId = currentMatch?.id ?? null;
 
+  const selectedTeamQuery = useQuery({
+    queryKey:
+      matchId != null && address
+        ? queryKeys.selectedTeam(matchId, address)
+        : ["selected-team", "none"],
+    queryFn: () => fetchers.selectedTeam(matchId!, token!),
+    enabled: Boolean(isAuthenticated && token && matchId && address),
+  });
+  const loading = selectedTeamQuery.isLoading && !selectedTeamQuery.data;
+
   useEffect(() => {
-    if (!isAuthenticated || !token || !matchId) {
-      setLoading(false);
-      return;
+    const res = selectedTeamQuery.data;
+    if (!res) return;
+    setMatchStatus(res.matchStatus);
+    if (res.selectedTeam?.players) {
+      setSelected(res.selectedTeam.players as PlayerData[]);
+      setSaved(true);
     }
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await apiFetch<SelectedTeamResponse>(
-          `/api/selected-teams?matchId=${matchId}`,
-          { token },
-        );
-        if (cancelled) return;
-
-        setMatchStatus(res.matchStatus);
-
-        if (res.selectedTeam?.players) {
-          setSelected(res.selectedTeam.players);
-          setSaved(true);
-        }
-      } catch (err) {
-        if (!(err instanceof ApiClientError && err.code === "NOT_FOUND")) {
-          // unexpected error
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated, token, matchId]);
+  }, [selectedTeamQuery.data]);
 
   const selectedIds = useMemo(
     () => new Set(selected.map((p) => p.id)),

@@ -18,7 +18,27 @@ export const queryKeys = {
   prizeCatalog: () => ["prize-catalog"] as const,
   playCurrent: (matchId: number | null) =>
     ["play-current", matchId ?? "auto"] as const,
+  selectedTeam: (matchId: number, wallet: string) =>
+    ["selected-team", matchId, wallet] as const,
+  matchScorecard: (matchId: number, wallet: string) =>
+    ["match-scorecard", matchId, wallet] as const,
 } as const;
+
+export interface SelectedTeamResponse {
+  selectedTeam: {
+    id: number;
+    matchId: number;
+    playerIds: number[];
+    players: Array<{
+      id: number;
+      name: string;
+      team: string;
+      role: string;
+      photoUrl: string | null;
+    }>;
+  } | null;
+  matchStatus: string;
+}
 
 export interface PlayCurrentResponse {
   match: {
@@ -105,6 +125,12 @@ export const fetchers = {
     apiFetch<PlayCurrentResponse>(
       matchId != null ? `/api/play/current?matchId=${matchId}` : "/api/play/current",
     ),
+  selectedTeam: (matchId: number, token: string) =>
+    apiFetch<SelectedTeamResponse>(`/api/selected-teams?matchId=${matchId}`, {
+      token,
+    }),
+  matchScorecard: (matchId: number, token: string) =>
+    apiFetch<unknown>(`/api/matches/${matchId}/scorecard`, { token }),
 } as const;
 
 export interface PrefetchContext {

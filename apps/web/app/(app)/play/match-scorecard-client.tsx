@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/auth-provider";
+import { queryKeys } from "@/lib/queries";
 import { apiFetch } from "@/lib/api-client";
 
 const ROLE_DISPLAY: Record<string, string> = {
@@ -516,34 +518,24 @@ function PlayerScoreCard({
 }
 
 export function MatchScorecardClient({ matchId }: Props) {
-  const { isAuthenticated, token } = useAuth();
-  const [data, setData] = useState<ScorecardResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { isAuthenticated, address, token } = useAuth();
   const [view, setView] = useState<ViewMode>("all");
 
-  const loadScorecard = useCallback(async () => {
-    if (!token) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await apiFetch<ScorecardResponse>(
-        `/api/matches/${matchId}/scorecard`,
-        { token },
-      );
-      setData(response);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load scorecard");
-    } finally {
-      setLoading(false);
-    }
-  }, [token, matchId]);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      void loadScorecard();
-    }
-  }, [isAuthenticated, loadScorecard]);
+  const scorecardQuery = useQuery({
+    queryKey:
+      address && matchId
+        ? queryKeys.matchScorecard(matchId, address)
+        : ["match-scorecard", "none"],
+    queryFn: () =>
+      apiFetch<ScorecardResponse>(`/api/matches/${matchId}/scorecard`, {
+        token: token!,
+      }),
+    enabled: Boolean(isAuthenticated && token && matchId && address),
+  });
+  const data = scorecardQuery.data ?? null;
+  const loading = scorecardQuery.isLoading && !data;
+  const error =
+    scorecardQuery.error instanceof Error ? scorecardQuery.error.message : null;
 
   const squadPlayers = useMemo(
     () => data?.players.filter((player) => player.inUserSquad) ?? [],
@@ -648,7 +640,7 @@ export function MatchScorecardClient({ matchId }: Props) {
         </p>
         <button
           type="button"
-          onClick={() => void loadScorecard()}
+          onClick={() => void scorecardQuery.refetch()}
           className="mt-2 rounded-full px-5 py-2.5 font-headline text-sm font-bold text-on-primary pitch-gradient"
         >
           Retry
