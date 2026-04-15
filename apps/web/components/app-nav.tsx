@@ -82,14 +82,14 @@ export function AppNav() {
               }`}
             >
               <span
-                className={`material-symbols-outlined text-[22px] ${active ? "text-primary" : ""}`}
+                className={`material-symbols-outlined pointer-events-none text-[22px] ${active ? "text-primary" : ""}`}
                 style={
                   active ? { fontVariationSettings: "'FILL' 1" } : undefined
                 }
               >
                 {item.icon}
               </span>
-              {item.label}
+              <span className="pointer-events-none">{item.label}</span>
             </Link>
           );
         })}

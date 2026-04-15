@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { LandingNav } from "@/components/landing-nav";
 import { HeroWalletActions } from "@/components/hero-wallet-actions";
 import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
@@ -367,33 +368,28 @@ function Footer() {
 
 function MobileBottomNav() {
   const items = [
-    { icon: "grid_view", label: "Dashboard", active: true },
-    { icon: "bolt", label: "Play", active: false },
-    { icon: "trophy", label: "Rankings", active: false },
-    { icon: "payments", label: "Prizes", active: false },
+    { icon: "grid_view", label: "Dashboard", href: "/dashboard" },
+    { icon: "bolt", label: "Play", href: "/play" },
+    { icon: "trophy", label: "Rankings", href: "/leaderboard" },
+    { icon: "payments", label: "Prizes", href: "/prizes" },
+    { icon: "stars", label: "Awards", href: "/trophies" },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-4 bg-[#0e141b]/90 backdrop-blur-xl border-t border-white/10 z-50">
+    <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center h-20 px-2 bg-[#0e141b]/90 backdrop-blur-xl border-t border-white/10 z-50">
       {items.map((item) => (
-        <div
+        <Link
           key={item.label}
-          className={`flex flex-col items-center justify-center ${
-            item.active ? "text-primary scale-110" : "text-slate-500"
-          }`}
+          href={item.href}
+          className="flex touch-manipulation select-none flex-col items-center justify-center text-slate-400 hover:text-primary"
         >
-          <span
-            className="material-symbols-outlined"
-            style={
-              item.active ? { fontVariationSettings: "'FILL' 1" } : undefined
-            }
-          >
+          <span className="material-symbols-outlined pointer-events-none">
             {item.icon}
           </span>
-          <span className="font-label text-[10px] font-bold uppercase mt-1">
+          <span className="font-label pointer-events-none mt-1 text-[10px] font-bold uppercase">
             {item.label}
           </span>
-        </div>
+        </Link>
       ))}
     </nav>
   );
