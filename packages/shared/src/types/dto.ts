@@ -123,6 +123,7 @@ export interface TrophyDTO {
   tournamentId: number;
   mintedAt: string | null;
   tokenUri: string;
+  burnedAmount?: string;
 }
 
 export interface TrophiesResponseDTO {

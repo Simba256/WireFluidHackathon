@@ -5,6 +5,7 @@ import { claim } from "@boundaryline/db";
 import {
   API_ERROR_CODES,
   CONTRACT_ADDRESSES,
+  PSLPointsAbi,
   PSLTrophiesAbi,
   TIERS_BY_ID,
   normalizeWallet,
@@ -44,6 +45,32 @@ export async function GET(
       );
 
     const client = publicClient();
+
+    const burnedByTokenId = new Map<string, string>();
+    try {
+      const logs = await client.getContractEvents({
+        address: CONTRACT_ADDRESSES.PSLPoints,
+        abi: PSLPointsAbi,
+        eventName: "TierClaimed",
+        args: { user: wallet as Address },
+        fromBlock: 0n,
+      });
+      for (const log of logs) {
+        const args = log.args as {
+          trophyTokenId?: bigint;
+          burnedAmount?: bigint;
+        };
+        if (args.trophyTokenId != null && args.burnedAmount != null) {
+          burnedByTokenId.set(
+            args.trophyTokenId.toString(),
+            args.burnedAmount.toString(),
+          );
+        }
+      }
+    } catch {
+      // swallow — burnedAmount will simply be omitted
+    }
+
     const trophies = await Promise.all(
       rows.map(async (row) => {
         const tier = TIERS_BY_ID[row.tierId as TierId];
@@ -66,6 +93,7 @@ export async function GET(
           tournamentId: row.tournamentId,
           mintedAt: row.confirmedAt?.toISOString() ?? null,
           tokenUri,
+          burnedAmount: burnedByTokenId.get(tokenId.toString()),
         };
       }),
     );

@@ -233,7 +233,7 @@
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [x] `/leaderboard` (global + prize tabs) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
-- [ ] `/trophies` (user's soulbound NFTs) — _API.md_
+- [x] `/trophies` (user's soulbound NFTs) — _API.md_
 
 ### 5.4 Admin
 
@@ -253,7 +253,7 @@
 - [-] SalaryCapCalculator (salary cap removed from v1) — _GAME_DESIGN.md_
 - [x] LeaderboardRow — _API.md_
 - [ ] TierCard — _GAME_DESIGN.md_
-- [ ] TrophyNFT display — _API.md_
+- [x] TrophyNFT display — _API.md_
 - [x] TransactionStatus (tx hash → explorer) — _ARCHITECTURE.md_
 - [ ] Error message components — _API.md_
 
