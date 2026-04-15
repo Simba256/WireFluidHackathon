@@ -238,7 +238,7 @@
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [x] `/leaderboard` (global + prize tabs, without redundant footer legend or `Sorted By` stat cards) — _API.md_
 - [x] `/play?matchId=X` per-match squad picker with lock/unlock based on match status — _GAME_DESIGN.md_
-- [x] `/play?matchId=X` match scorecard (live/completed): team header, full player ratings, squad indicator, toggle all/squad, cumulative squad points — _GAME_DESIGN.md_
+- [x] `/play?matchId=X` match scorecard (live/completed): broadcast-style match hero with a single center short-code wordmark and lowered side score blocks, top-performer feature block, squad-vs-field insight panels, full player ratings, squad indicator, toggle all/squad, cumulative squad points — _GAME_DESIGN.md_
 - [x] `GET /api/matches/[id]/scorecard` (player scores + user squad + team meta) — _API.md_
 - [x] Dashboard + fixtures match cards link to `/play?matchId=X` — _GAME_DESIGN.md_
 - [x] `/leaderboard` (global + prize tabs) — _API.md_

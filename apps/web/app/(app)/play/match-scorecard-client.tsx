@@ -78,23 +78,64 @@ function formatInteger(value: number): string {
   return new Intl.NumberFormat("en-US").format(value);
 }
 
-function formatMatchDate(scheduledAt: string): string {
+function formatMatchDate(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
     month: "short",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(scheduledAt));
+  }).format(new Date(value));
 }
 
-function TeamLogoPuck({ team }: { team: TeamMeta }) {
+function playerPoints(player: ScorecardPlayer): number {
+  return player.stats?.pointsAwarded ?? -1;
+}
+
+function describePlayerStatline(player: ScorecardPlayer): string {
+  if (!player.stats) {
+    return player.scored ? "No official fantasy line yet" : "Did not play";
+  }
+
+  const parts: string[] = [];
+
+  if (player.stats.runs > 0) {
+    parts.push(`${player.stats.runs} runs`);
+  }
+  if (player.stats.wickets > 0) {
+    parts.push(`${player.stats.wickets} wickets`);
+  }
+  if (player.stats.catches > 0) {
+    parts.push(`${player.stats.catches} catches`);
+  }
+  if (player.stats.runOuts > 0) {
+    parts.push(`${player.stats.runOuts} run-outs`);
+  }
+  if (player.stats.stumpings > 0) {
+    parts.push(`${player.stats.stumpings} stumpings`);
+  }
+  if (player.stats.dismissedForZero) {
+    parts.push("duck penalty");
+  }
+
+  return parts.length > 0
+    ? parts.slice(0, 2).join(" • ")
+    : "No major fantasy events";
+}
+
+function TeamLogoPuck({
+  team,
+  large = false,
+}: {
+  team: TeamMeta;
+  large?: boolean;
+}) {
   return (
     <div
-      className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-surface-container-high p-1 shadow-xl md:h-16 md:w-16"
+      className={`relative flex items-center justify-center overflow-hidden bg-surface-container-high shadow-xl ${large ? "h-28 w-28 rounded-full p-2 md:h-32 md:w-32" : "h-14 w-14 rounded-[1.75rem] p-1 md:h-16 md:w-16"}`}
       style={{
-        boxShadow: `0 12px 30px ${team.accentColor}26`,
-        outline: `1px solid ${team.accentColor}55`,
+        boxShadow: `0 18px 36px ${team.accentColor}22`,
+        outline: `1px solid ${team.accentColor}44`,
       }}
     >
       {team.logoPath ? (
@@ -103,17 +144,245 @@ function TeamLogoPuck({ team }: { team: TeamMeta }) {
           alt={team.name}
           fill
           className="object-contain p-1.5"
-          sizes="64px"
+          sizes={large ? "96px" : "64px"}
         />
       ) : (
         <span
-          className="font-headline text-base font-bold"
+          className="font-headline text-lg font-bold"
           style={{ color: team.accentColor }}
         >
           {team.shortCode}
         </span>
       )}
     </div>
+  );
+}
+
+function SummaryStat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+}) {
+  return (
+    <div className="rounded-[1.5rem] bg-surface-container px-4 py-4">
+      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/65">
+        {label}
+      </p>
+      <p className="mt-2 font-headline text-3xl font-bold text-on-surface">
+        {value}
+      </p>
+      <p className="mt-1 text-xs text-on-surface-variant">{hint}</p>
+    </div>
+  );
+}
+
+function InsightCard({
+  eyebrow,
+  title,
+  body,
+  value,
+}: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  value: string;
+}) {
+  return (
+    <div className="h-full rounded-[1.75rem] bg-surface-container px-5 py-5">
+      <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/60">
+        {eyebrow}
+      </p>
+      <div className="mt-4 flex items-start justify-between gap-4">
+        <div>
+          <h3 className="font-headline text-lg font-bold text-on-surface">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+            {body}
+          </p>
+        </div>
+        <div className="rounded-2xl bg-surface-container-high px-3 py-2 text-right">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/60">
+            Points
+          </p>
+          <p className="font-headline text-2xl font-bold text-primary">
+            {value}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TopPerformerCard({
+  player,
+  rank,
+  accentColor,
+  featured = false,
+}: {
+  player: ScorecardPlayer;
+  rank: number;
+  accentColor: string;
+  featured?: boolean;
+}) {
+  const stats = player.stats;
+  const fieldingTotal = stats
+    ? stats.catches + stats.runOuts + stats.stumpings
+    : 0;
+  const playerInitials = player.name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
+  return (
+    <article
+      className={`relative overflow-hidden rounded-[2rem] bg-surface-container-low ${featured ? "p-6 md:p-7" : "p-5"}`}
+      style={{ outline: `1px solid ${accentColor}22` }}
+    >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 opacity-70"
+        style={{
+          background: `linear-gradient(180deg, ${accentColor}22 0%, rgba(0,0,0,0) 100%)`,
+        }}
+      />
+      <div className="relative z-10 flex flex-col gap-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/60">
+              Match Top Performer #{String(rank).padStart(2, "0")}
+            </p>
+            <h3
+              className={`mt-2 font-headline font-bold uppercase tracking-[0.04em] text-on-surface ${featured ? "text-3xl md:text-4xl" : "text-xl"}`}
+            >
+              {player.name}
+            </h3>
+            <p className="mt-2 text-xs font-semibold uppercase tracking-[0.16em] text-on-surface-variant/75">
+              {ROLE_DISPLAY[player.role] ?? player.role} • {player.team}
+            </p>
+          </div>
+          {player.inUserSquad ? (
+            <span className="rounded-full bg-primary/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+              Your Pick
+            </span>
+          ) : null}
+        </div>
+
+        {featured ? (
+          <div className="grid gap-4 md:grid-cols-[auto_minmax(0,1fr)_minmax(220px,260px)] md:items-center">
+            {player.photoUrl ? (
+              <div className="relative h-24 w-24 overflow-hidden rounded-full bg-surface-container-high md:h-28 md:w-28">
+                <Image
+                  src={player.photoUrl}
+                  alt={player.name}
+                  fill
+                  className="object-cover"
+                  sizes="112px"
+                />
+              </div>
+            ) : (
+              <div
+                className="flex h-24 w-24 items-center justify-center rounded-full text-2xl font-bold text-white md:h-28 md:w-28"
+                style={{ backgroundColor: `${accentColor}40` }}
+              >
+                {playerInitials}
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                Fantasy Points
+              </p>
+              <p className="font-headline text-5xl font-bold text-primary md:text-6xl">
+                {stats?.pointsAwarded ?? 0}
+              </p>
+              <p className="mt-3 text-sm leading-6 text-on-surface-variant">
+                {describePlayerStatline(player)}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-surface-container px-4 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                  Runs / Wkts
+                </p>
+                <p className="mt-2 font-headline text-2xl font-bold text-on-surface">
+                  {stats ? `${stats.runs} / ${stats.wickets}` : "-"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-surface-container px-4 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                  Fielding
+                </p>
+                <p className="mt-2 font-headline text-2xl font-bold text-on-surface">
+                  {fieldingTotal}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-4">
+              {player.photoUrl ? (
+                <div className="relative h-16 w-16 overflow-hidden rounded-full bg-surface-container-high">
+                  <Image
+                    src={player.photoUrl}
+                    alt={player.name}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                  />
+                </div>
+              ) : (
+                <div
+                  className="flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold text-white"
+                  style={{ backgroundColor: `${accentColor}40` }}
+                >
+                  {playerInitials}
+                </div>
+              )}
+
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                  Fantasy Points
+                </p>
+                <p className="font-headline text-4xl font-bold text-primary">
+                  {stats?.pointsAwarded ?? 0}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-surface-container px-3 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                  Runs / Wkts
+                </p>
+                <p className="mt-2 font-headline text-xl font-bold text-on-surface">
+                  {stats ? `${stats.runs} / ${stats.wickets}` : "-"}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-surface-container px-3 py-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                  Fielding
+                </p>
+                <p className="mt-2 font-headline text-xl font-bold text-on-surface">
+                  {fieldingTotal}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm leading-6 text-on-surface-variant">
+              {describePlayerStatline(player)}
+            </p>
+          </>
+        )}
+      </div>
+    </article>
   );
 }
 
@@ -127,12 +396,12 @@ function StatPill({
   highlight?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center">
-      <span className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/50">
+    <div className="flex flex-col items-center rounded-xl bg-surface-container-high px-3 py-2">
+      <span className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/55">
         {label}
       </span>
       <span
-        className={`font-headline text-sm font-bold ${highlight ? "text-primary" : "text-on-surface"}`}
+        className={`mt-1 font-headline text-sm font-bold ${highlight ? "text-primary" : "text-on-surface"}`}
       >
         {value}
       </span>
@@ -141,107 +410,108 @@ function StatPill({
 }
 
 function PlayerScoreCard({
-  p,
+  player,
   teamAName,
   teamAColor,
   teamBColor,
 }: {
-  p: ScorecardPlayer;
+  player: ScorecardPlayer;
   teamAName: string;
   teamAColor: string;
   teamBColor: string;
 }) {
-  const teamColor = p.team === teamAName ? teamAColor : teamBColor;
+  const teamColor = player.team === teamAName ? teamAColor : teamBColor;
 
   return (
-    <div
-      className={`relative flex flex-col gap-3 rounded-2xl border p-4 transition-colors sm:flex-row sm:items-center ${
-        p.inUserSquad
-          ? "border-primary/30 bg-primary/5"
-          : "border-outline-variant/15 bg-surface-container"
-      }`}
+    <article
+      className={`relative flex flex-col gap-4 rounded-[1.75rem] px-4 py-4 sm:px-5 ${player.inUserSquad ? "bg-primary/5" : "bg-surface-container"}`}
+      style={{
+        outline: `1px solid ${player.inUserSquad ? "rgba(84,233,138,0.18)" : "rgba(134,148,134,0.12)"}`,
+      }}
     >
-      {p.inUserSquad && (
-        <div className="absolute -top-2 right-3 flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase text-on-primary">
-          <Icon name="check" className="text-xs" />
+      {player.inUserSquad ? (
+        <div className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-on-primary">
           Your Pick
         </div>
-      )}
+      ) : null}
 
-      <div className="flex items-center gap-3 sm:w-[200px] sm:shrink-0">
-        {p.photoUrl ? (
-          <Image
-            src={p.photoUrl}
-            alt={p.name}
-            width={48}
-            height={48}
-            className="h-12 w-12 shrink-0 rounded-full object-cover ring-2"
-            style={{ ["--tw-ring-color" as string]: teamColor } as React.CSSProperties}
-          />
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-3 pr-20 lg:pr-0">
+          {player.photoUrl ? (
+            <Image
+              src={player.photoUrl}
+              alt={player.name}
+              width={56}
+              height={56}
+              className="h-14 w-14 shrink-0 rounded-full object-cover"
+              style={{ boxShadow: `0 0 0 2px ${teamColor}` }}
+            />
+          ) : (
+            <div
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+              style={{ backgroundColor: `${teamColor}40` }}
+            >
+              {player.name
+                .split(" ")
+                .map((word) => word[0])
+                .join("")
+                .slice(0, 2)
+                .toUpperCase()}
+            </div>
+          )}
+
+          <div className="min-w-0">
+            <h4 className="truncate font-headline text-lg font-bold text-on-surface">
+              {player.name}
+            </h4>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+              <span
+                className="font-bold uppercase tracking-[0.18em]"
+                style={{ color: teamColor }}
+              >
+                {player.team}
+              </span>
+              <span className="text-on-surface-variant/50">•</span>
+              <span className="text-on-surface-variant">
+                {ROLE_DISPLAY[player.role] ?? player.role}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {player.stats ? (
+          <div className="flex flex-wrap gap-2 lg:justify-end">
+            <StatPill label="Runs" value={player.stats.runs} />
+            <StatPill label="Wkts" value={player.stats.wickets} />
+            <StatPill label="Catches" value={player.stats.catches} />
+            {player.stats.runOuts > 0 ? (
+              <StatPill label="R/O" value={player.stats.runOuts} />
+            ) : null}
+            {player.stats.stumpings > 0 ? (
+              <StatPill label="Stmp" value={player.stats.stumpings} />
+            ) : null}
+            {player.stats.dismissedForZero ? (
+              <span className="inline-flex items-center rounded-full bg-error/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-error">
+                Duck
+              </span>
+            ) : null}
+            <StatPill
+              label="Points"
+              value={player.stats.pointsAwarded}
+              highlight
+            />
+          </div>
         ) : (
-          <div
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
-            style={{ backgroundColor: `${teamColor}40` }}
-          >
-            {p.name
-              .split(" ")
-              .map((w) => w[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
+          <div className="text-sm text-on-surface-variant/55">
+            {player.scored ? "Official fantasy line pending" : "Did not play"}
           </div>
         )}
-        <div className="min-w-0">
-          <div className="truncate font-headline text-sm font-bold text-on-surface">
-            {p.name}
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className="text-[10px] font-bold uppercase"
-              style={{ color: teamColor }}
-            >
-              {p.team}
-            </span>
-            <span className="text-[10px] text-on-surface-variant/50">
-              {ROLE_DISPLAY[p.role] ?? p.role}
-            </span>
-          </div>
-        </div>
       </div>
 
-      {p.stats ? (
-        <div className="flex flex-1 flex-wrap items-center gap-4 sm:justify-end">
-          <StatPill label="Runs" value={p.stats.runs} />
-          <StatPill label="Wkts" value={p.stats.wickets} />
-          <StatPill label="Catches" value={p.stats.catches} />
-          {p.stats.runOuts > 0 && (
-            <StatPill label="R/O" value={p.stats.runOuts} />
-          )}
-          {p.stats.stumpings > 0 && (
-            <StatPill label="Stmp" value={p.stats.stumpings} />
-          )}
-          {p.stats.dismissedForZero && (
-            <span className="rounded-full bg-error/10 px-2 py-0.5 text-[10px] font-bold text-error">
-              Duck
-            </span>
-          )}
-          <div className="ml-auto flex flex-col items-center rounded-xl bg-surface-container-high px-3 py-1.5 sm:ml-4">
-            <span className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant/50">
-              Points
-            </span>
-            <span className="font-headline text-lg font-bold text-primary">
-              {p.stats.pointsAwarded}
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-1 items-center justify-end">
-          <span className="text-xs text-on-surface-variant/40">
-            {p.scored ? "—" : "Did not play"}
-          </span>
-        </div>
-      )}
-    </div>
+      <p className="text-sm text-on-surface-variant">
+        {describePlayerStatline(player)}
+      </p>
+    </article>
   );
 }
 
@@ -257,11 +527,11 @@ export function MatchScorecardClient({ matchId }: Props) {
     setLoading(true);
     setError(null);
     try {
-      const res = await apiFetch<ScorecardResponse>(
+      const response = await apiFetch<ScorecardResponse>(
         `/api/matches/${matchId}/scorecard`,
         { token },
       );
-      setData(res);
+      setData(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load scorecard");
     } finally {
@@ -275,18 +545,56 @@ export function MatchScorecardClient({ matchId }: Props) {
     }
   }, [isAuthenticated, loadScorecard]);
 
+  const squadPlayers = useMemo(
+    () => data?.players.filter((player) => player.inUserSquad) ?? [],
+    [data],
+  );
+
+  const scoredPlayers = useMemo(
+    () =>
+      [...(data?.players ?? [])]
+        .filter((player) => player.stats)
+        .sort((a, b) => playerPoints(b) - playerPoints(a)),
+    [data],
+  );
+
+  const topPerformers = useMemo(
+    () => scoredPlayers.slice(0, 4),
+    [scoredPlayers],
+  );
+
+  const topSquadPerformer = useMemo(
+    () => scoredPlayers.find((player) => player.inUserSquad) ?? null,
+    [scoredPlayers],
+  );
+
+  const topMissedPerformer = useMemo(
+    () => scoredPlayers.find((player) => !player.inUserSquad) ?? null,
+    [scoredPlayers],
+  );
+
+  const scoredSquadCount = useMemo(
+    () => squadPlayers.filter((player) => player.stats).length,
+    [squadPlayers],
+  );
+
   const displayPlayers = useMemo(() => {
     if (!data) return [];
-    if (view === "squad") return data.players.filter((p) => p.inUserSquad);
+    if (view === "squad") {
+      return data.players.filter((player) => player.inUserSquad);
+    }
     return data.players;
   }, [data, view]);
 
   const teamAPlayers = useMemo(
-    () => displayPlayers.filter((p) => p.team === data?.match.teamA.name),
+    () =>
+      displayPlayers.filter((player) => player.team === data?.match.teamA.name),
     [displayPlayers, data],
   );
+
   const teamBPlayers = useMemo(
-    () => displayPlayers.filter((p) => p.team === data?.match.teamB.name),
+    () =>
+      displayPlayers.filter((player) => player.team === data?.match.teamB.name),
     [displayPlayers, data],
   );
 
@@ -306,14 +614,21 @@ export function MatchScorecardClient({ matchId }: Props) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 px-4 py-8">
-        <div className="h-40 animate-pulse rounded-2xl bg-surface-container-low" />
-        <div className="h-12 animate-pulse rounded-xl bg-surface-container" />
+      <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 md:px-6">
+        <div className="h-[320px] animate-pulse rounded-[2rem] bg-surface-container-low" />
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+          <div className="h-[380px] animate-pulse rounded-[2rem] bg-surface-container" />
+          <div className="space-y-4">
+            <div className="h-32 animate-pulse rounded-[1.75rem] bg-surface-container" />
+            <div className="h-32 animate-pulse rounded-[1.75rem] bg-surface-container" />
+            <div className="h-32 animate-pulse rounded-[1.75rem] bg-surface-container" />
+          </div>
+        </div>
         <div className="space-y-3">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, index) => (
             <div
-              key={i}
-              className="h-20 animate-pulse rounded-2xl bg-surface-container"
+              key={index}
+              className="h-28 animate-pulse rounded-[1.75rem] bg-surface-container"
             />
           ))}
         </div>
@@ -342,12 +657,17 @@ export function MatchScorecardClient({ matchId }: Props) {
     );
   }
 
-  const { match: m } = data;
-  const isLive = m.status === "live";
+  const { match } = data;
+  const isLive = match.status === "live";
+  const squadTeamACount = squadPlayers.filter(
+    (player) => player.team === match.teamA.name,
+  ).length;
+  const squadTeamBCount = squadPlayers.filter(
+    (player) => player.team === match.teamB.name,
+  ).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6">
-      {/* Back nav */}
+    <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 lg:px-8">
       <div className="mb-6">
         <Link
           href="/dashboard"
@@ -358,188 +678,329 @@ export function MatchScorecardClient({ matchId }: Props) {
         </Link>
       </div>
 
-      {/* Match header card */}
-      <section className="relative overflow-hidden rounded-2xl bg-surface-container-low p-6 md:p-8">
-        <div className="relative z-10 flex flex-col items-center gap-6 md:flex-row md:justify-between">
-          {/* Team A */}
-          <div className="flex items-center gap-4">
-            <TeamLogoPuck team={m.teamA} />
-            <div>
-              <h2 className="font-headline text-xl font-bold text-on-surface md:text-2xl">
-                {m.teamA.name}
-              </h2>
-              {m.teamAScore && (
-                <p className="font-headline text-sm font-bold text-primary">
-                  {m.teamAScore}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Center */}
-          <div className="flex flex-col items-center gap-1">
-            {isLive ? (
-              <span className="flex items-center gap-1.5 rounded-full bg-error/10 px-3 py-1 text-xs font-bold uppercase text-error">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-error" />
-                Live
-              </span>
-            ) : (
-              <span className="rounded-full bg-surface-container-high px-3 py-1 text-xs font-bold uppercase text-on-surface-variant">
-                Completed
-              </span>
-            )}
-            <span className="text-[10px] text-on-surface-variant/50">
-              {m.venue ?? ""} · {formatMatchDate(m.scheduledAt)}
+      <section className="stadium-gradient relative overflow-hidden rounded-[2.25rem] bg-surface-container-low px-5 py-6 md:px-8 md:py-8 lg:px-10 lg:py-10">
+        <div className="absolute inset-x-0 top-0 h-32 bg-[radial-gradient(circle_at_top,rgba(84,233,138,0.18),transparent_70%)]" />
+        <div className="relative z-10">
+          <div className="flex flex-wrap items-center gap-3">
+            <span
+              className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.22em] ${isLive ? "bg-error/10 text-error" : "bg-primary/12 text-primary"}`}
+            >
+              {isLive ? "Match Live" : "Match Completed"}
+            </span>
+            <span className="text-xs uppercase tracking-[0.18em] text-on-surface-variant/70">
+              Scorecard View
             </span>
           </div>
 
-          {/* Team B */}
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <h2 className="font-headline text-xl font-bold text-on-surface md:text-2xl">
-                {m.teamB.name}
-              </h2>
-              {m.teamBScore && (
-                <p className="font-headline text-sm font-bold text-primary">
-                  {m.teamBScore}
+          <div className="mt-6 grid items-center gap-6 md:grid-cols-[1fr_auto_1fr]">
+            <div className="flex flex-col items-start gap-4">
+              <TeamLogoPuck team={match.teamA} large />
+              <div className="min-w-0">
+                <p className="whitespace-nowrap font-headline text-3xl font-bold text-on-surface md:text-4xl">
+                  {match.teamAScore ?? "-"}
                 </p>
-              )}
+              </div>
             </div>
-            <TeamLogoPuck team={m.teamB} />
+
+            <div className="flex flex-col items-center justify-center gap-3 text-center">
+              <div className="scoreboard-wordmark text-3xl md:text-4xl">
+                <span>{match.teamA.shortCode}</span>
+                <span className="scoreboard-vs">vs</span>
+                <span>{match.teamB.shortCode}</span>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant/65">
+                  {match.venue ?? "PSL 2026"}
+                </p>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  {formatMatchDate(match.playedAt ?? match.scheduledAt)}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start gap-4 md:items-end">
+              <TeamLogoPuck team={match.teamB} large />
+              <div className="min-w-0 text-left md:text-right">
+                <p className="whitespace-nowrap font-headline text-3xl font-bold text-on-surface md:text-4xl">
+                  {match.teamBScore ?? "-"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <SummaryStat
+              label="Your Squad Points"
+              value={formatInteger(data.userSquadPoints)}
+              hint={
+                data.hasUserSquad
+                  ? "Cumulative fantasy points from your 11 picks"
+                  : "No squad submitted for this match"
+              }
+            />
+            <SummaryStat
+              label="Scored Picks"
+              value={data.hasUserSquad ? `${scoredSquadCount}/11` : "0/11"}
+              hint="Selected players with an official fantasy line"
+            />
+            <SummaryStat
+              label="Player Pool"
+              value={formatInteger(scoredPlayers.length)}
+              hint="Players with recorded fantasy output in this match"
+            />
+            <SummaryStat
+              label="View Focus"
+              value={view === "all" ? "All" : "Squad"}
+              hint="Switch between the full scorecard and your own XI"
+            />
+          </div>
+
+          <div className="mt-6 rounded-[2rem] bg-surface-container p-5 md:p-6">
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,2.1fr)]">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/60">
+                  Squad Performance
+                </p>
+                <h2 className="mt-2 font-headline text-2xl font-bold text-on-surface">
+                  Your Match Readout
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-on-surface-variant">
+                  Real scorecard signals only: your best pick, coverage across
+                  both franchises, and the biggest threat you left out.
+                </p>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <div className="h-full rounded-[1.5rem] bg-surface-container-high px-4 py-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                    Best Pick
+                  </p>
+                  <p className="mt-2 font-headline text-xl font-bold text-on-surface">
+                    {topSquadPerformer
+                      ? topSquadPerformer.name
+                      : "No scored pick yet"}
+                  </p>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    {topSquadPerformer
+                      ? describePlayerStatline(topSquadPerformer)
+                      : "Your selected players have not posted an official fantasy contribution yet."}
+                  </p>
+                </div>
+
+                <div className="h-full rounded-[1.5rem] bg-surface-container-high px-4 py-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                    Squad Split
+                  </p>
+                  <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-surface-container px-4 py-3">
+                    <div>
+                      <p className="text-xs font-semibold text-on-surface">
+                        {match.teamA.shortCode}
+                      </p>
+                      <p className="text-[11px] text-on-surface-variant">
+                        {match.teamA.name}
+                      </p>
+                    </div>
+                    <p className="font-headline text-2xl font-bold text-on-surface">
+                      {squadTeamACount}
+                    </p>
+                  </div>
+                  <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-surface-container px-4 py-3">
+                    <div>
+                      <p className="text-xs font-semibold text-on-surface">
+                        {match.teamB.shortCode}
+                      </p>
+                      <p className="text-[11px] text-on-surface-variant">
+                        {match.teamB.name}
+                      </p>
+                    </div>
+                    <p className="font-headline text-2xl font-bold text-on-surface">
+                      {squadTeamBCount}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-full rounded-[1.5rem] bg-surface-container-high px-4 py-4 md:col-span-2 xl:col-span-1">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant/55">
+                    Biggest Outside Threat
+                  </p>
+                  <p className="mt-2 font-headline text-xl font-bold text-on-surface">
+                    {topMissedPerformer ? topMissedPerformer.name : "None yet"}
+                  </p>
+                  <p className="mt-2 text-sm text-on-surface-variant">
+                    {topMissedPerformer
+                      ? describePlayerStatline(topMissedPerformer)
+                      : "Every scored standout so far is already in your squad."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 space-y-4">
+        <div className="rounded-[2rem] bg-surface-container-low p-5 md:p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/60">
+                Match Top Performers
+              </p>
+              <h2 className="mt-2 font-headline text-2xl font-bold text-on-surface">
+                Fantasy leaderboard for this fixture
+              </h2>
+            </div>
+            <div className="rounded-full bg-surface-container px-3 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-on-surface-variant">
+              Real scorecard data
+            </div>
+          </div>
+
+          {topPerformers.length > 0 ? (
+            <div className="mt-6 space-y-4">
+              <TopPerformerCard
+                player={topPerformers[0]!}
+                rank={1}
+                accentColor={
+                  topPerformers[0]!.team === match.teamA.name
+                    ? match.teamA.accentColor
+                    : match.teamB.accentColor
+                }
+                featured
+              />
+
+              {topPerformers.length > 1 ? (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {topPerformers.slice(1).map((player, index) => (
+                    <TopPerformerCard
+                      key={player.id}
+                      player={player}
+                      rank={index + 2}
+                      accentColor={
+                        player.team === match.teamA.name
+                          ? match.teamA.accentColor
+                          : match.teamB.accentColor
+                      }
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-6 rounded-[1.75rem] bg-surface-container px-6 py-8 text-center">
+              <p className="font-headline text-xl font-bold text-on-surface">
+                Waiting for official player lines
+              </p>
+              <p className="mt-2 text-sm text-on-surface-variant">
+                Top performers will appear here once fantasy scoring is
+                recorded.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-[2rem] bg-surface-container-low p-5 md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-on-surface-variant/60">
+              Full Scorecard
+            </p>
+            <h2 className="mt-2 font-headline text-2xl font-bold text-on-surface">
+              Player-by-player fantasy output
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2 rounded-full bg-surface-container p-1.5">
+            <button
+              type="button"
+              onClick={() => setView("all")}
+              className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${view === "all" ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"}`}
+            >
+              All Players
+            </button>
+            <button
+              type="button"
+              onClick={() => setView("squad")}
+              disabled={!data.hasUserSquad}
+              className={`rounded-full px-5 py-2 text-sm font-bold transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${view === "squad" ? "bg-primary text-on-primary" : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"}`}
+            >
+              Your Squad
+            </button>
           </div>
         </div>
 
-        <div className="absolute -bottom-12 -right-12 h-40 w-40 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute -left-12 -top-12 h-40 w-40 rounded-full bg-secondary/5 blur-3xl" />
-      </section>
-
-      {/* User squad summary bar */}
-      {data.hasUserSquad && (
-        <section className="mt-4 flex flex-col items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 px-6 py-4 sm:flex-row">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
-              <Icon name="groups" className="text-lg text-primary" />
-            </div>
+        <div className="mt-6 space-y-8">
+          {teamAPlayers.length > 0 ? (
             <div>
-              <p className="text-sm font-bold text-on-surface">
-                Your Squad Points
-              </p>
-              <p className="text-xs text-on-surface-variant">
-                Cumulative points from your 11 picks this match
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="font-headline text-3xl font-bold text-primary">
-              {formatInteger(data.userSquadPoints)}
-            </span>
-            <span className="text-xs font-bold uppercase text-on-surface-variant">
-              pts
-            </span>
-          </div>
-        </section>
-      )}
-
-      {/* View toggle */}
-      <div className="mt-6 flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => setView("all")}
-          className={`rounded-full px-5 py-2 text-sm font-bold transition-colors ${
-            view === "all"
-              ? "bg-primary text-on-primary"
-              : "bg-surface-container-high text-on-surface-variant hover:bg-surface-bright"
-          }`}
-        >
-          All Players
-        </button>
-        <button
-          type="button"
-          onClick={() => setView("squad")}
-          disabled={!data.hasUserSquad}
-          className={`rounded-full px-5 py-2 text-sm font-bold transition-colors disabled:opacity-40 ${
-            view === "squad"
-              ? "bg-primary text-on-primary"
-              : "bg-surface-container-high text-on-surface-variant hover:bg-surface-bright"
-          }`}
-        >
-          Your Squad
-        </button>
-      </div>
-
-      {/* Player cards grouped by team */}
-      <div className="mt-6 space-y-8">
-        {teamAPlayers.length > 0 && (
-          <div>
-            <div className="mb-3 flex items-center gap-3 px-1">
-              <div
-                className="h-4 w-1 rounded-full"
-                style={{ backgroundColor: m.teamA.accentColor }}
-              />
-              <h3 className="font-headline text-lg font-bold text-on-surface">
-                {m.teamA.name}
-              </h3>
-              <span className="text-xs text-on-surface-variant">
-                {teamAPlayers.length} players
-              </span>
-            </div>
-            <div className="space-y-3">
-              {teamAPlayers.map((p) => (
-                <PlayerScoreCard
-                  key={p.id}
-                  p={p}
-                  teamAName={m.teamA.name}
-                  teamAColor={m.teamA.accentColor}
-                  teamBColor={m.teamB.accentColor}
+              <div className="mb-4 flex items-center gap-3 px-1">
+                <div
+                  className="h-6 w-1 rounded-full"
+                  style={{ backgroundColor: match.teamA.accentColor }}
                 />
-              ))}
+                <h3 className="font-headline text-xl font-bold text-on-surface">
+                  {match.teamA.name}
+                </h3>
+                <span className="text-xs uppercase tracking-[0.18em] text-on-surface-variant/65">
+                  {teamAPlayers.length} players
+                </span>
+              </div>
+              <div className="space-y-3">
+                {teamAPlayers.map((player) => (
+                  <PlayerScoreCard
+                    key={player.id}
+                    player={player}
+                    teamAName={match.teamA.name}
+                    teamAColor={match.teamA.accentColor}
+                    teamBColor={match.teamB.accentColor}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          ) : null}
 
-        {teamBPlayers.length > 0 && (
-          <div>
-            <div className="mb-3 flex items-center gap-3 px-1">
-              <div
-                className="h-4 w-1 rounded-full"
-                style={{ backgroundColor: m.teamB.accentColor }}
-              />
-              <h3 className="font-headline text-lg font-bold text-on-surface">
-                {m.teamB.name}
-              </h3>
-              <span className="text-xs text-on-surface-variant">
-                {teamBPlayers.length} players
-              </span>
-            </div>
-            <div className="space-y-3">
-              {teamBPlayers.map((p) => (
-                <PlayerScoreCard
-                  key={p.id}
-                  p={p}
-                  teamAName={m.teamA.name}
-                  teamAColor={m.teamA.accentColor}
-                  teamBColor={m.teamB.accentColor}
+          {teamBPlayers.length > 0 ? (
+            <div>
+              <div className="mb-4 flex items-center gap-3 px-1">
+                <div
+                  className="h-6 w-1 rounded-full"
+                  style={{ backgroundColor: match.teamB.accentColor }}
                 />
-              ))}
+                <h3 className="font-headline text-xl font-bold text-on-surface">
+                  {match.teamB.name}
+                </h3>
+                <span className="text-xs uppercase tracking-[0.18em] text-on-surface-variant/65">
+                  {teamBPlayers.length} players
+                </span>
+              </div>
+              <div className="space-y-3">
+                {teamBPlayers.map((player) => (
+                  <PlayerScoreCard
+                    key={player.id}
+                    player={player}
+                    teamAName={match.teamA.name}
+                    teamAColor={match.teamA.accentColor}
+                    teamBColor={match.teamB.accentColor}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          ) : null}
 
-        {displayPlayers.length === 0 && view === "squad" && (
-          <div className="rounded-2xl border border-outline-variant/15 bg-surface-container p-8 text-center">
-            <Icon
-              name="groups"
-              className="text-4xl text-on-surface-variant/30"
-            />
-            <p className="mt-3 font-headline text-lg font-bold text-on-surface">
-              No squad selected for this match
-            </p>
-            <p className="mt-1 text-sm text-on-surface-variant">
-              You did not pick a squad before this match started.
-            </p>
-          </div>
-        )}
-      </div>
+          {displayPlayers.length === 0 && view === "squad" ? (
+            <div className="rounded-[1.75rem] bg-surface-container px-8 py-10 text-center">
+              <Icon
+                name="groups"
+                className="text-4xl text-on-surface-variant/30"
+              />
+              <p className="mt-3 font-headline text-lg font-bold text-on-surface">
+                No squad selected for this match
+              </p>
+              <p className="mt-1 text-sm text-on-surface-variant">
+                You did not pick a squad before this match started.
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 }
