@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
@@ -87,7 +86,6 @@ export function TeamPickerClient({
   teamSize,
 }: Props) {
   const { isAuthenticated, token } = useAuth();
-  const router = useRouter();
 
   const [selected, setSelected] = useState<PlayerData[]>([]);
   const [search, setSearch] = useState("");
@@ -217,16 +215,25 @@ export function TeamPickerClient({
         json: {},
         token,
       });
-      router.refresh();
+      // Hard navigate so the RSC re-renders into the scorecard view
+      // and client state (including the spinning button) fully resets.
+      window.location.href = `/play?matchId=${matchId}`;
     } catch (err) {
-      setError(
+      const msg =
         err instanceof ApiClientError || err instanceof Error
           ? err.message
-          : "Failed to simulate match",
-      );
+          : "Failed to simulate match";
+      // If the match was already completed on the server (e.g., a
+      // previous click that hit the DB but lost its response), just
+      // navigate to the scorecard view instead of showing an error.
+      if (msg.toLowerCase().includes("already completed")) {
+        window.location.href = `/play?matchId=${matchId}`;
+        return;
+      }
+      setError(msg);
       setPlaying(false);
     }
-  }, [matchId, playing, token, router]);
+  }, [matchId, playing, token]);
 
   if (!isAuthenticated) {
     return (
