@@ -3,6 +3,7 @@ import { LandingNav } from "@/components/landing-nav";
 import { HeroWalletActions } from "@/components/hero-wallet-actions";
 import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
 import { AppPrefetcher } from "@/components/app-prefetcher";
+import { NextMatchCountdown } from "@/components/next-match-countdown";
 import {
   ScrollReveal,
   ScrollRevealItem,
@@ -166,9 +167,7 @@ function StatsBar() {
             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-2">
               Next Match Starts In
             </p>
-            <p className="text-5xl font-headline font-black text-secondary">
-              04:12:55
-            </p>
+            <NextMatchCountdown />
           </ScrollRevealItem>
         </ScrollReveal>
       </div>
