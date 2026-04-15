@@ -575,9 +575,6 @@ export function LeaderboardPage() {
         <h1 className="font-headline text-4xl font-bold tracking-tight text-on-surface sm:text-5xl">
           Leaderboard
         </h1>
-        <p className="mt-2 text-on-surface-variant">
-          Track the top fantasy managers in PSL 2026.
-        </p>
       </div>
 
       {/* Tab switcher */}
@@ -603,9 +600,6 @@ export function LeaderboardPage() {
         >
           <Icon name="military_tech" className="text-lg" />
           Prize
-          <span className="hidden sm:inline text-[10px] opacity-70">
-            (On-Chain)
-          </span>
         </button>
       </div>
 

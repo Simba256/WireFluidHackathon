@@ -1105,9 +1105,6 @@ export function DashboardPage() {
                     <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                       Prize Standing
                     </span>
-                    <p className="mt-2 text-xs text-slate-400">
-                      On-chain wallet balance among qualified managers only.
-                    </p>
                   </div>
                   <Icon
                     className={
@@ -1177,27 +1174,6 @@ export function DashboardPage() {
               </div>
 
               <div className="mt-8">
-                <div className="mb-2 flex justify-between text-xs">
-                  {chainState ? (
-                    <>
-                      <span className="text-slate-400">
-                        {chainState.prize.progressLabel}
-                      </span>
-                      <span className="font-bold text-primary">
-                        {chainState.prize.progressPercent}%
-                      </span>
-                    </>
-                  ) : isChainStateUnavailable ? (
-                    <span className="text-slate-400">
-                      Live prize progress unavailable
-                    </span>
-                  ) : (
-                    <>
-                      <BalanceSkeleton className="h-4 w-40" />
-                      <BalanceSkeleton className="h-4 w-12" />
-                    </>
-                  )}
-                </div>
                 <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-highest">
                   {chainState ? (
                     <div
@@ -1251,9 +1227,8 @@ export function DashboardPage() {
                     <Icon className="text-primary" name="emoji_events" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold">Global Position</p>
-                    <p className="text-xs text-slate-400">
-                      Based on off-chain fantasy points across all managers.
+                    <p className="font-headline text-lg font-bold">
+                      Global Position
                     </p>
                   </div>
                 </div>
