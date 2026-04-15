@@ -56,30 +56,25 @@ async function main() {
   const prizes = loadJson<PrizeSeed[]>("data/prizes.json");
   const matches = loadJson<MatchSeed[]>("data/matches.json");
 
-  const [existingPlayers] = await db
-    .select({ count: sql<number>`COUNT(*)::int` })
-    .from(player);
-  const existingPlayerCount = existingPlayers?.count ?? 0;
-
-  if (existingPlayerCount === 0) {
-    console.log(`Seeding ${players.length} players…`);
+  console.log(`Upserting ${players.length} players…`);
+  for (const p of players) {
     await db
       .insert(player)
-      .values(
-        players.map((p) => ({
-          externalId: p.externalId,
-          name: p.name,
-          team: p.team,
-          role: p.role,
-          basePrice: p.basePrice,
-          photoUrl: p.photoUrl ?? null,
-        })),
-      )
-      .onConflictDoNothing({ target: player.externalId });
-  } else {
-    console.log(
-      `Skipping player seed because ${existingPlayerCount} players already exist in the database.`,
-    );
+      .values({
+        externalId: p.externalId,
+        name: p.name,
+        team: p.team,
+        role: p.role,
+        basePrice: p.basePrice,
+        photoUrl: p.photoUrl ?? null,
+      })
+      .onConflictDoUpdate({
+        target: player.externalId,
+        set: {
+          team: sql`excluded.team`,
+          photoUrl: sql`excluded.photo_url`,
+        },
+      });
   }
 
   console.log("Seeding tournament row…");

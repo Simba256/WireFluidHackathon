@@ -1,59 +1,51 @@
 [
   {
-    "externalId": "psl2026-0001",
-    "name": "Azam Khan",
+    "externalId": "psl2026-0007",
+    "name": "Devon Conway",
     "team": "Islamabad United",
     "role": "wicketkeeper",
-    "basePrice": 11,
-    "photoUrl": "/players/psl2026-0001.png"
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0007.png"
   },
   {
-    "externalId": "psl2026-0002",
-    "name": "Rahmanullah Gurbaz",
+    "externalId": "psl2026-0011",
+    "name": "Andries Gous",
     "team": "Islamabad United",
     "role": "wicketkeeper",
     "basePrice": 9,
-    "photoUrl": "/players/psl2026-0002.png"
+    "photoUrl": "/players/psl2026-0011.jpg"
   },
   {
-    "externalId": "psl2026-0003",
-    "name": "Colin Munro",
+    "externalId": "psl2026-0015",
+    "name": "Max Bryant",
     "team": "Islamabad United",
     "role": "batsman",
-    "basePrice": 12,
-    "photoUrl": "/players/psl2026-0003.png"
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0015.jpg"
   },
   {
-    "externalId": "psl2026-0004",
-    "name": "Alex Hales",
-    "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 11,
-    "photoUrl": "/players/psl2026-0004.png"
-  },
-  {
-    "externalId": "psl2026-0005",
-    "name": "Matthew Short",
+    "externalId": "psl2026-0016",
+    "name": "Mark Chapman",
     "team": "Islamabad United",
     "role": "batsman",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0005.png"
+    "photoUrl": "/players/psl2026-0016.png"
+  },
+  {
+    "externalId": "psl2026-0017",
+    "name": "Sameer Minhas",
+    "team": "Islamabad United",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
   },
   {
     "externalId": "psl2026-0006",
     "name": "Haider Ali",
     "team": "Islamabad United",
     "role": "batsman",
-    "basePrice": 9,
+    "basePrice": 10,
     "photoUrl": "/players/psl2026-0006.png"
-  },
-  {
-    "externalId": "psl2026-0007",
-    "name": "Asif Ali",
-    "team": "Islamabad United",
-    "role": "batsman",
-    "basePrice": 8,
-    "photoUrl": null
   },
   {
     "externalId": "psl2026-0008",
@@ -64,14 +56,6 @@
     "photoUrl": "/players/psl2026-0008.png"
   },
   {
-    "externalId": "psl2026-0009",
-    "name": "Imad Wasim",
-    "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 11,
-    "photoUrl": "/players/psl2026-0009.png"
-  },
-  {
     "externalId": "psl2026-0010",
     "name": "Faheem Ashraf",
     "team": "Islamabad United",
@@ -80,204 +64,228 @@
     "photoUrl": "/players/psl2026-0010.png"
   },
   {
-    "externalId": "psl2026-0011",
-    "name": "Mubasir Khan",
-    "team": "Islamabad United",
-    "role": "all-rounder",
-    "basePrice": 7,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0012",
-    "name": "Naseem Shah",
-    "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 13,
-    "photoUrl": "/players/psl2026-0012.png"
-  },
-  {
-    "externalId": "psl2026-0013",
-    "name": "Marchant de Lange",
-    "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 10,
-    "photoUrl": "/players/psl2026-0013.jpg"
-  },
-  {
-    "externalId": "psl2026-0014",
-    "name": "Rumman Raees",
-    "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0014.jpg"
-  },
-  {
-    "externalId": "psl2026-0015",
-    "name": "Zaman Khan",
-    "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 8,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0016",
-    "name": "Hunain Shah",
-    "team": "Islamabad United",
-    "role": "bowler",
-    "basePrice": 7,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0017",
-    "name": "Tim Seifert",
-    "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 10,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0018",
-    "name": "Sarfaraz Ahmed",
-    "team": "Karachi Kings",
-    "role": "wicketkeeper",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0018.png"
-  },
-  {
-    "externalId": "psl2026-0019",
-    "name": "Kane Williamson",
-    "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 14,
-    "photoUrl": "/players/psl2026-0019.png"
-  },
-  {
-    "externalId": "psl2026-0020",
-    "name": "Shan Masood",
-    "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 12,
-    "photoUrl": "/players/psl2026-0020.jpg"
-  },
-  {
-    "externalId": "psl2026-0021",
-    "name": "James Vince",
-    "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 11,
-    "photoUrl": "/players/psl2026-0021.png"
-  },
-  {
-    "externalId": "psl2026-0022",
-    "name": "Sharjeel Khan",
-    "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0022.png"
-  },
-  {
     "externalId": "psl2026-0023",
-    "name": "Ben Dunk",
-    "team": "Karachi Kings",
-    "role": "batsman",
-    "basePrice": 8,
-    "photoUrl": null
+    "name": "Dipendra Singh Airee",
+    "team": "Islamabad United",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0023.jpg"
   },
   {
-    "externalId": "psl2026-0024",
-    "name": "Kieron Pollard",
-    "team": "Karachi Kings",
+    "externalId": "psl2026-0009",
+    "name": "Imad Wasim",
+    "team": "Islamabad United",
     "role": "all-rounder",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0024.jpg"
+    "photoUrl": "/players/psl2026-0009.png"
   },
   {
     "externalId": "psl2026-0025",
-    "name": "Irfan Khan",
-    "team": "Karachi Kings",
-    "role": "all-rounder",
+    "name": "Salman Irshad",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0025.jpg"
+  },
+  {
+    "externalId": "psl2026-0032",
+    "name": "Mohammad Wasim Jr",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0032.png"
+  },
+  {
+    "externalId": "psl2026-0034",
+    "name": "Mehran Mumtaz",
+    "team": "Islamabad United",
+    "role": "bowler",
     "basePrice": 9,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0026",
-    "name": "Shoaib Malik",
-    "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0026.png"
-  },
-  {
-    "externalId": "psl2026-0027",
-    "name": "Arafat Minhas",
-    "team": "Karachi Kings",
-    "role": "all-rounder",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0027.png"
-  },
-  {
-    "externalId": "psl2026-0028",
-    "name": "Mohammad Amir",
-    "team": "Karachi Kings",
+    "externalId": "psl2026-0038",
+    "name": "Mir Hamza Sajjad",
+    "team": "Islamabad United",
     "role": "bowler",
-    "basePrice": 12,
-    "photoUrl": "/players/psl2026-0028.png"
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0039",
+    "name": "Sameen Gul",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0046",
+    "name": "Richard Gleeson",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0046.jpg"
+  },
+  {
+    "externalId": "psl2026-0047",
+    "name": "Mohammad Hasnain",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0047.png"
+  },
+  {
+    "externalId": "psl2026-0048",
+    "name": "Blessing Muzarabani",
+    "team": "Islamabad United",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0048.png"
+  },
+  {
+    "externalId": "psl2026-0051",
+    "name": "David Warner",
+    "team": "Karachi Kings",
+    "role": "batsman",
+    "basePrice": 14,
+    "photoUrl": "/players/psl2026-0051.png"
+  },
+  {
+    "externalId": "psl2026-0055",
+    "name": "Aqib Ilyas",
+    "team": "Karachi Kings",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0055.jpg"
+  },
+  {
+    "externalId": "psl2026-0057",
+    "name": "Muhammad Waseem",
+    "team": "Karachi Kings",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0057.jpg"
+  },
+  {
+    "externalId": "psl2026-0058",
+    "name": "Saad Baig",
+    "team": "Karachi Kings",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0001",
+    "name": "Azam Khan",
+    "team": "Karachi Kings",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0001.png"
+  },
+  {
+    "externalId": "psl2026-0060",
+    "name": "Johnson Charles",
+    "team": "Karachi Kings",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0060.png"
+  },
+  {
+    "externalId": "psl2026-0062",
+    "name": "Moeen Ali",
+    "team": "Karachi Kings",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0062.png"
+  },
+  {
+    "externalId": "psl2026-0063",
+    "name": "Khushdil Shah",
+    "team": "Karachi Kings",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0063.png"
+  },
+  {
+    "externalId": "psl2026-0065",
+    "name": "Salman Ali Agha",
+    "team": "Karachi Kings",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0065.png"
+  },
+  {
+    "externalId": "psl2026-0068",
+    "name": "Shahid Aziz",
+    "team": "Karachi Kings",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": null
   },
   {
     "externalId": "psl2026-0029",
     "name": "Hasan Ali",
     "team": "Karachi Kings",
     "role": "bowler",
-    "basePrice": 11,
+    "basePrice": 9,
     "photoUrl": "/players/psl2026-0029.png"
   },
   {
-    "externalId": "psl2026-0030",
-    "name": "Tabraiz Shamsi",
+    "externalId": "psl2026-0070",
+    "name": "Abbas Afridi",
     "team": "Karachi Kings",
     "role": "bowler",
     "basePrice": 9,
-    "photoUrl": "/players/psl2026-0030.png"
+    "photoUrl": "/players/psl2026-0070.png"
   },
   {
     "externalId": "psl2026-0031",
     "name": "Mir Hamza",
     "team": "Karachi Kings",
     "role": "bowler",
-    "basePrice": 8,
+    "basePrice": 7,
     "photoUrl": "/players/psl2026-0031.jpg"
   },
   {
-    "externalId": "psl2026-0032",
-    "name": "Usman Khan Shinwari",
+    "externalId": "psl2026-0071",
+    "name": "Adam Zampa",
+    "team": "Karachi Kings",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0071.png"
+  },
+  {
+    "externalId": "psl2026-0073",
+    "name": "Hamza Sohail",
     "team": "Karachi Kings",
     "role": "bowler",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0033",
-    "name": "Phil Salt",
-    "team": "Lahore Qalandars",
-    "role": "wicketkeeper",
-    "basePrice": 10,
-    "photoUrl": "/players/psl2026-0033.jpg"
-  },
-  {
-    "externalId": "psl2026-0034",
-    "name": "Zeeshan Ashraf",
-    "team": "Lahore Qalandars",
-    "role": "wicketkeeper",
+    "externalId": "psl2026-0074",
+    "name": "Khuzaima bin Tanveer",
+    "team": "Karachi Kings",
+    "role": "bowler",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0035",
-    "name": "Fakhar Zaman",
-    "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 13,
-    "photoUrl": "/players/psl2026-0035.png"
+    "externalId": "psl2026-0075",
+    "name": "Ihsanullah",
+    "team": "Karachi Kings",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0075.png"
+  },
+  {
+    "externalId": "psl2026-0078",
+    "name": "Rizwanullah",
+    "team": "Karachi Kings",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
   },
   {
     "externalId": "psl2026-0036",
@@ -288,68 +296,116 @@
     "photoUrl": "/players/psl2026-0036.jpg"
   },
   {
-    "externalId": "psl2026-0037",
-    "name": "Harry Brook",
-    "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 10,
-    "photoUrl": "/players/psl2026-0037.jpg"
-  },
-  {
-    "externalId": "psl2026-0038",
-    "name": "Kamran Ghulam",
-    "team": "Lahore Qalandars",
-    "role": "batsman",
-    "basePrice": 9,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0039",
-    "name": "Sahibzada Farhan",
+    "externalId": "psl2026-0079",
+    "name": "Mohammad Naeem",
     "team": "Lahore Qalandars",
     "role": "batsman",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0040",
-    "name": "Rashid Khan",
+    "externalId": "psl2026-0035",
+    "name": "Fakhar Zaman",
     "team": "Lahore Qalandars",
-    "role": "all-rounder",
-    "basePrice": 15,
-    "photoUrl": "/players/psl2026-0040.png"
+    "role": "batsman",
+    "basePrice": 14,
+    "photoUrl": "/players/psl2026-0035.png"
+  },
+  {
+    "externalId": "psl2026-0082",
+    "name": "Asif Ali",
+    "team": "Lahore Qalandars",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0082.png"
+  },
+  {
+    "externalId": "psl2026-0053",
+    "name": "Tayyab Tahir",
+    "team": "Lahore Qalandars",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0053.png"
+  },
+  {
+    "externalId": "psl2026-0087",
+    "name": "Parvez Hossain Emon",
+    "team": "Lahore Qalandars",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0087.jpg"
+  },
+  {
+    "externalId": "psl2026-0088",
+    "name": "Mohammad Farooq",
+    "team": "Lahore Qalandars",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0089",
+    "name": "Haseebullah Khan",
+    "team": "Lahore Qalandars",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0089.jpg"
+  },
+  {
+    "externalId": "psl2026-0090",
+    "name": "Rubin Hermann",
+    "team": "Lahore Qalandars",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": null
   },
   {
     "externalId": "psl2026-0041",
     "name": "Sikandar Raza",
     "team": "Lahore Qalandars",
     "role": "all-rounder",
-    "basePrice": 12,
+    "basePrice": 10,
     "photoUrl": "/players/psl2026-0041.png"
   },
   {
-    "externalId": "psl2026-0042",
-    "name": "David Wiese",
+    "externalId": "psl2026-0091",
+    "name": "Dasun Shanaka",
     "team": "Lahore Qalandars",
     "role": "all-rounder",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0042.jpg"
+    "photoUrl": "/players/psl2026-0091.png"
   },
   {
-    "externalId": "psl2026-0043",
-    "name": "Mohammad Hafeez",
+    "externalId": "psl2026-0092",
+    "name": "Hussain Talat",
     "team": "Lahore Qalandars",
     "role": "all-rounder",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0043.png"
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0092.png"
+  },
+  {
+    "externalId": "psl2026-0093",
+    "name": "Gudakesh Motie",
+    "team": "Lahore Qalandars",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0093.png"
   },
   {
     "externalId": "psl2026-0044",
     "name": "Shaheen Shah Afridi",
     "team": "Lahore Qalandars",
     "role": "bowler",
-    "basePrice": 14,
+    "basePrice": 13,
     "photoUrl": "/players/psl2026-0044.jpg"
+  },
+  {
+    "externalId": "psl2026-0094",
+    "name": "Mustafizur Rahman",
+    "team": "Lahore Qalandars",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0094.png"
   },
   {
     "externalId": "psl2026-0045",
@@ -360,84 +416,84 @@
     "photoUrl": "/players/psl2026-0045.jpg"
   },
   {
-    "externalId": "psl2026-0046",
-    "name": "Ahmed Daniyal",
+    "externalId": "psl2026-0095",
+    "name": "Usama Mir",
     "team": "Lahore Qalandars",
     "role": "bowler",
-    "basePrice": 8,
-    "photoUrl": null
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0095.png"
   },
   {
-    "externalId": "psl2026-0047",
-    "name": "Dilbar Hussain",
-    "team": "Lahore Qalandars",
-    "role": "bowler",
-    "basePrice": 7,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0048",
-    "name": "Maaz Khan",
+    "externalId": "psl2026-0097",
+    "name": "Ubaid Shah",
     "team": "Lahore Qalandars",
     "role": "bowler",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0049",
-    "name": "Mohammad Rizwan",
-    "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 15,
-    "photoUrl": "/players/psl2026-0049.jpg"
-  },
-  {
-    "externalId": "psl2026-0050",
-    "name": "Ben Duckett",
-    "team": "Multan Sultans",
-    "role": "wicketkeeper",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0050.jpg"
-  },
-  {
-    "externalId": "psl2026-0051",
-    "name": "Iftikhar Ahmed",
+    "externalId": "psl2026-0098",
+    "name": "Steve Smith",
     "team": "Multan Sultans",
     "role": "batsman",
-    "basePrice": 11,
+    "basePrice": 14,
+    "photoUrl": "/players/psl2026-0098.png"
+  },
+  {
+    "externalId": "psl2026-0099",
+    "name": "Jahanzaib Sultan",
+    "team": "Multan Sultans",
+    "role": "batsman",
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0052",
-    "name": "Reeza Hendricks",
+    "externalId": "psl2026-0100",
+    "name": "Sahibzada Farhan",
     "team": "Multan Sultans",
     "role": "batsman",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0052.png"
+    "photoUrl": "/players/psl2026-0100.jpg"
   },
   {
-    "externalId": "psl2026-0053",
-    "name": "Tayyab Tahir",
+    "externalId": "psl2026-0102",
+    "name": "Ashton Turner",
     "team": "Multan Sultans",
     "role": "batsman",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0053.png"
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0102.jpg"
   },
   {
-    "externalId": "psl2026-0054",
-    "name": "Sohaib Maqsood",
+    "externalId": "psl2026-0020",
+    "name": "Shan Masood",
     "team": "Multan Sultans",
     "role": "batsman",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0054.png"
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0020.jpg"
   },
   {
-    "externalId": "psl2026-0055",
-    "name": "Johnson Charles",
+    "externalId": "psl2026-0103",
+    "name": "Muhammad Awais Zafar",
     "team": "Multan Sultans",
     "role": "batsman",
-    "basePrice": 8,
+    "basePrice": 7,
     "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0104",
+    "name": "Lachlan Shaw",
+    "team": "Multan Sultans",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0105",
+    "name": "Josh Philippe",
+    "team": "Multan Sultans",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0105.png"
   },
   {
     "externalId": "psl2026-0056",
@@ -448,323 +504,691 @@
     "photoUrl": "/players/psl2026-0056.png"
   },
   {
-    "externalId": "psl2026-0057",
-    "name": "Tim David",
+    "externalId": "psl2026-0106",
+    "name": "Saad Masood",
     "team": "Multan Sultans",
     "role": "all-rounder",
-    "basePrice": 10,
-    "photoUrl": null
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0106.jpg"
   },
   {
-    "externalId": "psl2026-0058",
-    "name": "Khushdil Shah",
+    "externalId": "psl2026-0107",
+    "name": "Delano Potgieter",
     "team": "Multan Sultans",
     "role": "all-rounder",
-    "basePrice": 9,
-    "photoUrl": null
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0107.jpg"
   },
   {
-    "externalId": "psl2026-0059",
-    "name": "David Willey",
+    "externalId": "psl2026-0108",
+    "name": "Mohammad Shehzad",
     "team": "Multan Sultans",
     "role": "all-rounder",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0059.png"
-  },
-  {
-    "externalId": "psl2026-0060",
-    "name": "Usama Mir",
-    "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 9,
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0061",
-    "name": "Chris Jordan",
+    "externalId": "psl2026-0109",
+    "name": "Salman Mirza",
     "team": "Multan Sultans",
     "role": "bowler",
-    "basePrice": 11,
-    "photoUrl": "/players/psl2026-0061.png"
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0109.jpg"
   },
   {
-    "externalId": "psl2026-0062",
-    "name": "Abbas Afridi",
-    "team": "Multan Sultans",
-    "role": "bowler",
-    "basePrice": 9,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0063",
-    "name": "Shahnawaz Dahani",
+    "externalId": "psl2026-0110",
+    "name": "Ahmed Daniyal",
     "team": "Multan Sultans",
     "role": "bowler",
     "basePrice": 9,
-    "photoUrl": null
+    "photoUrl": "/players/psl2026-0110.jpg"
   },
   {
-    "externalId": "psl2026-0064",
-    "name": "Imran Tahir",
+    "externalId": "psl2026-0111",
+    "name": "Peter Siddle",
     "team": "Multan Sultans",
     "role": "bowler",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0064.png"
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0111.png"
   },
   {
-    "externalId": "psl2026-0065",
-    "name": "Mohammad Haris",
-    "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 10,
-    "photoUrl": null
+    "externalId": "psl2026-0030",
+    "name": "Tabraiz Shamsi",
+    "team": "Multan Sultans",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0030.png"
   },
   {
-    "externalId": "psl2026-0066",
-    "name": "Kamran Akmal",
-    "team": "Peshawar Zalmi",
-    "role": "wicketkeeper",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0066.jpg"
+    "externalId": "psl2026-0112",
+    "name": "Momin Qamar",
+    "team": "Multan Sultans",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0112.jpg"
+  },
+  {
+    "externalId": "psl2026-0080",
+    "name": "Arshad Iqbal",
+    "team": "Multan Sultans",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0080.png"
   },
   {
     "externalId": "psl2026-0067",
     "name": "Babar Azam",
     "team": "Peshawar Zalmi",
     "role": "batsman",
-    "basePrice": 15,
+    "basePrice": 14,
     "photoUrl": "/players/psl2026-0067.png"
   },
   {
-    "externalId": "psl2026-0068",
-    "name": "Saim Ayub",
+    "externalId": "psl2026-0113",
+    "name": "Abdul Samad",
     "team": "Peshawar Zalmi",
     "role": "batsman",
-    "basePrice": 11,
-    "photoUrl": null
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0113.png"
   },
   {
-    "externalId": "psl2026-0069",
-    "name": "Tom Kohler-Cadmore",
+    "externalId": "psl2026-0021",
+    "name": "James Vince",
     "team": "Peshawar Zalmi",
     "role": "batsman",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0069.jpg"
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0021.png"
   },
   {
-    "externalId": "psl2026-0070",
-    "name": "Rovman Powell",
+    "externalId": "psl2026-0114",
+    "name": "Tanzid Hasan",
     "team": "Peshawar Zalmi",
     "role": "batsman",
-    "basePrice": 9,
-    "photoUrl": null
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0114.png"
   },
   {
-    "externalId": "psl2026-0071",
-    "name": "Yasir Khan",
+    "externalId": "psl2026-0115",
+    "name": "Mirza Tahir Baig",
     "team": "Peshawar Zalmi",
     "role": "batsman",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0072",
-    "name": "Daniel Sams",
+    "externalId": "psl2026-0116",
+    "name": "Mohammad Haris",
     "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 10,
-    "photoUrl": "/players/psl2026-0072.jpg"
-  },
-  {
-    "externalId": "psl2026-0073",
-    "name": "Liam Livingstone",
-    "team": "Peshawar Zalmi",
-    "role": "all-rounder",
-    "basePrice": 10,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0074",
-    "name": "Daryl Mitchell",
-    "team": "Peshawar Zalmi",
-    "role": "all-rounder",
+    "role": "wicketkeeper",
     "basePrice": 9,
-    "photoUrl": null
+    "photoUrl": "/players/psl2026-0116.png"
   },
   {
-    "externalId": "psl2026-0075",
-    "name": "Paul Walter",
+    "externalId": "psl2026-0117",
+    "name": "Kusal Mendis",
+    "team": "Peshawar Zalmi",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0117.png"
+  },
+  {
+    "externalId": "psl2026-0118",
+    "name": "Aaron Hardie",
     "team": "Peshawar Zalmi",
     "role": "all-rounder",
-    "basePrice": 8,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0076",
-    "name": "Wahab Riaz",
-    "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0076.png"
-  },
-  {
-    "externalId": "psl2026-0077",
-    "name": "Luke Wood",
-    "team": "Peshawar Zalmi",
-    "role": "bowler",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0077.jpg"
+    "photoUrl": "/players/psl2026-0118.png"
   },
   {
-    "externalId": "psl2026-0078",
-    "name": "Mehran Mumtaz",
+    "externalId": "psl2026-0119",
+    "name": "Michael Bracewell",
     "team": "Peshawar Zalmi",
-    "role": "bowler",
-    "basePrice": 8,
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0119.png"
+  },
+  {
+    "externalId": "psl2026-0120",
+    "name": "Iftikhar Ahmed",
+    "team": "Peshawar Zalmi",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0120.png"
+  },
+  {
+    "externalId": "psl2026-0121",
+    "name": "Aamir Jamal",
+    "team": "Peshawar Zalmi",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0121.jpg"
+  },
+  {
+    "externalId": "psl2026-0122",
+    "name": "Khalid Usman",
+    "team": "Peshawar Zalmi",
+    "role": "all-rounder",
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0079",
+    "externalId": "psl2026-0123",
     "name": "Sufiyan Muqeem",
     "team": "Peshawar Zalmi",
     "role": "bowler",
     "basePrice": 9,
-    "photoUrl": null
+    "photoUrl": "/players/psl2026-0123.png"
   },
   {
-    "externalId": "psl2026-0080",
-    "name": "Arshad Iqbal",
+    "externalId": "psl2026-0124",
+    "name": "Ali Raza",
     "team": "Peshawar Zalmi",
     "role": "bowler",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0080.png"
-  },
-  {
-    "externalId": "psl2026-0081",
-    "name": "Umar Akmal",
-    "team": "Quetta Gladiators",
-    "role": "wicketkeeper",
-    "basePrice": 8,
-    "photoUrl": "/players/psl2026-0081.png"
-  },
-  {
-    "externalId": "psl2026-0082",
-    "name": "Will Smeed",
-    "team": "Quetta Gladiators",
-    "role": "wicketkeeper",
     "basePrice": 7,
     "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0125",
+    "name": "Abdul Subhan",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0126",
+    "name": "Khurram Shahzad",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0126.png"
+  },
+  {
+    "externalId": "psl2026-0128",
+    "name": "Nahid Rana",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0128.jpg"
+  },
+  {
+    "externalId": "psl2026-0129",
+    "name": "Kashif Ali",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0130",
+    "name": "Shahnawaz Dahani",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0130.png"
+  },
+  {
+    "externalId": "psl2026-0131",
+    "name": "Shoriful Islam",
+    "team": "Peshawar Zalmi",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0131.jpg"
+  },
+  {
+    "externalId": "psl2026-0132",
+    "name": "Hassan Nawaz",
+    "team": "Quetta Gladiators",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0133",
+    "name": "Shamyl Hussain",
+    "team": "Quetta Gladiators",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0133.png"
   },
   {
     "externalId": "psl2026-0083",
     "name": "Rilee Rossouw",
     "team": "Quetta Gladiators",
     "role": "batsman",
-    "basePrice": 12,
+    "basePrice": 10,
     "photoUrl": "/players/psl2026-0083.png"
+  },
+  {
+    "externalId": "psl2026-0134",
+    "name": "Bevon Jacobs",
+    "team": "Quetta Gladiators",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
   },
   {
     "externalId": "psl2026-0084",
     "name": "Saud Shakeel",
     "team": "Quetta Gladiators",
     "role": "batsman",
-    "basePrice": 11,
+    "basePrice": 10,
     "photoUrl": "/players/psl2026-0084.jpg"
   },
   {
-    "externalId": "psl2026-0085",
-    "name": "Jason Roy",
+    "externalId": "psl2026-0135",
+    "name": "Ben McDermott",
     "team": "Quetta Gladiators",
     "role": "batsman",
     "basePrice": 10,
-    "photoUrl": "/players/psl2026-0085.png"
+    "photoUrl": "/players/psl2026-0135.jpg"
   },
   {
-    "externalId": "psl2026-0086",
-    "name": "Chris Gayle",
+    "externalId": "psl2026-0136",
+    "name": "Khawaja Nafay",
     "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 9,
-    "photoUrl": "/players/psl2026-0086.png"
-  },
-  {
-    "externalId": "psl2026-0087",
-    "name": "Omair Bin Yousuf",
-    "team": "Quetta Gladiators",
-    "role": "batsman",
-    "basePrice": 8,
+    "role": "wicketkeeper",
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0088",
-    "name": "Sherfane Rutherford",
+    "externalId": "psl2026-0137",
+    "name": "Bismillah Khan",
+    "team": "Quetta Gladiators",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0138",
+    "name": "Sam Harper",
+    "team": "Quetta Gladiators",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0138.jpg"
+  },
+  {
+    "externalId": "psl2026-0027",
+    "name": "Arafat Minhas",
     "team": "Quetta Gladiators",
     "role": "all-rounder",
     "basePrice": 10,
-    "photoUrl": null
+    "photoUrl": "/players/psl2026-0027.png"
   },
   {
-    "externalId": "psl2026-0089",
-    "name": "Akeal Hosein",
-    "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 9,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0090",
-    "name": "Ben Cutting",
-    "team": "Quetta Gladiators",
-    "role": "all-rounder",
-    "basePrice": 8,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0091",
-    "name": "Anwar Ali",
+    "externalId": "psl2026-0139",
+    "name": "Jahandad Khan",
     "team": "Quetta Gladiators",
     "role": "all-rounder",
     "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0092",
-    "name": "Mohammad Wasim Jr",
+    "externalId": "psl2026-0140",
+    "name": "Brett Hampton",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 11,
+    "role": "all-rounder",
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0093",
-    "name": "Mohammad Hasnain",
+    "externalId": "psl2026-0141",
+    "name": "Tom Curran",
     "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 9,
-    "photoUrl": null
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0141.png"
   },
   {
-    "externalId": "psl2026-0094",
-    "name": "Khurram Shahzad",
-    "team": "Quetta Gladiators",
-    "role": "bowler",
-    "basePrice": 9,
-    "photoUrl": null
-  },
-  {
-    "externalId": "psl2026-0095",
+    "externalId": "psl2026-0142",
     "name": "Usman Tariq",
     "team": "Quetta Gladiators",
     "role": "bowler",
-    "basePrice": 8,
+    "basePrice": 7,
     "photoUrl": null
   },
   {
-    "externalId": "psl2026-0096",
-    "name": "Sohail Khan",
+    "externalId": "psl2026-0143",
+    "name": "Abrar Ahmed",
+    "team": "Quetta Gladiators",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0143.png"
+  },
+  {
+    "externalId": "psl2026-0144",
+    "name": "Spencer Johnson",
+    "team": "Quetta Gladiators",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0144.png"
+  },
+  {
+    "externalId": "psl2026-0145",
+    "name": "Faisal Akram",
     "team": "Quetta Gladiators",
     "role": "bowler",
     "basePrice": 7,
-    "photoUrl": "/players/psl2026-0096.png"
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0146",
+    "name": "Waseem Akram Jr",
+    "team": "Quetta Gladiators",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0147",
+    "name": "Khan Zeb",
+    "team": "Quetta Gladiators",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0148",
+    "name": "Marnus Labuschagne",
+    "team": "Hyderabad Kingsmen",
+    "role": "batsman",
+    "basePrice": 14,
+    "photoUrl": "/players/psl2026-0148.jpg"
+  },
+  {
+    "externalId": "psl2026-0149",
+    "name": "Irfan Khan",
+    "team": "Hyderabad Kingsmen",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0149.png"
+  },
+  {
+    "externalId": "psl2026-0150",
+    "name": "Shayan Jahangir",
+    "team": "Hyderabad Kingsmen",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0022",
+    "name": "Sharjeel Khan",
+    "team": "Hyderabad Kingsmen",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0022.png"
+  },
+  {
+    "externalId": "psl2026-0151",
+    "name": "Saad Ali",
+    "team": "Hyderabad Kingsmen",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0151.png"
+  },
+  {
+    "externalId": "psl2026-0152",
+    "name": "Tayyab Arif",
+    "team": "Hyderabad Kingsmen",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0153",
+    "name": "Kusal Perera",
+    "team": "Hyderabad Kingsmen",
+    "role": "wicketkeeper",
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0153.png"
+  },
+  {
+    "externalId": "psl2026-0154",
+    "name": "Usman Khan",
+    "team": "Hyderabad Kingsmen",
+    "role": "wicketkeeper",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0155",
+    "name": "Saim Ayub",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0155.png"
+  },
+  {
+    "externalId": "psl2026-0156",
+    "name": "Maaz Sadaqat",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0157",
+    "name": "Hassan Khan",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0158",
+    "name": "Hammad Azam",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0158.png"
+  },
+  {
+    "externalId": "psl2026-0159",
+    "name": "Rizwan Mehmood",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0160",
+    "name": "Ahmed Hussain",
+    "team": "Hyderabad Kingsmen",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0161",
+    "name": "Akif Javed",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0161.png"
+  },
+  {
+    "externalId": "psl2026-0162",
+    "name": "Mohammad Ali",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0162.jpg"
+  },
+  {
+    "externalId": "psl2026-0163",
+    "name": "Riley Meredith",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0163.jpg"
+  },
+  {
+    "externalId": "psl2026-0164",
+    "name": "Ottniel Baartman",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0164.png"
+  },
+  {
+    "externalId": "psl2026-0165",
+    "name": "Hunain Shah",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0166",
+    "name": "Asif Mehmood",
+    "team": "Hyderabad Kingsmen",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0167",
+    "name": "Yasir Khan",
+    "team": "Rawalpindiz",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0168",
+    "name": "Abdullah Fazal",
+    "team": "Rawalpindiz",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0169",
+    "name": "Usman Khawaja",
+    "team": "Rawalpindiz",
+    "role": "batsman",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0169.jpg"
+  },
+  {
+    "externalId": "psl2026-0170",
+    "name": "Shahzaib Khan",
+    "team": "Rawalpindiz",
+    "role": "batsman",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0170.png"
+  },
+  {
+    "externalId": "psl2026-0049",
+    "name": "Mohammad Rizwan",
+    "team": "Rawalpindiz",
+    "role": "wicketkeeper",
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0049.jpg"
+  },
+  {
+    "externalId": "psl2026-0171",
+    "name": "Sam Billings",
+    "team": "Rawalpindiz",
+    "role": "wicketkeeper",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0171.png"
+  },
+  {
+    "externalId": "psl2026-0172",
+    "name": "Daryl Mitchell",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0172.jpg"
+  },
+  {
+    "externalId": "psl2026-0173",
+    "name": "Asif Afridi",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0173.jpg"
+  },
+  {
+    "externalId": "psl2026-0174",
+    "name": "Amad Butt",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0174.png"
+  },
+  {
+    "externalId": "psl2026-0175",
+    "name": "Kamran Ghulam",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 10,
+    "photoUrl": "/players/psl2026-0175.png"
+  },
+  {
+    "externalId": "psl2026-0176",
+    "name": "Dian Forrester",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0177",
+    "name": "Laurie Evans",
+    "team": "Rawalpindiz",
+    "role": "all-rounder",
+    "basePrice": 7,
+    "photoUrl": "/players/psl2026-0177.png"
+  },
+  {
+    "externalId": "psl2026-0012",
+    "name": "Naseem Shah",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 13,
+    "photoUrl": "/players/psl2026-0012.png"
+  },
+  {
+    "externalId": "psl2026-0028",
+    "name": "Mohammad Amir",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0028.png"
+  },
+  {
+    "externalId": "psl2026-0178",
+    "name": "Rishad Hossain",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0178.jpg"
+  },
+  {
+    "externalId": "psl2026-0179",
+    "name": "Zaman Khan",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 9,
+    "photoUrl": "/players/psl2026-0179.png"
+  },
+  {
+    "externalId": "psl2026-0180",
+    "name": "Fawad Ali",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
+  },
+  {
+    "externalId": "psl2026-0181",
+    "name": "Mohammad Amir Khan",
+    "team": "Rawalpindiz",
+    "role": "bowler",
+    "basePrice": 7,
+    "photoUrl": null
   }
 ]
