@@ -39,6 +39,7 @@ type DerivedStatus =
 interface SessionState {
   token: string;
   wallet: string;
+  profile?: ProfileState;
 }
 
 interface ProfileState {
@@ -148,9 +149,22 @@ function readStoredSession(): SessionState | null {
       return null;
     }
 
+    const storedProfile = parsed.profile;
+    const profile: ProfileState | undefined =
+      storedProfile &&
+      typeof storedProfile.username === "string" &&
+      (storedProfile.avatarUrl === null ||
+        typeof storedProfile.avatarUrl === "string")
+        ? {
+            username: storedProfile.username,
+            avatarUrl: storedProfile.avatarUrl,
+          }
+        : undefined;
+
     return {
       token: parsed.token,
       wallet: normalizeWallet(parsed.wallet),
+      profile,
     };
   } catch {
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
@@ -183,7 +197,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setSession(readStoredSession());
+    const stored = readStoredSession();
+    setSession(stored);
+    if (stored?.profile) {
+      setProfile(stored.profile);
+      setIsProfileLoaded(true);
+    }
   }, []);
 
   const clearSession = useCallback(() => {
@@ -324,14 +343,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         method: "POST",
       });
 
+      const verifiedProfile: ProfileState = {
+        username: verified.user.username,
+        avatarUrl: verified.user.avatarUrl,
+      };
       persistSession({
         token: verified.token,
         wallet: normalizeWallet(verified.user.wallet),
+        profile: verifiedProfile,
       });
-      setProfile({
-        username: verified.user.username,
-        avatarUrl: verified.user.avatarUrl,
-      });
+      setProfile(verifiedProfile);
       setIsProfileLoaded(true);
       setPendingState("idle");
     } catch (err) {
@@ -387,13 +408,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: session.token,
       });
 
-      setProfile({
+      const nextProfile: ProfileState = {
         username: result.username,
         avatarUrl: profile.avatarUrl,
-      });
+      };
+      setProfile(nextProfile);
       setIsProfileLoaded(true);
+      if (session) persistSession({ ...session, profile: nextProfile });
     },
-    [profile.avatarUrl, session?.token],
+    [persistSession, profile.avatarUrl, session],
   );
 
   const updateAvatar = useCallback(
@@ -406,13 +429,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token: session.token,
       });
 
-      setProfile({
+      const nextProfile: ProfileState = {
         username: profile.username,
         avatarUrl: result.avatarUrl,
-      });
+      };
+      setProfile(nextProfile);
       setIsProfileLoaded(true);
+      if (session) persistSession({ ...session, profile: nextProfile });
     },
-    [profile.username, session?.token],
+    [persistSession, profile.username, session],
   );
 
   const needsUsername =
