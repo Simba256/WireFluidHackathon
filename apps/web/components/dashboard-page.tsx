@@ -1318,7 +1318,7 @@ export function DashboardPage() {
 
               <section className="group relative overflow-hidden rounded-[2rem]">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(84,233,138,0.18),transparent_55%)]" />
-                <div className="relative flex h-48 flex-col justify-end rounded-[2rem] border border-outline-variant/20 bg-gradient-to-br from-surface-container/90 to-surface-container-high/90 p-8">
+                <div className="relative flex h-48 flex-col justify-center rounded-[2rem] border border-outline-variant/20 bg-gradient-to-br from-surface-container/90 to-surface-container-high/90 p-8">
                   <p className="mb-1 text-sm font-bold uppercase tracking-widest text-slate-400">
                     Wallet Balance
                   </p>
