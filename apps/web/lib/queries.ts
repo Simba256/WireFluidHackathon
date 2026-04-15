@@ -15,7 +15,25 @@ export const queryKeys = {
   leaderboardGlobal: () => ["leaderboard-global"] as const,
   leaderboardPrize: () => ["leaderboard-prize"] as const,
   trophies: (wallet: string) => ["trophies", wallet] as const,
+  prizeCatalog: () => ["prize-catalog"] as const,
 } as const;
+
+export interface PrizeCatalogResponse {
+  tiers: Array<{
+    tierId: number;
+    name: string | null;
+    displayName: string;
+    rankRequired: number;
+    stock: number;
+    claimed: number;
+    remaining: number;
+    prize: {
+      name: string;
+      description: string;
+      imageUrl: string | null;
+    };
+  }>;
+}
 
 interface AuthedOpts {
   token: string;
@@ -62,6 +80,7 @@ export const fetchers = {
     }>("/api/leaderboard/prize?limit=100"),
   trophies: (wallet: string) =>
     apiFetch<TrophiesResponseDTO>(`/api/trophies/${wallet}`),
+  prizeCatalog: () => apiFetch<PrizeCatalogResponse>("/api/prizes"),
 } as const;
 
 export interface PrefetchContext {
@@ -69,11 +88,29 @@ export interface PrefetchContext {
   token: string;
 }
 
+export async function prefetchPublic(client: QueryClient): Promise<void> {
+  await Promise.all([
+    client.prefetchQuery({
+      queryKey: queryKeys.leaderboardGlobal(),
+      queryFn: fetchers.leaderboardGlobal,
+    }),
+    client.prefetchQuery({
+      queryKey: queryKeys.leaderboardPrize(),
+      queryFn: fetchers.leaderboardPrize,
+    }),
+    client.prefetchQuery({
+      queryKey: queryKeys.prizeCatalog(),
+      queryFn: fetchers.prizeCatalog,
+    }),
+  ]);
+}
+
 export async function prefetchAuthenticated(
   client: QueryClient,
   { wallet, token }: PrefetchContext,
 ): Promise<void> {
   await Promise.all([
+    prefetchPublic(client),
     client.prefetchQuery({
       queryKey: queryKeys.walletBalance(wallet),
       queryFn: () => fetchers.walletBalance({ token }),
@@ -89,14 +126,6 @@ export async function prefetchAuthenticated(
     client.prefetchQuery({
       queryKey: queryKeys.globalStanding(wallet),
       queryFn: () => fetchers.globalStanding({ token }),
-    }),
-    client.prefetchQuery({
-      queryKey: queryKeys.leaderboardGlobal(),
-      queryFn: fetchers.leaderboardGlobal,
-    }),
-    client.prefetchQuery({
-      queryKey: queryKeys.leaderboardPrize(),
-      queryFn: fetchers.leaderboardPrize,
     }),
     client.prefetchQuery({
       queryKey: queryKeys.trophies(wallet),

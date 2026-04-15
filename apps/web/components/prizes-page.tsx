@@ -107,8 +107,20 @@ export function PrizesPage() {
   const { writeContractAsync } = useWriteContract();
   const queryClient = useQueryClient();
 
-  const [prizes, setPrizes] = useState<PrizeTierDTO[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const prizeCatalogQuery = useQuery({
+    queryKey: queryKeys.prizeCatalog(),
+    queryFn: fetchers.prizeCatalog,
+  });
+  const prizes: PrizeTierDTO[] | null = useMemo(() => {
+    if (!prizeCatalogQuery.data) return null;
+    return [...prizeCatalogQuery.data.tiers].sort(
+      (a, b) => a.tierId - b.tierId,
+    );
+  }, [prizeCatalogQuery.data]);
+  const loadError =
+    prizeCatalogQuery.error instanceof Error
+      ? prizeCatalogQuery.error.message
+      : null;
 
   const dashboardMeQuery = useQuery({
     queryKey: address
@@ -145,18 +157,9 @@ export function PrizesPage() {
   const txHash = claim.hash ?? undefined;
   const receipt = useWaitForTransactionReceipt({ hash: txHash });
 
-  const loadPrizes = useCallback(async () => {
-    try {
-      const response = await apiFetch<PrizesResponse>("/api/prizes");
-      setPrizes(response.tiers.sort((a, b) => a.tierId - b.tierId));
-    } catch (err) {
-      setLoadError(
-        err instanceof ApiClientError || err instanceof Error
-          ? err.message
-          : "Failed to load prizes",
-      );
-    }
-  }, []);
+  const loadPrizes = useCallback(() => {
+    void prizeCatalogQuery.refetch();
+  }, [prizeCatalogQuery]);
 
   const loadDashboard = useCallback(() => {
     if (!address) return;
