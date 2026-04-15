@@ -54,30 +54,64 @@ function simulatePlayerStats(
     dismissedForZero: false,
   };
 
+  // Tier the batting output so most players get small scores and only
+  // a handful produce meaningful innings. Keeps team totals realistic
+  // (~140–200) when summed across a full roster.
+  const runRoll = rand();
+  const pickRunsBat = () => {
+    if (runRoll < 0.65) return r(14); // 0–13, cheap dismissal
+    if (runRoll < 0.9) return 14 + r(22); // 14–35, steady hand
+    if (runRoll < 0.98) return 36 + r(25); // 36–60, anchor
+    return 61 + r(30); // 61–90, rare big innings
+  };
+  const pickRunsKeeper = () => {
+    if (runRoll < 0.6) return r(12);
+    if (runRoll < 0.92) return 12 + r(20);
+    return 32 + r(25);
+  };
+  const pickRunsAR = () => {
+    if (runRoll < 0.65) return r(12);
+    if (runRoll < 0.92) return 12 + r(18);
+    return 30 + r(20);
+  };
+  const pickRunsBowler = () => {
+    if (runRoll < 0.8) return r(6);
+    return 6 + r(12);
+  };
+
   if (role === "batsman") {
-    base.runs = r(85);
-    base.catches = rand() < 0.2 ? 1 : 0;
-    base.runOuts = rand() < 0.08 ? 1 : 0;
+    base.runs = pickRunsBat();
+    base.catches = rand() < 0.18 ? 1 : 0;
+    base.runOuts = rand() < 0.06 ? 1 : 0;
   } else if (role === "bowler") {
-    base.wickets = r(5) + (rand() < 0.15 ? 1 : 0);
-    base.runs = r(16);
-    base.catches = rand() < 0.25 ? 1 : 0;
+    // Wickets tiered: mostly 0–2, rare 3–4, very rare 5-fer.
+    const wRoll = rand();
+    if (wRoll < 0.35) base.wickets = 0;
+    else if (wRoll < 0.65) base.wickets = 1;
+    else if (wRoll < 0.88) base.wickets = 2;
+    else if (wRoll < 0.98) base.wickets = 3;
+    else base.wickets = rand() < 0.5 ? 4 : 5;
+    base.runs = pickRunsBowler();
+    base.catches = rand() < 0.22 ? 1 : 0;
   } else if (role === "all-rounder") {
-    base.runs = 10 + r(45);
-    base.wickets = r(3);
-    base.catches = rand() < 0.25 ? 1 : 0;
-    base.runOuts = rand() < 0.1 ? 1 : 0;
+    base.runs = pickRunsAR();
+    const wRoll = rand();
+    if (wRoll < 0.55) base.wickets = 0;
+    else if (wRoll < 0.85) base.wickets = 1;
+    else if (wRoll < 0.97) base.wickets = 2;
+    else base.wickets = 3;
+    base.catches = rand() < 0.22 ? 1 : 0;
+    base.runOuts = rand() < 0.08 ? 1 : 0;
   } else if (role === "wicketkeeper") {
-    base.runs = r(65);
-    base.catches = r(3);
-    base.stumpings = rand() < 0.3 ? 1 : 0;
+    base.runs = pickRunsKeeper();
+    base.catches = rand() < 0.4 ? 1 : 0;
+    base.stumpings = rand() < 0.2 ? 1 : 0;
   } else {
-    base.runs = r(40);
-    base.wickets = r(2);
-    base.catches = rand() < 0.2 ? 1 : 0;
+    base.runs = r(15);
+    base.catches = rand() < 0.18 ? 1 : 0;
   }
 
-  if (base.runs === 0 && base.wickets === 0 && rand() < 0.18) {
+  if (base.runs === 0 && base.wickets === 0 && rand() < 0.25) {
     base.dismissedForZero = true;
   }
   return base;
@@ -158,21 +192,26 @@ export async function POST(
       scoreRows.map((r) => [r.playerId, r.pointsAwarded]),
     );
 
+    // Team scoreline: sum runs across every player on the franchise.
+    // Wickets shown = wickets taken by the *opposing* bowlers, capped at
+    // 10 (real T20 cap) so the scoreline always reads naturally.
     let teamARuns = 0;
-    let teamAWk = 0;
     let teamBRuns = 0;
-    let teamBWk = 0;
+    let wicketsTakenByA = 0;
+    let wicketsTakenByB = 0;
     const teamByPlayer = new Map(players.map((p) => [p.id, p.team]));
     for (const row of scoreRows) {
       const t = teamByPlayer.get(row.playerId);
       if (t === matchRow.teamA) {
         teamARuns += row.runs;
-        if (row.dismissedForZero || row.runs === 0) teamAWk += 1;
+        wicketsTakenByA += row.wickets;
       } else if (t === matchRow.teamB) {
         teamBRuns += row.runs;
-        if (row.dismissedForZero || row.runs === 0) teamBWk += 1;
+        wicketsTakenByB += row.wickets;
       }
     }
+    const teamAWk = wicketsTakenByB;
+    const teamBWk = wicketsTakenByA;
 
     const result = await database.transaction(async (tx) => {
       for (const row of scoreRows) {
