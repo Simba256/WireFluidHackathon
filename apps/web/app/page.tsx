@@ -2,6 +2,7 @@ import Image from "next/image";
 import { LandingNav } from "@/components/landing-nav";
 import { HeroWalletActions } from "@/components/hero-wallet-actions";
 import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
+import { AppPrefetcher } from "@/components/app-prefetcher";
 import {
   ScrollReveal,
   ScrollRevealItem,
@@ -402,6 +403,7 @@ function MobileBottomNav() {
 export default function HomePage() {
   return (
     <>
+      <AppPrefetcher />
       <LandingNav />
       <main className="pt-16">
         <HeroSection />

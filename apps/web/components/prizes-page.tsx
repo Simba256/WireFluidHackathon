@@ -4,19 +4,23 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   BNDY_DECIMALS,
   CONTRACT_ADDRESSES,
   MIN_EARNED_TO_CLAIM_BNDY,
   PSLPointsAbi,
   explorerTxUrl,
-  type DashboardChainStateDTO,
-  type DashboardSummaryDTO,
   type DashboardSummaryWithChainDTO,
 } from "@boundaryline/shared";
 import { useAuth } from "@/components/auth-provider";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
+import {
+  fetchers,
+  invalidateUserQueries,
+  queryKeys,
+} from "@/lib/queries";
 
 interface PrizeTierDTO {
   tierId: number;
@@ -99,13 +103,38 @@ function bndyBalanceLabel(weiString: string): string {
 }
 
 export function PrizesPage() {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, address, token } = useAuth();
   const { writeContractAsync } = useWriteContract();
+  const queryClient = useQueryClient();
 
   const [prizes, setPrizes] = useState<PrizeTierDTO[] | null>(null);
-  const [dashboard, setDashboard] =
-    useState<DashboardSummaryWithChainDTO | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const dashboardMeQuery = useQuery({
+    queryKey: address
+      ? queryKeys.dashboardMe(address)
+      : ["dashboard-me", "none"],
+    queryFn: () => fetchers.dashboardMe({ token: token! }),
+    enabled: Boolean(isAuthenticated && address && token),
+  });
+  const chainStateQuery = useQuery({
+    queryKey: address
+      ? queryKeys.chainState(address)
+      : ["chain-state", "none"],
+    queryFn: () => fetchers.chainState({ token: token! }),
+    enabled: Boolean(isAuthenticated && address && token),
+  });
+  const dashboard: DashboardSummaryWithChainDTO | null = useMemo(() => {
+    if (!dashboardMeQuery.data || !chainStateQuery.data) return null;
+    return {
+      ...dashboardMeQuery.data,
+      ...chainStateQuery.data,
+      balances: {
+        ...dashboardMeQuery.data.balances,
+        ...chainStateQuery.data.balances,
+      },
+    };
+  }, [dashboardMeQuery.data, chainStateQuery.data]);
   const [claim, setClaim] = useState<ClaimState>({
     tierId: null,
     stage: "idle",
@@ -129,43 +158,14 @@ export function PrizesPage() {
     }
   }, []);
 
-  const loadDashboard = useCallback(async () => {
-    if (!token) {
-      setDashboard(null);
-      return;
-    }
-    try {
-      const [summary, chainState] = await Promise.all([
-        apiFetch<DashboardSummaryDTO>("/api/dashboard/me", { token }),
-        apiFetch<DashboardChainStateDTO>("/api/dashboard/chain-state", {
-          token,
-        }),
-      ]);
-
-      setDashboard({
-        ...summary,
-        ...chainState,
-        balances: {
-          ...summary.balances,
-          ...chainState.balances,
-        },
-      } satisfies DashboardSummaryWithChainDTO);
-    } catch {
-      setDashboard(null);
-    }
-  }, [token]);
+  const loadDashboard = useCallback(() => {
+    if (!address) return;
+    invalidateUserQueries(queryClient, address);
+  }, [address, queryClient]);
 
   useEffect(() => {
     void loadPrizes();
   }, [loadPrizes]);
-
-  useEffect(() => {
-    if (isAuthenticated && token) {
-      void loadDashboard();
-    } else {
-      setDashboard(null);
-    }
-  }, [isAuthenticated, token, loadDashboard]);
 
   useEffect(() => {
     if (!claim.hash) return;

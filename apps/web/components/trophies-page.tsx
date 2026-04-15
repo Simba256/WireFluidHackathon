@@ -2,20 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { formatUnits } from "viem";
+import { useQuery } from "@tanstack/react-query";
 import {
   BNDY_DECIMALS,
   CONTRACT_ADDRESSES,
   TIERS_BY_ID,
   explorerTokenUrl,
   type TierId,
-  type TrophiesResponseDTO,
   type TrophyDTO,
 } from "@boundaryline/shared";
 import { useAuth } from "@/components/auth-provider";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
-import { ApiClientError, apiFetch } from "@/lib/api-client";
+import { fetchers, queryKeys } from "@/lib/queries";
 
 const TIER_ACCENT: Record<TierId, { pill: string; glow: string; border: string }> = {
   1: {
@@ -86,39 +86,23 @@ function highestTierLabel(trophies: TrophyDTO[]): string {
 }
 
 export function TrophiesPage() {
-  const { isAuthenticated, address, token } = useAuth();
-  const [trophies, setTrophies] = useState<TrophyDTO[] | null>(null);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { isAuthenticated, address } = useAuth();
 
-  const loadTrophies = useCallback(async () => {
-    if (!address || !token) {
-      setTrophies(null);
-      return;
-    }
-    setLoadError(null);
-    try {
-      const response = await apiFetch<TrophiesResponseDTO>(
-        `/api/trophies/${address}`,
-        { token },
-      );
-      setTrophies(response.trophies);
-    } catch (err) {
-      setTrophies([]);
-      setLoadError(
-        err instanceof ApiClientError || err instanceof Error
-          ? err.message
-          : "Failed to load trophies",
-      );
-    }
-  }, [address, token]);
+  const trophiesQuery = useQuery({
+    queryKey: address ? queryKeys.trophies(address) : ["trophies", "none"],
+    queryFn: () => fetchers.trophies(address!),
+    enabled: Boolean(isAuthenticated && address),
+  });
 
-  useEffect(() => {
-    if (isAuthenticated && address && token) {
-      void loadTrophies();
-    } else {
-      setTrophies(null);
-    }
-  }, [isAuthenticated, address, token, loadTrophies]);
+  const trophies: TrophyDTO[] | null = trophiesQuery.data
+    ? trophiesQuery.data.trophies
+    : trophiesQuery.isFetching
+      ? null
+      : trophiesQuery.isError
+        ? []
+        : null;
+  const loadError =
+    trophiesQuery.error instanceof Error ? trophiesQuery.error.message : null;
 
   return (
     <div className="min-h-screen bg-background pt-6 pb-24 lg:pt-10">

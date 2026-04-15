@@ -5,19 +5,27 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatUnits } from "viem";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   BNDY_DECIMALS,
   CONTRACT_ADDRESSES,
   PSLPointsAbi,
   explorerTxUrl,
   type DashboardChainStateDTO,
-  type DashboardGlobalDTO,
   type DashboardSummaryDTO,
 } from "@boundaryline/shared";
 import { ConnectWalletButton } from "@/components/connect-wallet-button";
 import { ProfilePopover } from "@/components/profile-popover";
 import { useAuth } from "@/components/auth-provider";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
+import {
+  invalidateUserQueries,
+  queryKeys,
+} from "@/lib/queries";
+import {
+  useQuery,
+} from "@tanstack/react-query";
+import { fetchers } from "@/lib/queries";
 
 type TxAction = "sync" | "claim";
 
@@ -529,22 +537,46 @@ function TransactionNotice({ tx }: { tx: TransactionState }) {
 }
 
 export function DashboardPage() {
-  const { isAuthenticated, status, token } = useAuth();
+  const { isAuthenticated, address, status, token } = useAuth();
   const { writeContractAsync } = useWriteContract();
+  const queryClient = useQueryClient();
 
-  const [dashboard, setDashboard] = useState<DashboardSummaryDTO | null>(null);
-  const [chainState, setChainState] = useState<DashboardChainStateDTO | null>(
-    null,
-  );
-  const [globalState, setGlobalState] = useState<DashboardGlobalDTO | null>(
-    null,
-  );
-  const [chainStateError, setChainStateError] = useState<string | null>(null);
-  const [globalStateError, setGlobalStateError] = useState<string | null>(null);
-  const [isChainStateLoading, setIsChainStateLoading] = useState(false);
-  const [isGlobalStateLoading, setIsGlobalStateLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const enabled = Boolean(isAuthenticated && address && token);
+
+  const dashboardQuery = useQuery({
+    queryKey: address ? queryKeys.dashboardMe(address) : ["dashboard-me", "none"],
+    queryFn: () => fetchers.dashboardMe({ token: token! }),
+    enabled,
+  });
+  const chainStateQuery = useQuery({
+    queryKey: address ? queryKeys.chainState(address) : ["chain-state", "none"],
+    queryFn: () => fetchers.chainState({ token: token! }),
+    enabled,
+  });
+  const globalStateQuery = useQuery({
+    queryKey: address
+      ? queryKeys.globalStanding(address)
+      : ["global-standing", "none"],
+    queryFn: () => fetchers.globalStanding({ token: token! }),
+    enabled,
+  });
+
+  const dashboard = dashboardQuery.data ?? null;
+  const chainState = chainStateQuery.data ?? null;
+  const globalState = globalStateQuery.data ?? null;
+  const error =
+    dashboardQuery.error instanceof Error ? dashboardQuery.error.message : null;
+  const chainStateError =
+    chainStateQuery.error instanceof Error
+      ? chainStateQuery.error.message
+      : null;
+  const globalStateError =
+    globalStateQuery.error instanceof Error
+      ? globalStateQuery.error.message
+      : null;
+  const isLoading = dashboardQuery.isLoading;
+  const isChainStateLoading = chainStateQuery.isLoading;
+  const isGlobalStateLoading = globalStateQuery.isLoading;
   const [tx, setTx] = useState<TransactionState>({
     action: null,
     error: null,
@@ -594,113 +626,10 @@ export function DashboardPage() {
     [token],
   );
 
-  const loadChainState = useCallback(async () => {
-    if (!token) {
-      setChainState(null);
-      setChainStateError(null);
-      setIsChainStateLoading(false);
-      return;
-    }
-
-    setIsChainStateLoading(true);
-    setChainStateError(null);
-
-    try {
-      const nextChainState = await apiFetch<DashboardChainStateDTO>(
-        "/api/dashboard/chain-state",
-        { token },
-      );
-      setChainState(nextChainState);
-    } catch (err) {
-      setChainState(null);
-      setChainStateError(
-        err instanceof ApiClientError || err instanceof Error
-          ? err.message
-          : "Failed to load live balance",
-      );
-    } finally {
-      setIsChainStateLoading(false);
-    }
-  }, [token]);
-
-  const loadGlobalState = useCallback(async () => {
-    if (!token) {
-      setGlobalState(null);
-      setGlobalStateError(null);
-      setIsGlobalStateLoading(false);
-      return;
-    }
-
-    setIsGlobalStateLoading(true);
-    setGlobalStateError(null);
-
-    try {
-      const nextGlobalState = await apiFetch<DashboardGlobalDTO>(
-        "/api/dashboard/global-standing",
-        { token },
-      );
-      setGlobalState(nextGlobalState);
-    } catch (err) {
-      setGlobalState(null);
-      setGlobalStateError(
-        err instanceof ApiClientError || err instanceof Error
-          ? err.message
-          : "Failed to load global standing",
-      );
-    } finally {
-      setIsGlobalStateLoading(false);
-    }
-  }, [token]);
-
-  const loadDashboard = useCallback(async () => {
-    if (!token) {
-      setDashboard(null);
-      setChainState(null);
-      setGlobalState(null);
-      setChainStateError(null);
-      setGlobalStateError(null);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    void loadChainState();
-    void loadGlobalState();
-
-    try {
-      const nextDashboard = await apiFetch<DashboardSummaryDTO>(
-        "/api/dashboard/me",
-        {
-          token,
-        },
-      );
-      setDashboard(nextDashboard);
-    } catch (err) {
-      setError(
-        err instanceof ApiClientError || err instanceof Error
-          ? err.message
-          : "Failed to load dashboard",
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  }, [loadChainState, loadGlobalState, token]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !token) {
-      setDashboard(null);
-      setChainState(null);
-      setGlobalState(null);
-      setChainStateError(null);
-      setGlobalStateError(null);
-      setIsChainStateLoading(false);
-      setIsGlobalStateLoading(false);
-      setError(null);
-      return;
-    }
-
-    void loadDashboard();
-  }, [isAuthenticated, loadDashboard, token]);
+  const loadDashboard = useCallback(() => {
+    if (!address) return;
+    invalidateUserQueries(queryClient, address);
+  }, [address, queryClient]);
 
   useEffect(() => {
     if (!tx.hash) {
@@ -1257,7 +1186,7 @@ export function DashboardPage() {
                       <button
                         className="mt-3 self-start text-sm font-bold text-primary underline-offset-4 hover:underline"
                         onClick={() => {
-                          void loadChainState();
+                          void chainStateQuery.refetch();
                         }}
                         type="button"
                       >
