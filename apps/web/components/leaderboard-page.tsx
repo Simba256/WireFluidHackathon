@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { formatUnits } from "viem";
 import {
   BNDY_DECIMALS,
@@ -512,6 +512,9 @@ export function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const prizeUpdatedAtRef = useRef<string | null>(null);
+  const [retryNonce, setRetryNonce] = useState(0);
+
   const fetchGlobal = useCallback(async () => {
     const data = await apiFetch<GlobalResponse>(
       "/api/leaderboard/global?limit=100",
@@ -519,41 +522,69 @@ export function LeaderboardPage() {
     setGlobalData(data);
   }, []);
 
-  const fetchPrize = useCallback(async () => {
+  const fetchPrize = useCallback(async (): Promise<boolean> => {
     const data = await apiFetch<PrizeResponse>(
       "/api/leaderboard/prize?limit=100",
     );
+    if (prizeUpdatedAtRef.current === data.updatedAt) {
+      return false;
+    }
+    prizeUpdatedAtRef.current = data.updatedAt;
     setPrizeData(data);
+    return true;
   }, []);
 
-  const fetchData = useCallback(async () => {
+  // Initial mount: fetch both leaderboards in parallel so switching tabs is
+  // instant and we only pay one round-trip worth of latency.
+  useEffect(() => {
+    let cancelled = false;
     setLoading(true);
     setError(null);
-    try {
-      if (tab === "global") {
-        await fetchGlobal();
-      } else {
-        await fetchPrize();
-      }
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load leaderboard",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [tab, fetchGlobal, fetchPrize]);
+    Promise.all([
+      fetchGlobal().catch((err: unknown) => {
+        throw err;
+      }),
+      fetchPrize().catch((err: unknown) => {
+        throw err;
+      }),
+    ])
+      .catch((err: unknown) => {
+        if (cancelled) return;
+        setError(
+          err instanceof Error ? err.message : "Failed to load leaderboard",
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchGlobal, fetchPrize, retryNonce]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
+  // Prize-tab background refresh: exponential backoff 5s → 10s → 20s → 30s
+  // when the payload is unchanged, reset to 5s whenever the snapshot moves.
   useEffect(() => {
     if (tab !== "prize") return;
-    const interval = setInterval(() => {
-      fetchPrize().catch(() => {});
-    }, 5_000);
-    return () => clearInterval(interval);
+    const intervals = [5_000, 10_000, 20_000, 30_000];
+    let step = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const tick = () => {
+      fetchPrize()
+        .then((changed) => {
+          step = changed ? 0 : Math.min(step + 1, intervals.length - 1);
+        })
+        .catch(() => {})
+        .finally(() => {
+          timer = setTimeout(tick, intervals[step]);
+        });
+    };
+
+    timer = setTimeout(tick, intervals[0]);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [tab, fetchPrize]);
 
   const walletLower = address?.toLowerCase() ?? null;
@@ -664,7 +695,7 @@ export function LeaderboardPage() {
             <Icon name="error" className="mb-4 text-4xl text-error" />
             <p className="text-sm text-error">{error}</p>
             <button
-              onClick={fetchData}
+              onClick={() => setRetryNonce((n) => n + 1)}
               className="mt-4 rounded-xl bg-surface-container-highest px-4 py-2 text-sm font-bold text-on-surface transition-colors hover:bg-surface-bright"
             >
               Retry
