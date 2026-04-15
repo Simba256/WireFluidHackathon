@@ -178,11 +178,41 @@ export async function POST(
       );
     }
 
-    const scoreRows = players.map((p) => {
-      const stats = simulatePlayerStats(matchId, p.id, p.role);
+    const rawStats = players.map((p) => ({
+      playerId: p.id,
+      team: p.team,
+      raw: simulatePlayerStats(matchId, p.id, p.role),
+    }));
+
+    // Normalize per-team run totals into a realistic T20 band [130, 210].
+    // Scaling factor is computed per franchise so each team lands in the
+    // band regardless of how many players we happen to have seeded.
+    const teamTargetRand = seededRandom(matchId * 7919 + 11);
+    const pickTarget = () => 130 + Math.floor(teamTargetRand() * 80); // 130–209
+    const targets: Record<string, number> = {
+      [matchRow.teamA]: pickTarget(),
+      [matchRow.teamB]: pickTarget(),
+    };
+    const rawTotals: Record<string, number> = {
+      [matchRow.teamA]: 0,
+      [matchRow.teamB]: 0,
+    };
+    for (const r of rawStats) {
+      rawTotals[r.team] = (rawTotals[r.team] ?? 0) + r.raw.runs;
+    }
+    const scale = (team: string) => {
+      const raw = rawTotals[team] ?? 0;
+      const target = targets[team] ?? 0;
+      if (raw === 0) return 1;
+      return target / raw;
+    };
+
+    const scoreRows = rawStats.map(({ playerId, team, raw }) => {
+      const scaled = Math.round(raw.runs * scale(team));
+      const stats = { ...raw, runs: scaled };
       return {
         matchId,
-        playerId: p.id,
+        playerId,
         ...stats,
         pointsAwarded: calculatePlayerPoints(stats),
       };
@@ -192,7 +222,7 @@ export async function POST(
       scoreRows.map((r) => [r.playerId, r.pointsAwarded]),
     );
 
-    // Team scoreline: sum runs across every player on the franchise.
+    // Team scoreline: runs land exactly at the normalized totals.
     // Wickets shown = wickets taken by the *opposing* bowlers, capped at
     // 10 (real T20 cap) so the scoreline always reads naturally.
     let teamARuns = 0;
