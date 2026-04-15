@@ -313,7 +313,7 @@ export function FixturesPage() {
                   <Link
                     key={`${fixture.status}-${fixture.id}`}
                     href={`/play?matchId=${fixture.id}`}
-                    className="rounded-[2.5rem] bg-surface-container-low p-8 transition-colors hover:bg-surface-container-highest md:p-10 lg:px-12 lg:py-10"
+                    className="block rounded-[2.5rem] border border-outline-variant/15 bg-surface-container-low p-8 transition-colors hover:bg-surface-container-highest md:p-10 lg:px-12 lg:py-10"
                   >
                     <div className="space-y-7">
                       <div className="flex items-start justify-between gap-6">
