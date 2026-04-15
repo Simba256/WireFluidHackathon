@@ -16,7 +16,27 @@ export const queryKeys = {
   leaderboardPrize: () => ["leaderboard-prize"] as const,
   trophies: (wallet: string) => ["trophies", wallet] as const,
   prizeCatalog: () => ["prize-catalog"] as const,
+  playCurrent: (matchId: number | null) =>
+    ["play-current", matchId ?? "auto"] as const,
 } as const;
+
+export interface PlayCurrentResponse {
+  match: {
+    id: number;
+    teamA: string;
+    teamB: string;
+    venue: string | null;
+    scheduledAt: string;
+    status: "live" | "scheduled" | "completed";
+  } | null;
+  players: Array<{
+    id: number;
+    name: string;
+    team: string;
+    role: string;
+    photoUrl: string | null;
+  }>;
+}
 
 export interface PrizeCatalogResponse {
   tiers: Array<{
@@ -81,6 +101,10 @@ export const fetchers = {
   trophies: (wallet: string) =>
     apiFetch<TrophiesResponseDTO>(`/api/trophies/${wallet}`),
   prizeCatalog: () => apiFetch<PrizeCatalogResponse>("/api/prizes"),
+  playCurrent: (matchId: number | null) =>
+    apiFetch<PlayCurrentResponse>(
+      matchId != null ? `/api/play/current?matchId=${matchId}` : "/api/play/current",
+    ),
 } as const;
 
 export interface PrefetchContext {
@@ -101,6 +125,10 @@ export async function prefetchPublic(client: QueryClient): Promise<void> {
     client.prefetchQuery({
       queryKey: queryKeys.prizeCatalog(),
       queryFn: fetchers.prizeCatalog,
+    }),
+    client.prefetchQuery({
+      queryKey: queryKeys.playCurrent(null),
+      queryFn: () => fetchers.playCurrent(null),
     }),
   ]);
 }
