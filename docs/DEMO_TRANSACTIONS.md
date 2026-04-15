@@ -48,13 +48,15 @@ Every match scored through the admin panel triggers an off-chain point update (n
 
 Each row is a `PSLPoints.sync(amount, nonce, signature)` call, minting BNDY to a player's wallet and incrementing their on-chain `earnedBalance`.
 
-| # | Player (wallet) | Amount (BNDY) | Tx hash | Block | Timestamp |
+| # | Player (wallet) | Amount (BNDY) | Tx hash | Block | Timestamp (UTC) |
 |---|---|---|---|---|---|
-| 1 | `0x____________...` | ________ | `0x____________...` | ________ | `YYYY-MM-DD HH:MM:SS UTC` |
-| 2 | `0x____________...` | ________ | `0x____________...` | ________ | `YYYY-MM-DD HH:MM:SS UTC` |
-| 3 | `0x____________...` | ________ | `0x____________...` | ________ | `YYYY-MM-DD HH:MM:SS UTC` |
-| 4 | `0x____________...` | ________ | `0x____________...` | ________ | `YYYY-MM-DD HH:MM:SS UTC` |
-| 5 | `0x____________...` | ________ | `0x____________...` | ________ | `YYYY-MM-DD HH:MM:SS UTC` |
+| 1 | `0x400b9e86dca96e775578ad95df095e6d9fac00d6` | 586 | [`0x265b0b52...973954b7`](https://wirefluidscan.com/tx/0x265b0b520343634ed31eb06d7ebf38412aa12b2a6aa7022a5b3919e1973954b7) | 899539 | 2026-04-14 19:28:53 |
+| 2 | `0x6f3cc21a83e4ca306afd8b973c6281466157e17c` | 16,750 | [`0x4353665f...a7835468`](https://wirefluidscan.com/tx/0x4353665f3e565cf35f3cec45ebafbe6a0d9c227af9738d644eb02127a7835468) | 901536 | 2026-04-14 22:39:46 |
+| 3 | `0x400b9e86dca96e775578ad95df095e6d9fac00d6` | 6,969,696,410 | [`0x5e8b9fdd...a1a6699b`](https://wirefluidscan.com/tx/0x5e8b9fdd0d9733e38fb7da22b8565ed982585e609264a0dd3ca21c96a1a6699b) | 901608 | 2026-04-14 22:46:38 |
+| 4 | `0x51bb66d97d36c5942d53a00d74553629a2e15cb4` | 526,236 | [`0xa9eeaf8f...dcb149d8`](https://wirefluidscan.com/tx/0xa9eeaf8fc263ada499245ab10ed25c662aa7870569d582a5732be257dcb149d8) | 902255 | 2026-04-14 23:48:26 |
+| 5 | `0x51bb66d97d36c5942d53a00d74553629a2e15cb4` | 1,000,000 | [`0xb5d5fb11...624503ca`](https://wirefluidscan.com/tx/0xb5d5fb11e5c98af8324fd2fd7796538bc40001ab5ff2d4b7400a372e624503ca) | 902972 | 2026-04-15 00:56:54 |
+| 6 | `0x51bb66d97d36c5942d53a00d74553629a2e15cb4` | 973,764 | [`0xde8ac529...268c7bef`](https://wirefluidscan.com/tx/0xde8ac529e98d959b753ad22d199f1fa7c1bc643e353e1779e39906e9268c7bef) | 903072 | 2026-04-15 01:06:25 |
+| 7 | `0xc51bd4700a71b7d9473e9ef688b7cb49a13e43bf` | 34,379 | [`0x9dd64921...8e140df9`](https://wirefluidscan.com/tx/0x9dd64921119da1bd0a403ae916cdaeeff2de3c0ec1c6cc006da5481e8e140df9) | 907257 | 2026-04-15 07:46:11 |
 
 Each tx emits a `Synced(user, amount, newEarnedTotal, nonce)` event. Judges can verify by loading the tx on `wirefluidscan.com` and decoding the log.
 
@@ -64,13 +66,11 @@ Each tx emits a `Synced(user, amount, newEarnedTotal, nonce)` event. Judges can 
 
 Each row is a `PSLPoints.claimTier(tierId, nonce, signature)` call. This single tx burns the caller's entire BNDY balance, resets their `earnedBalance` to 0, and mints a soulbound trophy NFT via cross-contract call to `PSLTrophies.mintTrophy()`.
 
-| # | Player | Tier claimed | Burned amount | Trophy tokenId | Tx hash | Block |
-|---|---|---|---|---|---|---|
-| 1 | `0x____________...` | Rank 1 | ________ | ________ | `0x____________...` | ________ |
-| 2 | `0x____________...` | Top 3 | ________ | ________ | `0x____________...` | ________ |
-| 3 | `0x____________...` | Top 10 | ________ | ________ | `0x____________...` | ________ |
-| 4 | `0x____________...` | Top 25 | ________ | ________ | `0x____________...` | ________ |
-| 5 | `0x____________...` | Top 50 | ________ | ________ | `0x____________...` | ________ |
+| # | Player | Tier claimed | Trophy tokenId | Tx hash | Block |
+|---|---|---|---|---|---|
+| 1 | `0x51bb66d97d36c5942d53a00d74553629a2e15cb4` | Rank 1 | 2 | [`0x132d67aa...220b81f4`](https://wirefluidscan.com/tx/0x132d67aae69e685c9400490a8fcc6b4ce0dcbfc4341e96ecff09baa8220b81f4) | — |
+| 2 | `0x400b9e86dca96e775578ad95df095e6d9fac00d6` | Rank 1 | 3 | [`0x7dc42b82...d7e4b71a`](https://wirefluidscan.com/tx/0x7dc42b82d6b37992dcacbf71889bad31c405a04de9476a41cffc7623d7e4b71a) | — |
+| 3 | `0xc51bd4700a71b7d9473e9ef688b7cb49a13e43bf` | Top 3 | 4 | [`0x9648bc36...e685965c6a`](https://wirefluidscan.com/tx/0x9648bc36b894ce3580ae6a2fe850d24ace7a6b9d657493924410f9e685965c6a) | 907295 |
 
 Each tx emits:
 - `TierClaimed(user, tierId, burnedAmount, trophyTokenId)` on `PSLPoints`
