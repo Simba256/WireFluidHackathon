@@ -1,4 +1,4 @@
-import { eq, asc, and, inArray } from "drizzle-orm";
+import { eq, asc, and, inArray, sql } from "drizzle-orm";
 import { player, match } from "@boundaryline/db";
 import { TEAM_SIZE } from "@boundaryline/shared";
 import { db } from "@/lib/db";
@@ -26,55 +26,31 @@ export default async function PlayPage({ searchParams }: Props) {
     status: string;
   } | null = null;
 
-  if (matchId && Number.isInteger(matchId) && matchId > 0) {
-    const [row] = await database
-      .select({
-        id: match.id,
-        teamA: match.teamA,
-        teamB: match.teamB,
-        venue: match.venue,
-        scheduledAt: match.scheduledAt,
-        status: match.status,
-      })
-      .from(match)
-      .where(eq(match.id, matchId))
-      .limit(1);
-    matchRow = row ?? null;
-  }
+  const hasExplicitId = matchId != null && Number.isInteger(matchId) && matchId > 0;
+  const explicitIdFilter = hasExplicitId ? matchId : -1;
 
-  if (!matchRow) {
-    const [liveMatch] = await database
-      .select({
-        id: match.id,
-        teamA: match.teamA,
-        teamB: match.teamB,
-        venue: match.venue,
-        scheduledAt: match.scheduledAt,
-        status: match.status,
-      })
-      .from(match)
-      .where(eq(match.status, "live"))
-      .limit(1);
-
-    if (liveMatch) {
-      matchRow = liveMatch;
-    } else {
-      const [scheduledMatch] = await database
-        .select({
-          id: match.id,
-          teamA: match.teamA,
-          teamB: match.teamB,
-          venue: match.venue,
-          scheduledAt: match.scheduledAt,
-          status: match.status,
-        })
-        .from(match)
-        .where(eq(match.status, "scheduled"))
-        .orderBy(asc(match.scheduledAt))
-        .limit(1);
-      matchRow = scheduledMatch ?? null;
-    }
-  }
+  // Single query replaces the prior three sequential lookups. Priority:
+  // (1) the explicit matchId if provided, (2) any live match,
+  // (3) the next scheduled match by scheduledAt.
+  const [candidate] = await database
+    .select({
+      id: match.id,
+      teamA: match.teamA,
+      teamB: match.teamB,
+      venue: match.venue,
+      scheduledAt: match.scheduledAt,
+      status: match.status,
+    })
+    .from(match)
+    .where(
+      sql`(${match.id} = ${explicitIdFilter} OR ${match.status} IN ('live', 'scheduled'))`,
+    )
+    .orderBy(
+      sql`CASE WHEN ${match.id} = ${explicitIdFilter} THEN 0 WHEN ${match.status} = 'live' THEN 1 ELSE 2 END`,
+      asc(match.scheduledAt),
+    )
+    .limit(1);
+  matchRow = candidate ?? null;
 
   // If match is live or completed, show the scorecard view
   if (matchRow && matchRow.status !== "scheduled") {
