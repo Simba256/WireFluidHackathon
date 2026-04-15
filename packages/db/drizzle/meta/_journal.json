@@ -57,6 +57,13 @@
       "when": 1776214058403,
       "tag": "0007_cute_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776231085675,
+      "tag": "0008_perpetual_next_avengers",
+      "breakpoints": true
     }
   ]
 }
