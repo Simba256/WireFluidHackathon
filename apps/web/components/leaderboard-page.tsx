@@ -230,7 +230,9 @@ function TierSectionHeader({ tier }: { tier: string }) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <Icon name={meta.icon} className={`text-xl ${meta.color}`} fill />
-      <span className={`text-xs font-bold uppercase tracking-widest ${meta.color}`}>
+      <span
+        className={`text-xs font-bold uppercase tracking-widest ${meta.color}`}
+      >
         {meta.label}
       </span>
       <div className="flex-1 border-t border-white/5" />
@@ -372,14 +374,24 @@ function PrizeRow({
   );
 }
 
-function Podium({ entries }: { entries: GlobalEntry[]; }) {
+function Podium({ entries }: { entries: GlobalEntry[] }) {
   const [second, first, third] = [entries[1], entries[0], entries[2]];
   if (!first) return null;
 
   const podiumEntries = [
-    { entry: second, height: "h-28", medal: "silver" as const, order: "order-1" },
+    {
+      entry: second,
+      height: "h-28",
+      medal: "silver" as const,
+      order: "order-1",
+    },
     { entry: first, height: "h-36", medal: "gold" as const, order: "order-2" },
-    { entry: third, height: "h-24", medal: "bronze" as const, order: "order-3" },
+    {
+      entry: third,
+      height: "h-24",
+      medal: "bronze" as const,
+      order: "order-3",
+    },
   ];
 
   const medalColors = {
@@ -524,7 +536,9 @@ export function LeaderboardPage() {
         await fetchPrize();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load leaderboard");
+      setError(
+        err instanceof Error ? err.message : "Failed to load leaderboard",
+      );
     } finally {
       setLoading(false);
     }
@@ -589,7 +603,9 @@ export function LeaderboardPage() {
         >
           <Icon name="military_tech" className="text-lg" />
           Prize
-          <span className="hidden sm:inline text-[10px] opacity-70">(On-Chain)</span>
+          <span className="hidden sm:inline text-[10px] opacity-70">
+            (On-Chain)
+          </span>
         </button>
       </div>
 
@@ -652,7 +668,7 @@ export function LeaderboardPage() {
             <span className="font-bold text-on-surface">
               {MIN_EARNED_TO_CLAIM_BNDY.toLocaleString()}+ BNDY earned
             </span>{" "}
-            are eligible. Refreshes every 5 seconds.
+            are eligible.
           </div>
         </div>
       )}
@@ -727,7 +743,9 @@ export function LeaderboardPage() {
         {Object.entries(TIER_META).map(([key, meta]) => (
           <div key={key} className="flex items-center gap-1.5">
             <Icon name={meta.icon} className={`text-sm ${meta.color}`} fill />
-            <span className="text-xs text-on-surface-variant">{meta.label}</span>
+            <span className="text-xs text-on-surface-variant">
+              {meta.label}
+            </span>
           </div>
         ))}
       </div>
