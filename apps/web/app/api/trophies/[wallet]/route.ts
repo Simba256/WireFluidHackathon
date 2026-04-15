@@ -19,6 +19,23 @@ import { publicClient } from "@/lib/viem";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const TROPHIES_TTL_MS = 60_000;
+
+type TrophyCacheEntry = {
+  expiresAt: number;
+  payload: unknown;
+};
+
+const trophiesCache = new Map<string, TrophyCacheEntry>();
+
+export function invalidateTrophiesCache(wallet?: string): void {
+  if (!wallet) {
+    trophiesCache.clear();
+    return;
+  }
+  trophiesCache.delete(wallet.toLowerCase());
+}
+
 export async function GET(
   _req: NextRequest,
   ctx: { params: Promise<{ wallet: string }> },
@@ -31,9 +48,30 @@ export async function GET(
     return badRequest(API_ERROR_CODES.VALIDATION_ERROR, "Invalid wallet");
   }
 
+  const cached = trophiesCache.get(wallet);
+  if (cached && cached.expiresAt > Date.now()) {
+    return NextResponse.json(cached.payload);
+  }
+
   try {
     const database = db();
     const client = publicClient();
+
+    // Skip the chain event scan entirely when every claim for this wallet is
+    // already reconciled (no pending/expired rows without a trophyTokenId).
+    // burnedAmount will be absent in that case; the trophies UI tolerates it.
+    const [unreconciledRow] = await database
+      .select({ id: claim.id })
+      .from(claim)
+      .where(
+        and(
+          eq(claim.wallet, wallet),
+          inArray(claim.status, ["pending", "expired"]),
+          isNull(claim.trophyTokenId),
+        ),
+      )
+      .limit(1);
+    const needsReconcile = unreconciledRow != null;
 
     const burnedByTokenId = new Map<string, string>();
     const tierClaimEvents: Array<{
@@ -44,7 +82,7 @@ export async function GET(
       blockNumber: bigint;
     }> = [];
 
-    try {
+    if (needsReconcile) try {
       const latestBlock = await client.getBlockNumber();
       const fromBlock = latestBlock > 9000n ? latestBlock - 9000n : 0n;
       const logs = await client.getContractEvents({
@@ -87,25 +125,27 @@ export async function GET(
     // Lazy-reconcile: if a TierClaimed event exists on-chain but the matching
     // claim row is still pending/expired (backend observer missed it), patch
     // the row to confirmed so the trophy is visible again.
-    for (const event of tierClaimEvents) {
-      await database
-        .update(claim)
-        .set({
-          status: "confirmed",
-          trophyTokenId: event.trophyTokenId,
-          txHash: event.txHash,
-          blockNumber: event.blockNumber,
-          confirmedAt: sql`now()`,
-        })
-        .where(
-          and(
-            eq(claim.wallet, wallet),
-            eq(claim.tierId, event.tierId),
-            inArray(claim.status, ["pending", "expired"]),
-            isNull(claim.trophyTokenId),
+    await Promise.all(
+      tierClaimEvents.map((event) =>
+        database
+          .update(claim)
+          .set({
+            status: "confirmed",
+            trophyTokenId: event.trophyTokenId,
+            txHash: event.txHash,
+            blockNumber: event.blockNumber,
+            confirmedAt: sql`now()`,
+          })
+          .where(
+            and(
+              eq(claim.wallet, wallet),
+              eq(claim.tierId, event.tierId),
+              inArray(claim.status, ["pending", "expired"]),
+              isNull(claim.trophyTokenId),
+            ),
           ),
-        );
-    }
+      ),
+    );
 
     const rows = await database
       .select()
@@ -145,10 +185,15 @@ export async function GET(
       }),
     );
 
-    return NextResponse.json({ wallet, trophies } satisfies {
+    const payload = { wallet, trophies } satisfies {
       wallet: string;
       trophies: unknown[];
+    };
+    trophiesCache.set(wallet, {
+      expiresAt: Date.now() + TROPHIES_TTL_MS,
+      payload,
     });
+    return NextResponse.json(payload);
   } catch (err) {
     const msg = err instanceof Error ? err.message : "unknown";
     return internalError(`Failed to load trophies: ${msg}`);
