@@ -28,6 +28,11 @@ export const metadata: Metadata = {
   title: "BoundaryLine | PSL 2026 Fantasy League",
   description:
     "Free-to-play fantasy PSL on WireFluid. Draft your squad, earn BNDY, claim real prizes with soulbound trophies.",
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
+    apple: ["/icon.svg"],
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
