@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import { getActiveTournamentId, userPoint } from "@boundaryline/db";
+import { claim, getActiveTournamentId, userPoint } from "@boundaryline/db";
 import { BNDY_DECIMALS, TIERS } from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
@@ -50,13 +50,27 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         getPrizeLeaderboardState(database, tournamentId, [wallet]),
       ]);
 
+    const [claimedRow] = await database
+      .select({
+        total: sql<string>`COALESCE(SUM(${claim.earnedAtClaim}), 0)`.as("total"),
+      })
+      .from(claim)
+      .where(
+        and(
+          eq(claim.wallet, wallet),
+          eq(claim.tournamentId, tournamentId),
+          eq(claim.status, "confirmed"),
+        ),
+      );
+    const claimedEarnedWei = BigInt(claimedRow?.total ?? "0");
+
     // Off-chain points are integers; on-chain earned is 18-decimals BNDY.
-    // 1 point == 1 BNDY (10^18 wei).
+    // 1 point == 1 BNDY (10^18 wei). Subtract prior claims so post-claim
+    // dashboards don't re-show the burned delta as "unsynced".
     const totalEarnedWei = totalEarnedPoints * 10n ** BigInt(BNDY_DECIMALS);
+    const consumedWei = onChainEarned + pendingWei + claimedEarnedWei;
     const unsyncedWei =
-      totalEarnedWei > onChainEarned + pendingWei
-        ? totalEarnedWei - onChainEarned - pendingWei
-        : 0n;
+      totalEarnedWei > consumedWei ? totalEarnedWei - consumedWei : 0n;
 
     const [rankRow] = await database
       .select({

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import { getActiveTournamentId, userPoint } from "@boundaryline/db";
+import { claim, getActiveTournamentId, userPoint } from "@boundaryline/db";
 import {
   BNDY_DECIMALS,
   type DashboardChainStateDTO,
@@ -38,31 +38,52 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       expireStaleSyncRecords(database, tournamentId, wallet),
     ]);
 
-    const [pointRow, onChainEarned, walletBalance, pendingSync, prizeState] =
-      await Promise.all([
-        database
-          .select({ totalPoints: userPoint.totalPoints })
-          .from(userPoint)
-          .where(
-            and(
-              eq(userPoint.wallet, wallet),
-              eq(userPoint.tournamentId, tournamentId),
-            ),
-          )
-          .limit(1)
-          .then((rows) => rows[0]),
-        readEarnedBalance(wallet as Address),
-        readWalletBalance(wallet as Address),
-        getPendingSyncAmount(database, wallet, tournamentId),
-        getPrizeLeaderboardState(database, tournamentId, [wallet]),
-      ]);
+    const [
+      pointRow,
+      onChainEarned,
+      walletBalance,
+      pendingSync,
+      prizeState,
+      claimedRow,
+    ] = await Promise.all([
+      database
+        .select({ totalPoints: userPoint.totalPoints })
+        .from(userPoint)
+        .where(
+          and(
+            eq(userPoint.wallet, wallet),
+            eq(userPoint.tournamentId, tournamentId),
+          ),
+        )
+        .limit(1)
+        .then((rows) => rows[0]),
+      readEarnedBalance(wallet as Address),
+      readWalletBalance(wallet as Address),
+      getPendingSyncAmount(database, wallet, tournamentId),
+      getPrizeLeaderboardState(database, tournamentId, [wallet]),
+      database
+        .select({
+          total: sql<string>`COALESCE(SUM(${claim.earnedAtClaim}), 0)`.as(
+            "total",
+          ),
+        })
+        .from(claim)
+        .where(
+          and(
+            eq(claim.wallet, wallet),
+            eq(claim.tournamentId, tournamentId),
+            eq(claim.status, "confirmed"),
+          ),
+        )
+        .then((rows) => rows[0]),
+    ]);
 
     const totalEarnedPoints = pointRow?.totalPoints ?? 0n;
     const totalEarnedWei = totalEarnedPoints * 10n ** BigInt(BNDY_DECIMALS);
+    const claimedEarnedWei = BigInt(claimedRow?.total ?? "0");
+    const consumedWei = onChainEarned + pendingSync + claimedEarnedWei;
     const unsyncedWei =
-      totalEarnedWei > onChainEarned + pendingSync
-        ? totalEarnedWei - onChainEarned - pendingSync
-        : 0n;
+      totalEarnedWei > consumedWei ? totalEarnedWei - consumedWei : 0n;
 
     const prizeStanding = getPrizeStandingForWallet(prizeState, wallet);
     const prizeRank = prizeStanding?.rank ?? null;

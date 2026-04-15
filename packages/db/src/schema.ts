@@ -217,6 +217,7 @@ export const claim = pgTable(
       withTimezone: true,
     }).notNull(),
     trophyTokenId: bigint("trophy_token_id", { mode: "bigint" }),
+    earnedAtClaim: numeric("earned_at_claim", { precision: 78, scale: 0 }),
     fulfillmentStatus: text("fulfillment_status").default("none").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

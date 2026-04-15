@@ -131,6 +131,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         nonce: nonce.toString(),
         status: "pending",
         voucherExpiresAt: expiresAt,
+        earnedAtClaim: earned.toString(),
       });
     } catch (err) {
       const msg = err instanceof Error ? err.message : "unknown";
