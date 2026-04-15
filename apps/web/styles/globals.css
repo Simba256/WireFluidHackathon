@@ -30,6 +30,35 @@ body {
   backdrop-filter: blur(40px);
 }
 
+.scoreboard-wordmark {
+  font-family: var(--font-scoreboard), var(--font-headline), sans-serif;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.32em;
+  line-height: 0.92;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-style: italic;
+  font-weight: 800;
+  color: #f8f5ef;
+  text-rendering: geometricPrecision;
+  transform: skewX(-10deg);
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08),
+    0 3px 0 rgba(0, 0, 0, 0.22),
+    0 10px 28px rgba(0, 0, 0, 0.38);
+  -webkit-text-stroke: 1px rgba(15, 23, 42, 0.28);
+}
+
+.scoreboard-wordmark > .scoreboard-vs {
+  color: #ffb347;
+  font-size: 0.62em;
+  letter-spacing: 0.16em;
+  text-shadow:
+    0 0 10px rgba(251, 191, 36, 0.18),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
 .material-symbols-outlined {
   font-variation-settings:
     "FILL" 0,

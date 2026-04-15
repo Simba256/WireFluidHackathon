@@ -100,6 +100,53 @@ function formatDateLabel(playedAt: string | null, scheduledAt: string): string {
   }).format(new Date(playedAt ?? scheduledAt));
 }
 
+function formatDateTimeLabel(
+  playedAt: string | null,
+  scheduledAt: string,
+): string {
+  return new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    month: "short",
+  }).format(new Date(playedAt ?? scheduledAt));
+}
+
+function formatDateStack(
+  playedAt: string | null,
+  scheduledAt: string,
+): {
+  top: string;
+  bottom: string;
+} {
+  const date = new Date(playedAt ?? scheduledAt);
+
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+  }).format(date);
+  const day = new Intl.DateTimeFormat("en-US", {
+    day: "numeric",
+  }).format(date);
+  const month = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+  }).format(date);
+  const year = new Intl.DateTimeFormat("en-US", {
+    year: "2-digit",
+  }).format(date);
+
+  return {
+    top: `${weekday}, ${day}`,
+    bottom: `${month} '${year}`,
+  };
+}
+
+function formatKickoffTime(scheduledAt: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(scheduledAt));
+}
+
 function dashboardStatusLabel(
   dashboard: DashboardSummaryDTO,
   chainState: DashboardChainStateDTO | null,
@@ -123,53 +170,6 @@ function dashboardStatusLabel(
   return "Not Drafted";
 }
 
-function matchStatusLabel(
-  status: DashboardSummaryDTO["recentMatches"][number]["status"],
-): string {
-  if (status === "completed") {
-    return "Scored";
-  }
-
-  if (status === "live") {
-    return "Live";
-  }
-
-  return "Upcoming";
-}
-
-function compareMatchActivity(
-  a: DashboardSummaryDTO["recentMatches"][number],
-  b: DashboardSummaryDTO["recentMatches"][number],
-): number {
-  const statusOrder = (
-    status: DashboardSummaryDTO["recentMatches"][number]["status"],
-  ): number => {
-    switch (status) {
-      case "live":
-        return 0;
-      case "scheduled":
-        return 1;
-      case "completed":
-      default:
-        return 2;
-    }
-  };
-
-  const orderDiff = statusOrder(a.status) - statusOrder(b.status);
-  if (orderDiff !== 0) {
-    return orderDiff;
-  }
-
-  if (a.status === "completed" && b.status === "completed") {
-    return (
-      new Date(b.playedAt ?? b.scheduledAt).getTime() -
-      new Date(a.playedAt ?? a.scheduledAt).getTime()
-    );
-  }
-
-  return new Date(a.scheduledAt).getTime() - new Date(b.scheduledAt).getTime();
-}
-
 function TeamLogoPuck({
   side,
 }: {
@@ -177,10 +177,9 @@ function TeamLogoPuck({
 }) {
   return (
     <div
-      className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-surface-container-high p-1 shadow-xl md:h-16 md:w-16"
+      className="relative flex h-28 w-28 items-center justify-center overflow-hidden md:h-32 md:w-32 lg:h-36 lg:w-36"
       style={{
-        boxShadow: `0 12px 30px ${side.accentColor}26`,
-        outline: `1px solid ${side.accentColor}55`,
+        filter: `drop-shadow(0 14px 24px ${side.accentColor}30)`,
       }}
     >
       {side.logoPath ? (
@@ -188,12 +187,12 @@ function TeamLogoPuck({
           src={side.logoPath}
           alt={side.name}
           fill
-          className="object-contain p-1.5"
-          sizes="64px"
+          className="object-contain"
+          sizes="144px"
         />
       ) : (
         <span
-          className="font-headline text-base font-bold"
+          className="font-headline text-xl font-bold"
           style={{ color: side.accentColor }}
         >
           {side.shortCode}
@@ -251,45 +250,92 @@ function MatchActivitySection({
           {matches.map((matchItem) => (
             <div
               key={`${matchItem.status}-${matchItem.id}`}
-              className="flex flex-col items-center gap-6 rounded-[2rem] bg-surface-container-low p-6 transition-colors hover:bg-surface-container-highest md:flex-row"
+              className="rounded-[2.5rem] bg-surface-container-low p-8 transition-colors hover:bg-surface-container-highest md:p-10 lg:px-12 lg:py-10"
             >
-              <div className="flex flex-1 items-center gap-4">
-                <div className="flex -space-x-4">
-                  {[matchItem.teamA, matchItem.teamB].map((side) => (
-                    <TeamLogoPuck key={side.name} side={side} />
-                  ))}
-                </div>
-                <div>
-                  <h4 className="font-headline font-bold">
-                    {matchItem.teamA.shortCode} vs {matchItem.teamB.shortCode}
-                  </h4>
-                  <p className="text-xs text-slate-400">
-                    {matchItem.venue ?? "Venue TBD"} -{" "}
-                    {formatDateLabel(matchItem.playedAt, matchItem.scheduledAt)}
-                  </p>
-                </div>
-              </div>
+              <div className="space-y-7">
+                <div className="flex items-start justify-between gap-6">
+                  <div className="shrink-0 text-left">
+                    <p className="font-headline text-2xl font-bold leading-none text-on-surface md:text-[2rem]">
+                      {
+                        formatDateStack(
+                          matchItem.playedAt,
+                          matchItem.scheduledAt,
+                        ).top
+                      }
+                    </p>
+                    <p className="mt-2 font-headline text-2xl font-bold leading-none text-slate-400 md:text-[2rem]">
+                      {
+                        formatDateStack(
+                          matchItem.playedAt,
+                          matchItem.scheduledAt,
+                        ).bottom
+                      }
+                    </p>
+                  </div>
 
-              <div className="flex items-center gap-8">
-                <div className="text-center">
-                  <p className="text-[10px] font-bold uppercase text-slate-500">
-                    Points
-                  </p>
-                  <p className="font-headline text-xl font-bold text-primary">
-                    {matchItem.points != null
-                      ? `+${formatInteger(matchItem.points)}`
-                      : "-"}
-                  </p>
+                  <div className="text-right">
+                    <p className="text-sm font-black uppercase tracking-[0.18em] text-on-surface">
+                      Match {matchItem.fixtureNumber}
+                    </p>
+                    <p className="mt-2 text-sm font-bold uppercase tracking-[0.18em] text-slate-400">
+                      {matchItem.venue ?? "Venue TBD"}
+                    </p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-bold uppercase text-slate-500">
-                    Status
-                  </p>
-                  <p className="font-headline text-xl font-bold text-on-surface">
-                    {matchStatusLabel(matchItem.status)}
-                  </p>
+
+                <div className="grid grid-cols-[minmax(7rem,1fr)_auto_minmax(7rem,1fr)] items-start gap-6 md:gap-10">
+                  <div className="flex min-w-[7rem] flex-col items-center gap-4 text-center">
+                    <TeamLogoPuck side={matchItem.teamA} />
+                    <span className="scoreboard-wordmark text-[1.2rem] md:text-[1.35rem] lg:text-[1.55rem]">
+                      {matchItem.teamA.shortCode}
+                    </span>
+                    <p className="max-w-[11rem] text-center font-headline text-base font-bold text-slate-300 md:text-lg">
+                      {matchItem.teamA.name}
+                    </p>
+                  </div>
+
+                  <div className="pt-12 text-center md:pt-14 lg:pt-16">
+                    <span className="scoreboard-wordmark text-[1.45rem] md:text-[1.7rem] lg:text-[1.95rem]">
+                      <span className="scoreboard-vs">vs</span>
+                    </span>
+                  </div>
+
+                  <div className="flex min-w-[7rem] flex-col items-center gap-4 text-center">
+                    <TeamLogoPuck side={matchItem.teamB} />
+                    <span className="scoreboard-wordmark text-[1.2rem] md:text-[1.35rem] lg:text-[1.55rem]">
+                      {matchItem.teamB.shortCode}
+                    </span>
+                    <p className="max-w-[11rem] text-center font-headline text-base font-bold text-slate-300 md:text-lg">
+                      {matchItem.teamB.name}
+                    </p>
+                  </div>
                 </div>
-                <Icon className="text-slate-600" name="chevron_right" />
+
+                {matchItem.status === "completed" ? (
+                  matchItem.teamAScore != null ||
+                  matchItem.teamBScore != null ? (
+                    <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-slate-200">
+                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-4 py-2 font-bold">
+                        {matchItem.teamA.shortCode}{" "}
+                        {matchItem.teamAScore ?? "-"}
+                      </span>
+                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-4 py-2 font-bold">
+                        {matchItem.teamB.shortCode}{" "}
+                        {matchItem.teamBScore ?? "-"}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-center text-sm text-slate-400">
+                      Official scoreline unavailable
+                    </p>
+                  )
+                ) : (
+                  <p className="text-center text-sm font-bold uppercase tracking-[0.22em] text-slate-500">
+                    {matchItem.status === "live"
+                      ? "Live now"
+                      : `Starts ${formatKickoffTime(matchItem.scheduledAt)}`}
+                  </p>
+                )}
               </div>
             </div>
           ))}
@@ -342,13 +388,13 @@ export function AppChrome({
       </header>
 
       <div className="min-h-screen pt-16">
-        <main className="mx-auto w-full max-w-7xl px-6 pb-24 pt-6 md:px-10 md:pb-10">
+        <main className="mx-auto w-full max-w-[96rem] px-6 pb-24 pt-6 md:px-10 md:pb-10 xl:px-12">
           {children}
         </main>
       </div>
 
       <footer className="border-t border-outline-variant/5 bg-background px-8 py-12">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 md:flex-row">
+        <div className="mx-auto flex max-w-[96rem] flex-col items-center justify-between gap-8 md:flex-row">
           <div className="flex flex-col items-center gap-2 md:items-start">
             <p className="text-sm text-slate-500">
               © 2026 BoundaryLine. Powered by WireFluid Testnet.
@@ -926,10 +972,18 @@ export function DashboardPage() {
     return <LoadingState />;
   }
 
+  const liveMatches = dashboard.upcomingMatches.filter(
+    (matchItem) => matchItem.status === "live",
+  );
+  const nextUpcomingMatches = dashboard.upcomingMatches.filter(
+    (matchItem) => matchItem.status === "scheduled",
+  );
+  const recentMatches = dashboard.recentMatches.slice(0, 2);
   const matchActivity = [
-    ...dashboard.recentMatches,
-    ...dashboard.upcomingMatches,
-  ].sort(compareMatchActivity);
+    ...liveMatches,
+    ...nextUpcomingMatches.slice(0, 2),
+    ...recentMatches,
+  ];
   const matchActivityLabel =
     matchActivity.length > 0 ? `${matchActivity.length} matches` : "No matches";
 
@@ -1217,12 +1271,6 @@ export function DashboardPage() {
         </div>
 
         <div className="space-y-6 lg:col-span-3">
-          <div className="px-2">
-            <h3 className="font-headline text-xl font-bold tracking-tight">
-              Match Activity
-            </h3>
-          </div>
-
           <MatchActivitySection
             action={
               <Link

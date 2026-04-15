@@ -5,7 +5,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-26T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-26T18:30:00.000Z"
+    "playedAt": "2026-03-26T18:30:00.000Z",
+    "teamAScore": "199/6",
+    "teamBScore": "130"
   },
   {
     "teamA": "Karachi Kings",
@@ -13,7 +15,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-27T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-27T18:30:00.000Z"
+    "playedAt": "2026-03-27T18:30:00.000Z",
+    "teamAScore": "181/7",
+    "teamBScore": "167/7"
   },
   {
     "teamA": "Peshawar Zalmi",
@@ -21,7 +25,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-28T09:30:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-28T14:00:00.000Z"
+    "playedAt": "2026-03-28T14:00:00.000Z",
+    "teamAScore": "218/5",
+    "teamBScore": "214/4"
   },
   {
     "teamA": "Islamabad United",
@@ -29,7 +35,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-28T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-28T18:30:00.000Z"
+    "playedAt": "2026-03-28T18:30:00.000Z",
+    "teamAScore": "171/8",
+    "teamBScore": "175/5"
   },
   {
     "teamA": "Hyderabad Kingsmen",
@@ -37,7 +45,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-29T09:30:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-29T14:00:00.000Z"
+    "playedAt": "2026-03-29T14:00:00.000Z",
+    "teamAScore": "134/8",
+    "teamBScore": "174/8"
   },
   {
     "teamA": "Lahore Qalandars",
@@ -45,7 +55,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-29T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-03-29T18:30:00.000Z"
+    "playedAt": "2026-03-29T18:30:00.000Z",
+    "teamAScore": "128/9",
+    "teamBScore": "131/6"
   },
   {
     "teamA": "Islamabad United",
@@ -53,7 +65,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-03-31T14:00:00.000Z",
     "status": "completed",
-    "playedAt": null
+    "playedAt": null,
+    "teamAScore": null,
+    "teamBScore": null
   },
   {
     "teamA": "Hyderabad Kingsmen",
@@ -61,7 +75,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-01T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-01T18:30:00.000Z"
+    "playedAt": "2026-04-01T18:30:00.000Z",
+    "teamAScore": "225/5",
+    "teamBScore": "227/4"
   },
   {
     "teamA": "Islamabad United",
@@ -69,7 +85,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-02T09:30:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-02T14:00:00.000Z"
+    "playedAt": "2026-04-02T14:00:00.000Z",
+    "teamAScore": "189/2",
+    "teamBScore": "183/5"
   },
   {
     "teamA": "Karachi Kings",
@@ -77,7 +95,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-02T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-02T18:30:00.000Z"
+    "playedAt": "2026-04-02T18:30:00.000Z",
+    "teamAScore": "199/5",
+    "teamBScore": "197/6"
   },
   {
     "teamA": "Lahore Qalandars",
@@ -85,7 +105,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-03T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-03T18:30:00.000Z"
+    "playedAt": "2026-04-03T18:30:00.000Z",
+    "teamAScore": "185/5",
+    "teamBScore": "165/5"
   },
   {
     "teamA": "Islamabad United",
@@ -93,7 +115,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-04T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-04T18:30:00.000Z"
+    "playedAt": "2026-04-04T18:30:00.000Z",
+    "teamAScore": "157/3",
+    "teamBScore": "156/7"
   },
   {
     "teamA": "Multan Sultans",
@@ -101,7 +125,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-05T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-05T18:30:00.000Z"
+    "playedAt": "2026-04-05T18:30:00.000Z",
+    "teamAScore": "167/4",
+    "teamBScore": "166/7"
   },
   {
     "teamA": "Multan Sultans",
@@ -109,7 +135,9 @@
     "venue": "Lahore",
     "scheduledAt": "2026-04-06T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-06T18:30:00.000Z"
+    "playedAt": "2026-04-06T18:30:00.000Z",
+    "teamAScore": "186/3",
+    "teamBScore": "182/8"
   },
   {
     "teamA": "Hyderabad Kingsmen",
@@ -117,7 +145,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-08T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-08T18:30:00.000Z"
+    "playedAt": "2026-04-08T18:30:00.000Z",
+    "teamAScore": "145",
+    "teamBScore": "146/6"
   },
   {
     "teamA": "Islamabad United",
@@ -125,7 +155,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-09T09:30:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-09T14:00:00.000Z"
+    "playedAt": "2026-04-09T14:00:00.000Z",
+    "teamAScore": "104/1",
+    "teamBScore": "100"
   },
   {
     "teamA": "Karachi Kings",
@@ -133,7 +165,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-09T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-09T18:30:00.000Z"
+    "playedAt": "2026-04-09T18:30:00.000Z",
+    "teamAScore": "87",
+    "teamBScore": "246/3"
   },
   {
     "teamA": "Quetta Gladiators",
@@ -141,7 +175,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-10T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-10T18:30:00.000Z"
+    "playedAt": "2026-04-10T18:30:00.000Z",
+    "teamAScore": "182/6",
+    "teamBScore": "121"
   },
   {
     "teamA": "Lahore Qalandars",
@@ -149,7 +185,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-11T09:30:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-11T14:00:00.000Z"
+    "playedAt": "2026-04-11T14:00:00.000Z",
+    "teamAScore": "97",
+    "teamBScore": "173/7"
   },
   {
     "teamA": "Karachi Kings",
@@ -157,7 +195,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-11T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-11T18:30:00.000Z"
+    "playedAt": "2026-04-11T18:30:00.000Z",
+    "teamAScore": "188/8",
+    "teamBScore": "189/6"
   },
   {
     "teamA": "Hyderabad Kingsmen",
@@ -165,7 +205,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-12T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-12T18:30:00.000Z"
+    "playedAt": "2026-04-12T18:30:00.000Z",
+    "teamAScore": "157/4",
+    "teamBScore": "153/9"
   },
   {
     "teamA": "Multan Sultans",
@@ -173,7 +215,9 @@
     "venue": "Karachi",
     "scheduledAt": "2026-04-13T14:00:00.000Z",
     "status": "completed",
-    "playedAt": "2026-04-13T18:30:00.000Z"
+    "playedAt": "2026-04-13T18:30:00.000Z",
+    "teamAScore": "172/8",
+    "teamBScore": "196/6"
   },
   {
     "teamA": "Peshawar Zalmi",

@@ -152,6 +152,8 @@ match {
   scheduled_at  timestamptz   not null
   status        text          not null              // 'scheduled' | 'live' | 'completed'
   played_at     timestamptz   nullable
+  team_a_score  text          nullable              // official score summary for completed fixtures
+  team_b_score  text          nullable              // official score summary for completed fixtures
   created_at    timestamptz   default now()
 }
 ```

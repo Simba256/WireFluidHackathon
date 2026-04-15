@@ -37,6 +37,49 @@ function shortWallet(wallet: string): string {
   return `${wallet.slice(0, 5)}...${wallet.slice(-4)}`;
 }
 
+function toMatchActivity(
+  row: {
+    id: number;
+    fixtureNumber: number;
+    status: string;
+    teamA: string;
+    teamB: string;
+    venue: string | null;
+    scheduledAt: Date;
+    playedAt: Date | null;
+    teamAScore: string | null;
+    teamBScore: string | null;
+  },
+  points: number | null,
+): DashboardSummaryDTO["recentMatches"][number] {
+  const teamA = franchiseForName(row.teamA);
+  const teamB = franchiseForName(row.teamB);
+
+  return {
+    id: row.id,
+    fixtureNumber: row.fixtureNumber,
+    status: row.status as "scheduled" | "live" | "completed",
+    teamA: {
+      name: row.teamA,
+      shortCode: teamA.shortCode,
+      accentColor: teamA.accentColor,
+      logoPath: teamA.logoPath,
+    },
+    teamB: {
+      name: row.teamB,
+      shortCode: teamB.shortCode,
+      accentColor: teamB.accentColor,
+      logoPath: teamB.logoPath,
+    },
+    venue: row.venue,
+    scheduledAt: row.scheduledAt.toISOString(),
+    playedAt: row.playedAt?.toISOString() ?? null,
+    teamAScore: row.teamAScore,
+    teamBScore: row.teamBScore,
+    points,
+  };
+}
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const auth = await requireAuth(req);
   if (!auth.ok) return auth.response;
@@ -105,51 +148,58 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     let recentMatches: DashboardSummaryDTO["recentMatches"] = [];
     let upcomingMatches: DashboardSummaryDTO["upcomingMatches"] = [];
 
-    const upcomingRows = await database
-      .select({
-        id: match.id,
-        status: match.status,
-        teamA: match.teamA,
-        teamB: match.teamB,
-        venue: match.venue,
-        scheduledAt: match.scheduledAt,
-        playedAt: match.playedAt,
-      })
-      .from(match)
-      .where(
-        and(
-          eq(match.tournamentId, tournamentId),
-          inArray(match.status, ["scheduled", "live"]),
-        ),
-      )
-      .orderBy(match.scheduledAt)
-      .limit(4);
+    const [liveRows, scheduledRows] = await Promise.all([
+      database
+        .select({
+          id: match.id,
+          fixtureNumber:
+            sql<number>`ROW_NUMBER() OVER (ORDER BY ${match.scheduledAt}, ${match.id})`.as(
+              "fixture_number",
+            ),
+          status: match.status,
+          teamA: match.teamA,
+          teamB: match.teamB,
+          venue: match.venue,
+          scheduledAt: match.scheduledAt,
+          playedAt: match.playedAt,
+          teamAScore: match.teamAScore,
+          teamBScore: match.teamBScore,
+        })
+        .from(match)
+        .where(
+          and(eq(match.tournamentId, tournamentId), eq(match.status, "live")),
+        )
+        .orderBy(match.scheduledAt),
+      database
+        .select({
+          id: match.id,
+          fixtureNumber:
+            sql<number>`ROW_NUMBER() OVER (ORDER BY ${match.scheduledAt}, ${match.id})`.as(
+              "fixture_number",
+            ),
+          status: match.status,
+          teamA: match.teamA,
+          teamB: match.teamB,
+          venue: match.venue,
+          scheduledAt: match.scheduledAt,
+          playedAt: match.playedAt,
+          teamAScore: match.teamAScore,
+          teamBScore: match.teamBScore,
+        })
+        .from(match)
+        .where(
+          and(
+            eq(match.tournamentId, tournamentId),
+            eq(match.status, "scheduled"),
+          ),
+        )
+        .orderBy(match.scheduledAt)
+        .limit(2),
+    ]);
 
-    upcomingMatches = upcomingRows.map((row) => {
-      const teamA = franchiseForName(row.teamA);
-      const teamB = franchiseForName(row.teamB);
-
-      return {
-        id: row.id,
-        status: row.status as "scheduled" | "live",
-        teamA: {
-          name: row.teamA,
-          shortCode: teamA.shortCode,
-          accentColor: teamA.accentColor,
-          logoPath: teamA.logoPath,
-        },
-        teamB: {
-          name: row.teamB,
-          shortCode: teamB.shortCode,
-          accentColor: teamB.accentColor,
-          logoPath: teamB.logoPath,
-        },
-        venue: row.venue,
-        scheduledAt: row.scheduledAt.toISOString(),
-        playedAt: row.playedAt?.toISOString() ?? null,
-        points: null,
-      };
-    });
+    upcomingMatches = [...liveRows, ...scheduledRows].map((row) =>
+      toMatchActivity(row, null),
+    );
 
     if (teamRow) {
       const [playerCountRow, activityRows] = await Promise.all([
@@ -161,12 +211,18 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         database
           .select({
             id: match.id,
+            fixtureNumber:
+              sql<number>`ROW_NUMBER() OVER (ORDER BY ${match.scheduledAt}, ${match.id})`.as(
+                "fixture_number",
+              ),
             status: match.status,
             teamA: match.teamA,
             teamB: match.teamB,
             venue: match.venue,
             scheduledAt: match.scheduledAt,
             playedAt: match.playedAt,
+            teamAScore: match.teamAScore,
+            teamBScore: match.teamBScore,
             points: sql<string>`COALESCE(SUM(${playerScore.pointsAwarded}), 0)::text`,
           })
           .from(teamPlayer)
@@ -187,37 +243,17 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
             match.venue,
             match.scheduledAt,
             match.playedAt,
+            match.teamAScore,
+            match.teamBScore,
           )
           .orderBy(desc(match.playedAt), desc(match.scheduledAt))
-          .limit(3),
+          .limit(2),
       ]);
 
       playerCount = playerCountRow?.count ?? 0;
-      recentMatches = activityRows.map((row) => {
-        const teamA = franchiseForName(row.teamA);
-        const teamB = franchiseForName(row.teamB);
-
-        return {
-          id: row.id,
-          status: row.status as "completed",
-          teamA: {
-            name: row.teamA,
-            shortCode: teamA.shortCode,
-            accentColor: teamA.accentColor,
-            logoPath: teamA.logoPath,
-          },
-          teamB: {
-            name: row.teamB,
-            shortCode: teamB.shortCode,
-            accentColor: teamB.accentColor,
-            logoPath: teamB.logoPath,
-          },
-          venue: row.venue,
-          scheduledAt: row.scheduledAt.toISOString(),
-          playedAt: row.playedAt?.toISOString() ?? null,
-          points: Number(row.points),
-        };
-      });
+      recentMatches = activityRows.map((row) =>
+        toMatchActivity(row, Number(row.points)),
+      );
     }
 
     const claimTier = currentClaim

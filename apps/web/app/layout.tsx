@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Space_Grotesk, Manrope } from "next/font/google";
+import { Space_Grotesk, Manrope, Oxanium } from "next/font/google";
 import "../styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "@/components/providers";
@@ -17,6 +17,13 @@ const manrope = Manrope({
   display: "swap",
 });
 
+const oxanium = Oxanium({
+  subsets: ["latin"],
+  variable: "--font-scoreboard",
+  weight: ["700", "800"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "BoundaryLine | PSL 2026 Fantasy League",
   description:
@@ -25,7 +32,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${manrope.variable}`}>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${manrope.variable} ${oxanium.variable}`}
+    >
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"

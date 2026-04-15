@@ -204,5 +204,10 @@ export const tierForRank = (rank: number): TierDefinition | null => {
 export const EIP712_DOMAIN_NAME = "BoundaryLine" as const;
 export const EIP712_DOMAIN_VERSION = "1" as const;
 
-export const PLAYER_ROLES = ["batsman", "bowler", "all-rounder", "wicketkeeper"] as const;
+export const PLAYER_ROLES = [
+  "batsman",
+  "bowler",
+  "all-rounder",
+  "wicketkeeper",
+] as const;
 export type PlayerRole = (typeof PLAYER_ROLES)[number];

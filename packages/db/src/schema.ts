@@ -83,6 +83,8 @@ export const match = pgTable(
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
     status: text("status").notNull(),
     playedAt: timestamp("played_at", { withTimezone: true }),
+    teamAScore: text("team_a_score"),
+    teamBScore: text("team_b_score"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),

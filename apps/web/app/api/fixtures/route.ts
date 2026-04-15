@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { asc, eq } from "drizzle-orm";
+import { asc, eq, sql } from "drizzle-orm";
 import { getActiveTournamentId, match } from "@boundaryline/db";
 import {
   franchiseForName,
@@ -23,12 +23,18 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const rows = await database
       .select({
         id: match.id,
+        fixtureNumber:
+          sql<number>`ROW_NUMBER() OVER (ORDER BY ${match.scheduledAt}, ${match.id})`.as(
+            "fixture_number",
+          ),
         status: match.status,
         teamA: match.teamA,
         teamB: match.teamB,
         venue: match.venue,
         scheduledAt: match.scheduledAt,
         playedAt: match.playedAt,
+        teamAScore: match.teamAScore,
+        teamBScore: match.teamBScore,
       })
       .from(match)
       .where(eq(match.tournamentId, tournamentId))
@@ -40,6 +46,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
       return {
         id: row.id,
+        fixtureNumber: row.fixtureNumber,
         status: row.status as "scheduled" | "live" | "completed",
         teamA: {
           name: row.teamA,
@@ -56,6 +63,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         venue: row.venue,
         scheduledAt: row.scheduledAt.toISOString(),
         playedAt: row.playedAt?.toISOString() ?? null,
+        teamAScore: row.teamAScore,
+        teamBScore: row.teamBScore,
         points: null,
       };
     });

@@ -43,6 +43,13 @@
       "when": 1776290400000,
       "tag": "0005_add_avatar_url",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1776208341161,
+      "tag": "0006_cynical_overlord",
+      "breakpoints": true
     }
   ]
 }

@@ -132,6 +132,7 @@ export interface TrophiesResponseDTO {
 
 export interface DashboardMatchActivityDTO {
   id: number;
+  fixtureNumber: number;
   status: "scheduled" | "live" | "completed";
   teamA: {
     name: string;
@@ -148,6 +149,8 @@ export interface DashboardMatchActivityDTO {
   venue: string | null;
   scheduledAt: string;
   playedAt: string | null;
+  teamAScore: string | null;
+  teamBScore: string | null;
   points: number | null;
 }
 

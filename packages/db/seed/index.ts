@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { getDb } from "../src/client";
 import { match, player, playerScore, prize, tournament } from "../src/schema";
 
@@ -41,6 +41,8 @@ interface MatchSeed {
   scheduledAt: string;
   status: "scheduled" | "live" | "completed";
   playedAt: string | null;
+  teamAScore?: string | null;
+  teamBScore?: string | null;
 }
 
 function loadJson<T>(relPath: string): T {
@@ -180,8 +182,33 @@ async function main() {
         scheduledAt: new Date(m.scheduledAt),
         status: m.status,
         playedAt: m.playedAt ? new Date(m.playedAt) : null,
+        teamAScore: m.teamAScore ?? null,
+        teamBScore: m.teamBScore ?? null,
       })),
     );
+  }
+
+  console.log(
+    `Refreshing seeded match metadata for tournament ${tournamentId}...`,
+  );
+  for (const seededMatch of matches) {
+    await db
+      .update(match)
+      .set({
+        playedAt: seededMatch.playedAt ? new Date(seededMatch.playedAt) : null,
+        status: seededMatch.status,
+        teamAScore: seededMatch.teamAScore ?? null,
+        teamBScore: seededMatch.teamBScore ?? null,
+        venue: seededMatch.venue,
+      })
+      .where(
+        and(
+          eq(match.tournamentId, tournamentId),
+          eq(match.teamA, seededMatch.teamA),
+          eq(match.teamB, seededMatch.teamB),
+          eq(match.scheduledAt, new Date(seededMatch.scheduledAt)),
+        ),
+      );
   }
 
   console.log("Seed complete.");

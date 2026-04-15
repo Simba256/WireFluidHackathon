@@ -89,7 +89,7 @@
 - [x] `user` (wallet PK, username unique nullable, avatar_url nullable, timestamps) — \_DATA_MODEL.md\*
 - [x] `siwe_nonce` (nonce PK, issued*at, expires_at, consumed_at) — \_DATA_MODEL.md*
 - [x] `player` (id, external*id unique, name, team, role, photo_url, active) — \_DATA_MODEL.md*
-- [x] `match` (id, tournament*id, team_a, team_b, scheduled_at, status, played_at) — \_DATA_MODEL.md*
+- [x] `match` (id, tournament*id, team_a, team_b, scheduled_at, status, played_at, team_a_score, team_b_score) — \_DATA_MODEL.md*
 - [x] `player_score` (match*id, player_id, runs, wickets, catches, run_outs, stumpings, dismissed_for_zero, points_awarded) — \_DATA_MODEL.md*
 - [x] `team` (id, user*wallet, tournament_id) — \_DATA_MODEL.md*
 - [x] `team_player` (team*id, player_id composite PK) — \_DATA_MODEL.md*
@@ -124,7 +124,7 @@
 - [x] Neon `user` table realigned with current schema by using `username` as the canonical alias column and removing the temporary `display_name` hotfix — _DATA_MODEL.md_
 - [x] `players.json` seed (~150 PSL 2026 players) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
-- [x] `matches.json` seed (full PSL 2026 schedule with venues and playoff placeholders) — _DATA_MODEL.md_
+- [x] `matches.json` seed (full PSL 2026 schedule with venues, completed-match score summaries, and playoff placeholders) — _DATA_MODEL.md_
 - [x] Tournament row seed — _DATA_MODEL.md_
 - [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — _SETUP.md_
 
@@ -169,7 +169,7 @@
 ### 4.3 Points & Sync
 
 - [x] `GET /api/points/me` (earned, onChainEarned, walletBalance, unsynced, ranks, tier, canClaim) — _API.md_
-- [x] `GET /api/dashboard/me` (fast dashboard summary payload: off-chain totals, claim state, and recent/upcoming match activity) — _API.md_
+- [x] `GET /api/dashboard/me` (fast dashboard summary payload: off-chain totals, claim state, curated live/upcoming feed, and recent match score summaries) — _API.md_
 - [x] `GET /api/dashboard/global-standing` (split global rank/percentile so leaderboard widgets do not block dashboard render) — _API.md_
 - [x] `GET /api/dashboard/chain-state` (split WireFluid balances + prize standing so slow chain reads do not block dashboard render) — _API.md_
 - [x] Dashboard upcoming fixtures fallback (scheduled/live matches surfaced when no scored activity is available) — _API.md_
@@ -227,9 +227,9 @@
 
 ### 5.3 App pages
 
-- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier, match cards without misleading DB-id numbering) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, rank, tier, scoreboard-style match cards with fixture numbers and official recent scorelines) — _API.md / GAME_DESIGN.md_
 - [x] `/dashboard` split-loads WireFluid balance/prize state and global standing, pulsing only those widgets while the rest of the page renders immediately — _API.md_
-- [x] `/dashboard/fixtures` (full authenticated tournament schedule list without exposing DB row ids as fixture numbers) — _API.md_
+- [x] `/dashboard/fixtures` (full authenticated tournament schedule list using the same scoreboard-style card treatment as `/dashboard`, without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [x] `/leaderboard` (global + prize tabs) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
@@ -245,7 +245,8 @@
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
 - [x] Team logos sourced from ESPN Cricinfo, including HHK/Rawalpindiz extras, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [x] Dashboard/fixtures now reuse the shared `(app)` nav shell instead of rendering duplicate page-local sidebars or mobile nav — _README.md_
-- [x] Dashboard match activity unified into one vertical feed (live first, then upcoming, then scored) — _README.md_
+- [x] Dashboard/fixtures match cards use the repo's existing franchise short forms with a Cricinfo-style scoreboard layout: date block left, fixture number + venue right, horizontal logo/VS/logo center, and official recent scorelines — _README.md_
+- [x] Authenticated app shell widened beyond `max-w-7xl` so dashboard cards can breathe on desktop — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
 - [x] TeamGrid / selection panel (inline in team-picker-client) — _GAME_DESIGN.md_

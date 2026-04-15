@@ -205,7 +205,7 @@ Returns the caller's core score and sync summary. `prizeRank`, `prizeTotal`, `cu
 
 ### `GET /api/dashboard/me`
 
-Fast dashboard summary payload for the authenticated user. Combines user profile, tournament metadata, off-chain totals, team status, active claim, and the last 3 scored matches for the user's lineup. `upcomingMatches` is a dashboard preview capped to the next 4 scheduled/live fixtures. Live WireFluid balances and prize standing are intentionally split into `GET /api/dashboard/chain-state`, and global leaderboard standing is split into `GET /api/dashboard/global-standing`, so the page can render before slower secondary reads complete.
+Fast dashboard summary payload for the authenticated user. Combines user profile, tournament metadata, off-chain totals, team status, active claim, the latest 2 scored matches for the user's lineup, and a dashboard preview list made of all live fixtures plus the next 2 scheduled matches. Completed match cards include official team score summaries from the seeded PSL schedule. Live WireFluid balances and prize standing are intentionally split into `GET /api/dashboard/chain-state`, and global leaderboard standing is split into `GET /api/dashboard/global-standing`, so the page can render before slower secondary reads complete.
 
 **Auth**: required
 
@@ -215,7 +215,7 @@ Fast dashboard summary payload for the authenticated user. Combines user profile
 {
   "user": {
     "wallet": "0xabcd...",
-    "displayName": "Fantasy Manager",
+    "username": "fantasy_manager",
     "shortWallet": "0xabc...1234"
   },
   "tournament": {
@@ -237,6 +237,7 @@ Fast dashboard summary payload for the authenticated user. Combines user profile
   "recentMatches": [
     {
       "id": 18,
+      "fixtureNumber": 18,
       "teamA": {
         "name": "Lahore Qalandars",
         "shortCode": "LQ",
@@ -250,12 +251,15 @@ Fast dashboard summary payload for the authenticated user. Combines user profile
       "venue": "Gaddafi Stadium",
       "scheduledAt": "2026-03-14T14:00:00Z",
       "playedAt": "2026-03-14T18:30:00Z",
+      "teamAScore": "196/6",
+      "teamBScore": "172/8",
       "points": 4220
     }
   ],
   "upcomingMatches": [
     {
       "id": 23,
+      "fixtureNumber": 23,
       "teamA": {
         "name": "Peshawar Zalmi",
         "shortCode": "PZ",
@@ -269,6 +273,8 @@ Fast dashboard summary payload for the authenticated user. Combines user profile
       "venue": "Karachi",
       "scheduledAt": "2026-04-15T14:00:00Z",
       "playedAt": null,
+      "teamAScore": null,
+      "teamBScore": null,
       "points": null
     }
   ]
