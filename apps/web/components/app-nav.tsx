@@ -24,15 +24,8 @@ export function AppNav() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[220px] flex-col border-r border-outline-variant/20 bg-surface-container-low lg:flex">
-        <Link
-          href="/"
-          className="flex h-16 items-center px-6 font-headline text-xl font-bold tracking-tighter text-primary"
-        >
-          BoundaryLine
-        </Link>
-
-        <nav className="mt-2 flex flex-1 flex-col gap-1 px-3">
+      <aside className="fixed left-0 top-16 z-40 hidden h-[calc(100vh-4rem)] w-[220px] flex-col border-r border-outline-variant/20 bg-surface-container-low lg:flex">
+        <nav className="mt-4 flex flex-1 flex-col gap-1 px-3">
           {NAV_ITEMS.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
@@ -47,7 +40,9 @@ export function AppNav() {
               >
                 <span
                   className={`material-symbols-outlined text-[20px] ${active ? "text-primary" : ""}`}
-                  style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                  style={
+                    active ? { fontVariationSettings: "'FILL' 1" } : undefined
+                  }
                 >
                   {item.icon}
                 </span>
@@ -88,7 +83,9 @@ export function AppNav() {
             >
               <span
                 className={`material-symbols-outlined text-[22px] ${active ? "text-primary" : ""}`}
-                style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                style={
+                  active ? { fontVariationSettings: "'FILL' 1" } : undefined
+                }
               >
                 {item.icon}
               </span>
