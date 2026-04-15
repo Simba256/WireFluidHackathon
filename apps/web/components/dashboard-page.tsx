@@ -92,6 +92,14 @@ function formatRank(rank: number | null): string {
   return rank == null ? "-" : `#${formatInteger(rank)}`;
 }
 
+function formatRankWithTotal(rank: number | null, total: number): string {
+  if (rank == null) {
+    return "-";
+  }
+
+  return `${formatRank(rank)} of ${formatInteger(total)}`;
+}
+
 function formatDateLabel(playedAt: string | null, scheduledAt: string): string {
   return new Intl.DateTimeFormat("en-US", {
     day: "numeric",
@@ -211,10 +219,54 @@ function BalanceSkeleton({ className }: { className: string }) {
   );
 }
 
+function MatchActivitySkeletonCard() {
+  return (
+    <div className="rounded-[2.5rem] bg-surface-container-low p-8 md:p-10 lg:px-12 lg:py-10">
+      <div className="space-y-7">
+        <div className="flex items-start justify-between gap-6">
+          <div className="shrink-0 text-left">
+            <div className="h-9 w-28 animate-pulse rounded-md bg-surface-container-high md:h-10 md:w-32" />
+            <div className="mt-2 h-9 w-24 animate-pulse rounded-md bg-surface-container-highest/80 md:h-10 md:w-28" />
+          </div>
+
+          <div className="flex flex-col items-end gap-2">
+            <BalanceSkeleton className="h-4 w-20" />
+            <BalanceSkeleton className="h-4 w-28" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-[minmax(7rem,1fr)_auto_minmax(7rem,1fr)] items-start gap-6 md:gap-10">
+          <div className="flex min-w-[7rem] flex-col items-center gap-4 text-center">
+            <div className="h-28 w-28 animate-pulse rounded-full bg-surface-container-high md:h-32 md:w-32 lg:h-36 lg:w-36" />
+            <BalanceSkeleton className="h-6 w-16" />
+            <BalanceSkeleton className="h-5 w-28" />
+          </div>
+
+          <div className="flex items-center justify-center pt-12 md:pt-14 lg:pt-16">
+            <BalanceSkeleton className="h-8 w-12" />
+          </div>
+
+          <div className="flex min-w-[7rem] flex-col items-center gap-4 text-center">
+            <div className="h-28 w-28 animate-pulse rounded-full bg-surface-container-high md:h-32 md:w-32 lg:h-36 lg:w-36" />
+            <BalanceSkeleton className="h-6 w-16" />
+            <BalanceSkeleton className="h-5 w-28" />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <BalanceSkeleton className="h-10 w-28 bg-primary/10" />
+          <BalanceSkeleton className="h-10 w-28 bg-primary/10" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MatchActivitySection({
   action,
   emptyDescription,
   emptyTitle,
+  isLoading = false,
   label,
   matches,
   title,
@@ -222,6 +274,7 @@ function MatchActivitySection({
   action?: React.ReactNode;
   emptyDescription: string;
   emptyTitle: string;
+  isLoading?: boolean;
   label: string;
   matches: DashboardSummaryDTO["recentMatches"];
   title: string;
@@ -233,12 +286,21 @@ function MatchActivitySection({
           {title}
         </h4>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-bold text-primary">{label}</span>
+          {isLoading ? (
+            <BalanceSkeleton className="h-5 w-24" />
+          ) : (
+            <span className="text-sm font-bold text-primary">{label}</span>
+          )}
           {action}
         </div>
       </div>
 
-      {matches.length === 0 ? (
+      {isLoading ? (
+        <div className="space-y-4">
+          <MatchActivitySkeletonCard />
+          <MatchActivitySkeletonCard />
+        </div>
+      ) : matches.length === 0 ? (
         <div className="rounded-[2rem] border border-outline-variant/15 bg-surface-container-low p-8">
           <p className="font-headline text-2xl font-bold text-on-surface">
             {emptyTitle}
@@ -434,29 +496,6 @@ function EmptyDashboard() {
             idleLabel="Connect Wallet"
             linkedLabel="Link Wallet"
           />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function LoadingState() {
-  return (
-    <div>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="min-h-[280px] animate-pulse rounded-[2rem] bg-surface-container-low md:col-span-2" />
-        <div className="min-h-[280px] animate-pulse rounded-[2rem] bg-surface-container-high" />
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-5">
-        <div className="space-y-6 lg:col-span-2">
-          <div className="h-6 w-48 animate-pulse rounded-full bg-surface-container-low" />
-          <div className="h-[332px] animate-pulse rounded-[2rem] bg-surface-container" />
-          <div className="h-48 animate-pulse rounded-[2rem] bg-surface-container" />
-        </div>
-        <div className="space-y-6 lg:col-span-3">
-          <div className="h-6 w-40 animate-pulse rounded-full bg-surface-container-low" />
-          <div className="h-[540px] animate-pulse rounded-[2rem] bg-surface-container-low" />
         </div>
       </div>
     </div>
@@ -673,6 +712,8 @@ export function DashboardPage() {
 
     setIsLoading(true);
     setError(null);
+    void loadChainState();
+    void loadGlobalState();
 
     try {
       const nextDashboard = await apiFetch<DashboardSummaryDTO>(
@@ -682,8 +723,6 @@ export function DashboardPage() {
         },
       );
       setDashboard(nextDashboard);
-      void loadChainState();
-      void loadGlobalState();
     } catch (err) {
       setError(
         err instanceof ApiClientError || err instanceof Error
@@ -769,6 +808,8 @@ export function DashboardPage() {
     !isChainStateLoading && chainState == null && chainStateError != null;
   const isGlobalStateUnavailable =
     !isGlobalStateLoading && globalState == null && globalStateError != null;
+  const isDashboardLoading = dashboard == null && error == null;
+  const isChainStatePending = chainState == null && chainStateError == null;
 
   const handleSync = useCallback(async () => {
     if (!token || !hasUnsyncedPoints || isChainStateLoading) {
@@ -946,12 +987,6 @@ export function DashboardPage() {
     isChainStateLoading,
   ]);
 
-  const statusLabel = dashboard
-    ? dashboardStatusLabel(dashboard, chainState)
-    : "Active";
-  const statusHighlighted =
-    Boolean(dashboard?.claim) || chainState?.prize.qualified;
-
   if (
     !isAuthenticated ||
     status === "disconnected" ||
@@ -960,335 +995,397 @@ export function DashboardPage() {
   ) {
     return <EmptyDashboard />;
   }
-
-  if (isLoading && !dashboard) {
-    return <LoadingState />;
-  }
-
-  if (error && !dashboard) {
-    return <ErrorState error={error} onRetry={() => void loadDashboard()} />;
-  }
-
-  if (!dashboard) {
-    return <LoadingState />;
-  }
-
-  const liveMatches = dashboard.upcomingMatches.filter(
+  const liveMatches = dashboard?.upcomingMatches.filter(
     (matchItem) => matchItem.status === "live",
   );
-  const nextUpcomingMatches = dashboard.upcomingMatches.filter(
+  const nextUpcomingMatches = dashboard?.upcomingMatches.filter(
     (matchItem) => matchItem.status === "scheduled",
   );
-  const recentMatches = dashboard.recentMatches.slice(0, 2);
-  const matchActivity = [
-    ...liveMatches,
-    ...nextUpcomingMatches.slice(0, 2),
-    ...recentMatches,
-  ];
+  const recentMatches = dashboard?.recentMatches.slice(0, 2) ?? [];
+  const matchActivity = dashboard
+    ? [
+        ...(liveMatches ?? []),
+        ...(nextUpcomingMatches ?? []).slice(0, 2),
+        ...recentMatches,
+      ]
+    : [];
   const matchActivityLabel =
     matchActivity.length > 0 ? `${matchActivity.length} matches` : "No matches";
+  const prizeStatusLabel = dashboard
+    ? dashboardStatusLabel(dashboard, chainState)
+    : null;
+  const statusHighlighted =
+    Boolean(dashboard?.claim) || chainState?.prize.qualified;
 
   return (
     <AppChrome
-      isWalletBalanceLoading={isChainStateLoading}
+      isWalletBalanceLoading={isChainStatePending}
       walletBalance={chainState?.balances.walletBalance ?? null}
     >
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <section className="relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[2rem] bg-surface-container-low p-8 md:col-span-2">
-          <div className="relative z-10">
-            <div className="mb-2 flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                Total Performance Points
-              </span>
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                OFF-CHAIN
-              </span>
-            </div>
-            <h1 className="-ml-1 font-headline text-6xl font-bold tracking-tight text-on-surface md:text-8xl">
-              {formatInteger(dashboard.balances.totalEarned)}
-            </h1>
-          </div>
-
-          <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
-            <div className="flex flex-col">
-              <span className="mb-1 text-xs text-slate-400">
-                Unsynced Delta
-              </span>
-              <div className="flex items-center gap-2">
-                {chainState ? (
-                  <span className="font-headline text-2xl font-bold text-secondary">
-                    +{formatInteger(chainState.balances.unsynced)}
+      {error && !dashboard ? (
+        <ErrorState error={error} onRetry={() => void loadDashboard()} />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <section className="relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[2rem] bg-surface-container-low p-8 md:col-span-2">
+              <div className="relative z-10">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                    Total Performance Points
                   </span>
-                ) : isChainStateUnavailable ? (
-                  <span className="font-headline text-2xl font-bold text-slate-400">
-                    Unavailable
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                    OFF-CHAIN
                   </span>
-                ) : (
-                  <BalanceSkeleton className="h-8 w-28" />
-                )}
-                <Icon
-                  className="animate-pulse text-secondary"
-                  name="cloud_sync"
-                />
+                </div>
+                <h1 className="-ml-1 font-headline text-6xl font-bold tracking-tight text-on-surface md:text-8xl">
+                  {dashboard ? (
+                    formatInteger(dashboard.balances.totalEarned)
+                  ) : (
+                    <BalanceSkeleton className="h-16 w-44 bg-primary/20 md:h-24 md:w-72" />
+                  )}
+                </h1>
               </div>
-            </div>
 
-            <button
-              className="flex items-center gap-3 rounded-full px-8 py-4 font-headline font-bold text-on-primary transition-all pitch-gradient hover:shadow-[0_0_30px_rgba(84,233,138,0.3)] disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={
-                !hasUnsyncedPoints ||
-                isBusy ||
-                isChainStateLoading ||
-                isChainStateUnavailable
-              }
-              onClick={() => {
-                void handleSync();
-              }}
-              type="button"
-            >
-              {isChainStateLoading
-                ? "Checking Chain"
-                : isChainStateUnavailable
-                  ? "Balance Unavailable"
-                  : hasUnsyncedPoints
-                    ? "Sync to Chain"
-                    : "Nothing to Sync"}
-              <Icon name="bolt" />
-            </button>
+              <div className="relative z-10 flex flex-wrap items-end justify-between gap-4">
+                <div className="flex flex-col">
+                  <span className="mb-1 text-xs text-slate-400">
+                    Unsynced Delta
+                  </span>
+                  <div className="flex items-center gap-2">
+                    {chainState ? (
+                      <span className="font-headline text-2xl font-bold text-secondary">
+                        +{formatInteger(chainState.balances.unsynced)}
+                      </span>
+                    ) : isChainStateUnavailable ? (
+                      <span className="font-headline text-2xl font-bold text-slate-400">
+                        Unavailable
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-8 w-28" />
+                    )}
+                    <Icon
+                      className="animate-pulse text-secondary"
+                      name="cloud_sync"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  className="flex items-center gap-3 rounded-full px-8 py-4 font-headline font-bold text-on-primary transition-all pitch-gradient hover:shadow-[0_0_30px_rgba(84,233,138,0.3)] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={
+                    isDashboardLoading ||
+                    !hasUnsyncedPoints ||
+                    isBusy ||
+                    isChainStateLoading ||
+                    isChainStateUnavailable
+                  }
+                  onClick={() => {
+                    void handleSync();
+                  }}
+                  type="button"
+                >
+                  {isDashboardLoading
+                    ? "Loading..."
+                    : isChainStateLoading
+                      ? "Checking Chain"
+                      : isChainStateUnavailable
+                        ? "Balance Unavailable"
+                        : hasUnsyncedPoints
+                          ? "Sync to Chain"
+                          : "Nothing to Sync"}
+                  <Icon name="bolt" />
+                </button>
+              </div>
+
+              <div className="absolute bottom-[-20%] right-[-10%] h-[300px] w-[300px] rounded-full bg-primary/5 blur-3xl" />
+            </section>
+
+            <section className="flex flex-col justify-between rounded-[2rem] border border-outline-variant/10 bg-surface-container-high p-8">
+              <div>
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                      Prize Standing
+                    </span>
+                    <p className="mt-2 text-xs text-slate-400">
+                      On-chain wallet balance among qualified managers only.
+                    </p>
+                  </div>
+                  <Icon
+                    className={
+                      statusHighlighted ? "text-primary" : "text-secondary"
+                    }
+                    name={statusHighlighted ? "verified" : "hourglass_top"}
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Prize Rank</span>
+                    {chainState ? (
+                      <span className="font-headline text-xl font-bold">
+                        {chainState.prize.qualified
+                          ? formatRankWithTotal(
+                              chainState.prize.prizeRank,
+                              chainState.prize.prizeTotal,
+                            )
+                          : chainState.prize.prizeTotal > 0
+                            ? "Not qualified"
+                            : "No qualifiers yet"}
+                      </span>
+                    ) : isChainStateUnavailable ? (
+                      <span className="font-headline text-xl font-bold text-slate-400">
+                        Unavailable
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-6 w-20" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Prize Status</span>
+                    {prizeStatusLabel ? (
+                      <span
+                        className={`rounded-full px-3 py-1 text-sm font-bold ${statusHighlighted ? "bg-secondary/20 text-secondary" : "bg-surface-variant text-slate-400"}`}
+                      >
+                        {prizeStatusLabel}
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-8 w-24 bg-secondary/15" />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300">Eligible Tier</span>
+                    {dashboard?.claim ? (
+                      <span className="font-bold text-primary">
+                        {dashboard.claim.tierDisplayName}
+                      </span>
+                    ) : chainState?.prize.currentTier ? (
+                      <span className="font-bold text-primary">
+                        {chainState.prize.currentTier.displayName}
+                      </span>
+                    ) : isChainStateUnavailable ? (
+                      <span className="font-bold text-slate-400">
+                        Unavailable
+                      </span>
+                    ) : isChainStateLoading ? (
+                      <BalanceSkeleton className="h-5 w-24" />
+                    ) : (
+                      <span className="font-bold text-slate-400">
+                        Not unlocked
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <div className="mb-2 flex justify-between text-xs">
+                  {chainState ? (
+                    <>
+                      <span className="text-slate-400">
+                        {chainState.prize.progressLabel}
+                      </span>
+                      <span className="font-bold text-primary">
+                        {chainState.prize.progressPercent}%
+                      </span>
+                    </>
+                  ) : isChainStateUnavailable ? (
+                    <span className="text-slate-400">
+                      Live prize progress unavailable
+                    </span>
+                  ) : (
+                    <>
+                      <BalanceSkeleton className="h-4 w-40" />
+                      <BalanceSkeleton className="h-4 w-12" />
+                    </>
+                  )}
+                </div>
+                <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-highest">
+                  {chainState ? (
+                    <div
+                      className="h-full rounded-full bg-primary transition-[width]"
+                      style={{ width: `${chainState.prize.progressPercent}%` }}
+                    />
+                  ) : (
+                    <div className="h-full w-1/3 animate-pulse rounded-full bg-primary/35" />
+                  )}
+                </div>
+
+                <button
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 font-headline font-bold transition-colors disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-slate-500 enabled:bg-primary enabled:text-on-primary"
+                  disabled={
+                    isDashboardLoading ||
+                    !hasClaimableTier ||
+                    Boolean(dashboard?.claim) ||
+                    isBusy ||
+                    isChainStateLoading ||
+                    isChainStateUnavailable
+                  }
+                  onClick={() => {
+                    void handleClaim();
+                  }}
+                  type="button"
+                >
+                  {!hasClaimableTier || dashboard?.claim ? (
+                    <Icon className="text-sm" name="lock" />
+                  ) : null}
+                  {isDashboardLoading ? "Loading..." : claimButtonLabel}
+                </button>
+              </div>
+            </section>
           </div>
 
-          <div className="absolute bottom-[-20%] right-[-10%] h-[300px] w-[300px] rounded-full bg-primary/5 blur-3xl" />
-        </section>
+          <div className="mt-6">
+            <TransactionNotice tx={tx} />
+          </div>
 
-        <section className="flex flex-col justify-between rounded-[2rem] border border-outline-variant/10 bg-surface-container-high p-8">
-          <div>
-            <div className="mb-6 flex items-start justify-between">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                Status
-              </span>
-              <Icon
-                className={
-                  statusHighlighted ? "text-primary" : "text-secondary"
+          <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-5">
+            <div className="space-y-6 lg:col-span-2">
+              <div>
+                <h3 className="px-2 font-headline text-xl font-bold tracking-tight">
+                  Global Leaderboard
+                </h3>
+              </div>
+
+              <section className="rounded-[2rem] border border-outline-variant/15 bg-surface-container p-6">
+                <div className="mb-6 flex items-center gap-4">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-bright">
+                    <Icon className="text-primary" name="emoji_events" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">Global Position</p>
+                    <p className="text-xs text-slate-400">
+                      Based on off-chain fantasy points across all managers.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
+                    <span className="text-slate-300">Rank</span>
+                    {globalState ? (
+                      <span className="font-bold">
+                        {formatRankWithTotal(
+                          globalState.global.rank,
+                          globalState.global.totalPlayers,
+                        )}
+                      </span>
+                    ) : isGlobalStateUnavailable ? (
+                      <span className="font-bold text-slate-400">
+                        Unavailable
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-5 w-16" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
+                    <span className="text-slate-300">Top Percentile</span>
+                    {globalState ? (
+                      <span className="font-bold text-secondary">
+                        {globalState.global.percentile != null
+                          ? `Top ${globalState.global.percentile}%`
+                          : "-"}
+                      </span>
+                    ) : isGlobalStateUnavailable ? (
+                      <span className="font-bold text-slate-400">
+                        Unavailable
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-5 w-12" />
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
+                    <span className="text-slate-300">Total Points</span>
+                    {dashboard ? (
+                      <span className="font-bold">
+                        {formatInteger(dashboard.balances.totalEarned)}
+                      </span>
+                    ) : (
+                      <BalanceSkeleton className="h-5 w-16" />
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-6 flex items-center justify-between rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
+                  <p className="max-w-[16rem] text-xs text-slate-400">
+                    Global rank tracks all fantasy managers, while prize
+                    standing only counts qualified on-chain wallets.
+                  </p>
+                  <Link
+                    className="shrink-0 text-sm font-bold text-primary transition-colors hover:text-secondary"
+                    href="/leaderboard"
+                  >
+                    View full leaderboard
+                  </Link>
+                </div>
+              </section>
+
+              <section className="group relative overflow-hidden rounded-[2rem]">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(84,233,138,0.18),transparent_55%)]" />
+                <div className="relative flex h-48 flex-col justify-end rounded-[2rem] border border-outline-variant/20 bg-gradient-to-br from-surface-container/90 to-surface-container-high/90 p-8">
+                  <p className="mb-1 text-sm font-bold uppercase tracking-widest text-slate-400">
+                    Wallet Balance
+                  </p>
+                  {chainState ? (
+                    <>
+                      <h4 className="font-headline text-4xl font-bold text-on-surface">
+                        {formatWeiInteger(chainState.balances.walletBalance)}{" "}
+                        BNDY
+                      </h4>
+                      <p className="mt-2 text-sm text-slate-400">
+                        On-chain earned:{" "}
+                        {formatWeiInteger(chainState.balances.onChainEarned)}{" "}
+                        BNDY
+                      </p>
+                    </>
+                  ) : isChainStateUnavailable ? (
+                    <>
+                      <h4 className="font-headline text-3xl font-bold text-on-surface">
+                        Live balance unavailable
+                      </h4>
+                      <button
+                        className="mt-3 self-start text-sm font-bold text-primary underline-offset-4 hover:underline"
+                        onClick={() => {
+                          void loadChainState();
+                        }}
+                        type="button"
+                      >
+                        Retry live balance
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <BalanceSkeleton className="h-10 w-48" />
+                      <BalanceSkeleton className="mt-3 h-4 w-36" />
+                    </>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            <div className="space-y-6 lg:col-span-3">
+              <MatchActivitySection
+                action={
+                  <Link
+                    className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-primary"
+                    href="/dashboard/fixtures"
+                  >
+                    View all
+                  </Link>
                 }
-                name={statusHighlighted ? "verified" : "hourglass_top"}
+                emptyDescription="Live, upcoming, and scored fixtures will appear here as soon as the active tournament schedule is populated."
+                emptyTitle="No match activity yet"
+                isLoading={isDashboardLoading}
+                label={matchActivityLabel}
+                matches={matchActivity}
+                title="Match Activity"
               />
             </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300">Global Rank</span>
-                {globalState ? (
-                  <span className="font-headline text-xl font-bold">
-                    {formatRank(globalState.global.rank)}
-                  </span>
-                ) : isGlobalStateUnavailable ? (
-                  <span className="font-headline text-xl font-bold text-slate-400">
-                    Unavailable
-                  </span>
-                ) : (
-                  <BalanceSkeleton className="h-6 w-20" />
-                )}
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-slate-300">Current Status</span>
-                <span
-                  className={`rounded-full px-3 py-1 text-sm font-bold ${statusHighlighted ? "bg-secondary/20 text-secondary" : "bg-surface-variant text-slate-400"}`}
-                >
-                  {statusLabel}
-                </span>
-              </div>
-            </div>
           </div>
-
-          <div className="mt-8">
-            <div className="mb-2 flex justify-between text-xs">
-              {chainState ? (
-                <>
-                  <span className="text-slate-400">
-                    {chainState.prize.progressLabel}
-                  </span>
-                  <span className="font-bold text-primary">
-                    {chainState.prize.progressPercent}%
-                  </span>
-                </>
-              ) : isChainStateUnavailable ? (
-                <span className="text-slate-400">
-                  Live prize progress unavailable
-                </span>
-              ) : (
-                <>
-                  <BalanceSkeleton className="h-4 w-40" />
-                  <BalanceSkeleton className="h-4 w-12" />
-                </>
-              )}
-            </div>
-            <div className="h-3 w-full overflow-hidden rounded-full bg-surface-container-highest">
-              {chainState ? (
-                <div
-                  className="h-full rounded-full bg-primary transition-[width]"
-                  style={{ width: `${chainState.prize.progressPercent}%` }}
-                />
-              ) : (
-                <div className="h-full w-1/3 animate-pulse rounded-full bg-primary/35" />
-              )}
-            </div>
-
-            <button
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full px-5 py-4 font-headline font-bold transition-colors disabled:cursor-not-allowed disabled:bg-surface-variant disabled:text-slate-500 enabled:bg-primary enabled:text-on-primary"
-              disabled={
-                !hasClaimableTier ||
-                Boolean(dashboard.claim) ||
-                isBusy ||
-                isChainStateLoading ||
-                isChainStateUnavailable
-              }
-              onClick={() => {
-                void handleClaim();
-              }}
-              type="button"
-            >
-              {!hasClaimableTier || dashboard.claim ? (
-                <Icon className="text-sm" name="lock" />
-              ) : null}
-              {claimButtonLabel}
-            </button>
-          </div>
-        </section>
-      </div>
-
-      <div className="mt-6">
-        <TransactionNotice tx={tx} />
-      </div>
-
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-5">
-        <div className="space-y-6 lg:col-span-2">
-          <div>
-            <h3 className="px-2 font-headline text-xl font-bold tracking-tight">
-              Leaderboard Standing
-            </h3>
-          </div>
-
-          <section className="rounded-[2rem] border border-outline-variant/15 bg-surface-container p-6">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-surface-bright">
-                <Icon className="text-primary" name="emoji_events" />
-              </div>
-              <div>
-                <p className="text-sm font-bold">Status</p>
-                <p className="text-xs text-slate-400">
-                  Live summary for your current dashboard state.
-                </p>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div
-                className={`flex items-center justify-between rounded-2xl p-4 ${statusHighlighted ? "border border-primary/20 bg-surface-container-low" : "bg-surface-container-low"}`}
-              >
-                <span className="text-slate-300">Current Status</span>
-                <span
-                  className={`font-bold ${statusHighlighted ? "text-primary" : "text-secondary"}`}
-                >
-                  {statusLabel}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
-                <span className="text-slate-300">Leaderboard Rank</span>
-                {globalState ? (
-                  <span className="font-bold">
-                    {formatRank(globalState.global.rank)}
-                  </span>
-                ) : isGlobalStateUnavailable ? (
-                  <span className="font-bold text-slate-400">Unavailable</span>
-                ) : (
-                  <BalanceSkeleton className="h-5 w-16" />
-                )}
-              </div>
-
-              <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
-                <span className="text-slate-300">Leaderboard %</span>
-                {globalState ? (
-                  <span className="font-bold text-secondary">
-                    {globalState.global.percentile != null
-                      ? `${globalState.global.percentile}%`
-                      : "-"}
-                  </span>
-                ) : isGlobalStateUnavailable ? (
-                  <span className="font-bold text-slate-400">Unavailable</span>
-                ) : (
-                  <BalanceSkeleton className="h-5 w-12" />
-                )}
-              </div>
-
-              <div className="flex items-center justify-between rounded-2xl bg-surface-container-low p-4">
-                <span className="text-slate-300">Total Points</span>
-                <span className="font-bold">
-                  {formatInteger(dashboard.balances.totalEarned)}
-                </span>
-              </div>
-            </div>
-          </section>
-
-          <section className="group relative overflow-hidden rounded-[2rem]">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(84,233,138,0.18),transparent_55%)]" />
-            <div className="relative flex h-48 flex-col justify-end rounded-[2rem] border border-outline-variant/20 bg-gradient-to-br from-surface-container/90 to-surface-container-high/90 p-8">
-              <p className="mb-1 text-sm font-bold uppercase tracking-widest text-slate-400">
-                Wallet Balance
-              </p>
-              {chainState ? (
-                <>
-                  <h4 className="font-headline text-4xl font-bold text-on-surface">
-                    {formatWeiInteger(chainState.balances.walletBalance)} BNDY
-                  </h4>
-                  <p className="mt-2 text-sm text-slate-400">
-                    On-chain earned:{" "}
-                    {formatWeiInteger(chainState.balances.onChainEarned)} BNDY
-                  </p>
-                </>
-              ) : isChainStateUnavailable ? (
-                <>
-                  <h4 className="font-headline text-3xl font-bold text-on-surface">
-                    Live balance unavailable
-                  </h4>
-                  <button
-                    className="mt-3 self-start text-sm font-bold text-primary underline-offset-4 hover:underline"
-                    onClick={() => {
-                      void loadChainState();
-                    }}
-                    type="button"
-                  >
-                    Retry live balance
-                  </button>
-                </>
-              ) : (
-                <>
-                  <BalanceSkeleton className="h-10 w-48" />
-                  <BalanceSkeleton className="mt-3 h-4 w-36" />
-                </>
-              )}
-            </div>
-          </section>
-        </div>
-
-        <div className="space-y-6 lg:col-span-3">
-          <MatchActivitySection
-            action={
-              <Link
-                className="text-xs font-bold uppercase tracking-widest text-slate-400 transition-colors hover:text-primary"
-                href="/dashboard/fixtures"
-              >
-                View all
-              </Link>
-            }
-            emptyDescription="Live, upcoming, and scored fixtures will appear here as soon as the active tournament schedule is populated."
-            emptyTitle="No match activity yet"
-            label={matchActivityLabel}
-            matches={matchActivity}
-            title="Match Activity"
-          />
-        </div>
-      </div>
+        </>
+      )}
     </AppChrome>
   );
 }
