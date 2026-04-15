@@ -267,7 +267,6 @@ function MatchActivitySection({
   emptyDescription,
   emptyTitle,
   isLoading = false,
-  label,
   matches,
   title,
 }: {
@@ -275,7 +274,6 @@ function MatchActivitySection({
   emptyDescription: string;
   emptyTitle: string;
   isLoading?: boolean;
-  label: string;
   matches: DashboardSummaryDTO["recentMatches"];
   title: string;
 }) {
@@ -285,14 +283,7 @@ function MatchActivitySection({
         <h4 className="font-headline text-lg font-bold tracking-tight">
           {title}
         </h4>
-        <div className="flex items-center gap-3">
-          {isLoading ? (
-            <BalanceSkeleton className="h-5 w-24" />
-          ) : (
-            <span className="text-sm font-bold text-primary">{label}</span>
-          )}
-          {action}
-        </div>
+        {action}
       </div>
 
       {isLoading ? (
@@ -1008,8 +999,6 @@ export function DashboardPage() {
         ...recentMatches,
       ]
     : [];
-  const matchActivityLabel =
-    matchActivity.length > 0 ? `${matchActivity.length} matches` : "No matches";
   const prizeStatusLabel = dashboard
     ? dashboardStatusLabel(dashboard, chainState)
     : null;
@@ -1340,7 +1329,6 @@ export function DashboardPage() {
                 emptyDescription="Live, upcoming, and scored fixtures will appear here as soon as the active tournament schedule is populated."
                 emptyTitle="No match activity yet"
                 isLoading={isDashboardLoading}
-                label={matchActivityLabel}
                 matches={matchActivity}
                 title="Match Activity"
               />
