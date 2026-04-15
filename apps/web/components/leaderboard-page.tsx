@@ -605,7 +605,7 @@ export function LeaderboardPage() {
 
       {/* Stats bar */}
       {!loading && !error && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="mb-6 grid grid-cols-2 gap-3">
           {tab === "global" && globalData && (
             <>
               <StatCard
@@ -617,12 +617,6 @@ export function LeaderboardPage() {
                 icon="update"
                 label="Last Updated"
                 value={new Date(globalData.updatedAt).toLocaleTimeString()}
-              />
-              <StatCard
-                icon="sort"
-                label="Sorted By"
-                value="Total Points"
-                className="hidden sm:flex"
               />
             </>
           )}
@@ -637,12 +631,6 @@ export function LeaderboardPage() {
                 icon="deployed_code"
                 label="Block"
                 value={`#${prizeData.snapshotBlock.toLocaleString()}`}
-              />
-              <StatCard
-                icon="sort"
-                label="Sorted By"
-                value="Wallet Balance"
-                className="hidden sm:flex"
               />
             </>
           )}
@@ -730,18 +718,6 @@ export function LeaderboardPage() {
         ) : (
           <EmptyState tab="prize" />
         )}
-      </div>
-
-      {/* Legend */}
-      <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-        {Object.entries(TIER_META).map(([key, meta]) => (
-          <div key={key} className="flex items-center gap-1.5">
-            <Icon name={meta.icon} className={`text-sm ${meta.color}`} fill />
-            <span className="text-xs text-on-surface-variant">
-              {meta.label}
-            </span>
-          </div>
-        ))}
       </div>
     </div>
   );

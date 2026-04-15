@@ -1137,7 +1137,7 @@ export function DashboardPage() {
                     )}
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-300">Prize Status</span>
+                    <span className="text-slate-300">Status</span>
                     {prizeStatusLabel ? (
                       <span
                         className={`rounded-full px-3 py-1 text-sm font-bold ${statusHighlighted ? "bg-secondary/20 text-secondary" : "bg-surface-variant text-slate-400"}`}
@@ -1257,7 +1257,7 @@ export function DashboardPage() {
                     {globalState ? (
                       <span className="font-bold text-secondary">
                         {globalState.global.percentile != null
-                          ? `Top ${globalState.global.percentile}%`
+                          ? `${globalState.global.percentile}%`
                           : "-"}
                       </span>
                     ) : isGlobalStateUnavailable ? (
@@ -1281,12 +1281,12 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="mt-6 flex justify-end rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
+                <div className="mt-6 flex justify-center rounded-2xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
                   <Link
                     className="shrink-0 text-sm font-bold text-primary transition-colors hover:text-secondary"
                     href="/leaderboard"
                   >
-                    View full leaderboard
+                    View Leaderboard
                   </Link>
                 </div>
               </section>

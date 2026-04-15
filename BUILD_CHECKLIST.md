@@ -228,11 +228,11 @@
 
 ### 5.3 App pages
 
-- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, clearer prize/global context cards with cleaner leaderboard CTA, no redundant on-chain-earned subcopy, vertically centered wallet-balance content, and scoreboard-style match cards with fixture numbers and official recent scorelines) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, clearer prize/global context cards with shorter status/percentile copy and a cleaner centered leaderboard CTA, no redundant on-chain-earned subcopy, vertically centered wallet-balance content, and scoreboard-style match cards with fixture numbers and official recent scorelines) — _API.md / GAME_DESIGN.md_
 - [x] `/dashboard` split-loads WireFluid balance/prize state and global standing, keeps the real card shell mounted with in-place skeletons, and uses a date-stack match placeholder that mirrors the shipped scoreboard layout — _API.md_
 - [x] `/dashboard/fixtures` (full authenticated tournament schedule list using the same scoreboard-style card treatment as `/dashboard`, without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
-- [x] `/leaderboard` (global + prize tabs) — _API.md_
+- [x] `/leaderboard` (global + prize tabs, without redundant footer legend or `Sorted By` stat cards) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [x] `/trophies` (user's soulbound NFTs) — _API.md_
 
