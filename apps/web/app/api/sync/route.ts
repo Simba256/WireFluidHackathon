@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { and, eq, sql } from "drizzle-orm";
 import type { Address } from "viem";
 import {
+  claim,
   getActiveTournamentId,
   syncedRecord,
   userPoint,
@@ -71,10 +72,25 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
 
     const pendingWei = BigInt(pendingSum?.sum ?? "0");
-    const delta =
-      totalEarnedWei > onChainEarned + pendingWei
-        ? totalEarnedWei - onChainEarned - pendingWei
-        : 0n;
+
+    // Subtract prior confirmed claims — earnedBalance was burned on-chain so
+    // the lifetime total_points still holds that amount but it must not be
+    // re-synced into a new sync voucher.
+    const [claimedRow] = await database
+      .select({
+        total: sql<string>`COALESCE(SUM(${claim.earnedAtClaim}), 0)::text`,
+      })
+      .from(claim)
+      .where(
+        and(
+          eq(claim.wallet, wallet),
+          eq(claim.tournamentId, tournamentId),
+          eq(claim.status, "confirmed"),
+        ),
+      );
+    const claimedEarnedWei = BigInt(claimedRow?.total ?? "0");
+    const consumedWei = onChainEarned + pendingWei + claimedEarnedWei;
+    const delta = totalEarnedWei > consumedWei ? totalEarnedWei - consumedWei : 0n;
 
     if (delta <= 0n) {
       return badRequest(API_ERROR_CODES.NOTHING_TO_SYNC, "No points to sync");
