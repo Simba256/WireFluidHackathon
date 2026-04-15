@@ -228,7 +228,7 @@
 
 ### 5.3 App pages
 
-- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, clearer prize/global context cards with shorter status/percentile copy and a cleaner centered leaderboard CTA, no redundant on-chain-earned subcopy, vertically centered wallet-balance content, and scoreboard-style match cards with fixture numbers and official recent scorelines) — _API.md / GAME_DESIGN.md_
+- [x] `/dashboard` (earned, synced, wallet balance, unsynced, sync button, cleaner hero/global/prize copy, a centered leaderboard CTA, no redundant on-chain-earned subcopy, vertically centered wallet-balance content, and scoreboard-style match cards with fixture numbers and official recent scorelines) — _API.md / GAME_DESIGN.md_
 - [x] `/dashboard` split-loads WireFluid balance/prize state and global standing, keeps the real card shell mounted with in-place skeletons, and uses a date-stack match placeholder that mirrors the shipped scoreboard layout — _API.md_
 - [x] `/dashboard/fixtures` (full authenticated tournament schedule list using the same scoreboard-style card treatment as `/dashboard`, without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
@@ -328,7 +328,7 @@
   - [ ] Atomic snapshot upsert — _ARCHITECTURE.md_
   - [ ] Advance `indexer_cursor.last_scanned_block` — _ARCHITECTURE.md_
 - [ ] Tier band derivation (1/3/10/25/50) from rank among qualified — _GAME_DESIGN.md_
-- [ ] `canClaim` flag derivation (rank in tier band + stock + no prior active claim; qualification is implicit since only 10k+ earned wallets appear) — _API.md_
+- [x] `canClaim` flag derivation uses DB-backed `prize.stock_limit` (rank in tier band + stock + no prior active claim; qualification is implicit since only 10k+ earned wallets appear) — _API.md_
 - [ ] Client-side 5s poll on `/leaderboard` page — _ARCHITECTURE.md_
 
 ---

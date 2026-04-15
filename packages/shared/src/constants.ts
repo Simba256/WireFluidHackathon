@@ -142,7 +142,6 @@ export interface TierDefinition {
   id: TierId;
   name: TierName;
   rankRequired: number;
-  stockLimit: number;
   displayName: string;
 }
 
@@ -151,35 +150,30 @@ export const TIERS: readonly TierDefinition[] = [
     id: TIER.RANK_1,
     name: "RANK_1",
     rankRequired: 1,
-    stockLimit: 1,
     displayName: "Rank 1",
   },
   {
     id: TIER.TOP_3,
     name: "TOP_3",
     rankRequired: 3,
-    stockLimit: 3,
     displayName: "Top 3",
   },
   {
     id: TIER.TOP_10,
     name: "TOP_10",
     rankRequired: 10,
-    stockLimit: 10,
     displayName: "Top 10",
   },
   {
     id: TIER.TOP_25,
     name: "TOP_25",
     rankRequired: 25,
-    stockLimit: 25,
     displayName: "Top 25",
   },
   {
     id: TIER.TOP_50,
     name: "TOP_50",
     rankRequired: 50,
-    stockLimit: 50,
     displayName: "Top 50",
   },
 ] as const;

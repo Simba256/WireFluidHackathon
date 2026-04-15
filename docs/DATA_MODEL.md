@@ -338,7 +338,7 @@ WHERE tournament_id = $1 AND status IN ('pending', 'confirmed')
 GROUP BY tier_id;
 ```
 
-Stock remaining = `tier.stock_limit - claimed`.
+Stock remaining = `prize.stock_limit - claimed`.
 
 ---
 

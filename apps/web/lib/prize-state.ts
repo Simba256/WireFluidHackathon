@@ -2,6 +2,7 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   claim,
   getTierStockClaimed,
+  prize,
   syncedRecord,
   type Database,
 } from "@boundaryline/db";
@@ -189,23 +190,31 @@ export async function getPrizeLeaderboardState(
   }
 
   const client = publicClient();
-  const [block, walletStates, stockClaimed, activeClaims] = await Promise.all([
-    client.getBlockNumber(),
-    readWalletPointState(client, wallets),
-    getTierStockClaimed(database, tournamentId),
-    database
-      .select({ wallet: claim.wallet })
-      .from(claim)
-      .where(
-        and(
-          eq(claim.tournamentId, tournamentId),
-          inArray(claim.status, ["pending", "confirmed"]),
+  const [block, walletStates, stockClaimed, activeClaims, prizeRows] =
+    await Promise.all([
+      client.getBlockNumber(),
+      readWalletPointState(client, wallets),
+      getTierStockClaimed(database, tournamentId),
+      database
+        .select({ wallet: claim.wallet })
+        .from(claim)
+        .where(
+          and(
+            eq(claim.tournamentId, tournamentId),
+            inArray(claim.status, ["pending", "confirmed"]),
+          ),
         ),
-      ),
-  ]);
+      database
+        .select({ tierId: prize.tierId, stockLimit: prize.stockLimit })
+        .from(prize)
+        .where(eq(prize.tournamentId, tournamentId)),
+    ]);
 
   const claimedByTier = new Map<number, number>(
     stockClaimed.map((row) => [row.tierId, row.claimed]),
+  );
+  const stockByTier = new Map<number, number>(
+    prizeRows.map((row) => [row.tierId, row.stockLimit]),
   );
   const activeClaimWallets = new Set(activeClaims.map((row) => row.wallet));
 
@@ -225,7 +234,7 @@ export async function getPrizeLeaderboardState(
     const canClaim =
       tier != null &&
       !activeClaimWallets.has(row.wallet) &&
-      (claimedByTier.get(tier.id) ?? 0) < tier.stockLimit;
+      (claimedByTier.get(tier.id) ?? 0) < (stockByTier.get(tier.id) ?? 0);
 
     return {
       wallet: row.wallet,

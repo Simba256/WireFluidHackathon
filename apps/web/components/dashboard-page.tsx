@@ -1027,12 +1027,9 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <section className="relative flex min-h-[280px] flex-col justify-between overflow-hidden rounded-[2rem] bg-surface-container-low p-8 md:col-span-2">
               <div className="relative z-10">
-                <div className="mb-2 flex items-center gap-2">
+                <div className="mb-2">
                   <span className="text-xs font-bold uppercase tracking-widest text-slate-400">
                     Total Performance Points
-                  </span>
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                    OFF-CHAIN
                   </span>
                 </div>
                 <h1 className="-ml-1 font-headline text-6xl font-bold tracking-tight text-on-surface md:text-8xl">

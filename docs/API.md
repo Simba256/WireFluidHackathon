@@ -536,7 +536,7 @@ Unqualified wallets (those below the 10,000 BNDY earned threshold) do NOT appear
 - `walletBalance` — `PSLPoints.balanceOf(wallet)` as uint256 string, the rank metric
 - `earnedBalance` — `PSLPoints.earnedBalance(wallet)` as uint256 string, the qualification + claim metric
 - `tierEligible` — the tier band this rank falls into (`RANK_1` / `TOP_3` / `TOP_10` / `TOP_25` / `TOP_50`)
-- `canClaim` — `true` if the wallet has tier stock available and no prior active claim. Qualification (`earnedBalance >= 10,000 BNDY`) is implicit: any wallet on this response has already passed the filter.
+- `canClaim` — `true` if the wallet has tier stock available from the `prize.stock_limit` row for that tournament and no prior active claim. Qualification (`earnedBalance >= 10,000 BNDY`) is implicit: any wallet on this response has already passed the filter.
 - `totalQualified` — count of wallets that passed the 10,000 BNDY earned filter
 
 ---
