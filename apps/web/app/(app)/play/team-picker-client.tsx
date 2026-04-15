@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
 import { apiFetch, ApiClientError } from "@/lib/api-client";
@@ -86,6 +87,7 @@ export function TeamPickerClient({
   teamSize,
 }: Props) {
   const { isAuthenticated, token } = useAuth();
+  const router = useRouter();
 
   const [selected, setSelected] = useState<PlayerData[]>([]);
   const [search, setSearch] = useState("");
@@ -94,6 +96,7 @@ export function TeamPickerClient({
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playing, setPlaying] = useState(false);
   const [matchStatus, setMatchStatus] = useState<string>(
     currentMatch?.status ?? "scheduled",
   );
@@ -203,6 +206,27 @@ export function TeamPickerClient({
       setSubmitting(false);
     }
   }, [isAuthenticated, token, selected, teamSize, matchId]);
+
+  const handlePlayMatch = useCallback(async () => {
+    if (!matchId || playing) return;
+    setPlaying(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/matches/${matchId}/play`, {
+        method: "POST",
+        json: {},
+        token,
+      });
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof ApiClientError || err instanceof Error
+          ? err.message
+          : "Failed to simulate match",
+      );
+      setPlaying(false);
+    }
+  }, [matchId, playing, token, router]);
 
   if (!isAuthenticated) {
     return (
@@ -502,12 +526,29 @@ export function TeamPickerClient({
                 Squad Locked
               </div>
             ) : saved ? (
-              <div className="rounded-xl bg-primary/10 px-4 py-3 text-center text-sm font-bold text-primary">
-                <Icon
-                  name="check_circle"
-                  className="mr-1 align-middle text-base"
-                />
-                Squad Saved
+              <div className="flex flex-col gap-3">
+                <div className="rounded-xl bg-primary/10 px-4 py-3 text-center text-sm font-bold text-primary">
+                  <Icon
+                    name="check_circle"
+                    className="mr-1 align-middle text-base"
+                  />
+                  Squad Saved
+                </div>
+                <button
+                  type="button"
+                  onClick={handlePlayMatch}
+                  disabled={playing}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-secondary py-3 font-headline text-sm font-bold text-on-secondary transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  <Icon
+                    name={playing ? "autorenew" : "play_arrow"}
+                    className={`text-lg ${playing ? "animate-spin" : ""}`}
+                  />
+                  {playing ? "Simulating Match..." : "Play Match (Demo)"}
+                </button>
+                <p className="text-center text-[10px] uppercase tracking-widest text-on-surface-variant/60">
+                  Demo mode · simulates stats & scores your squad
+                </p>
               </div>
             ) : (
               <button
