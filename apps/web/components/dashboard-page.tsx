@@ -442,20 +442,21 @@ function EmptyDashboard() {
 
 function LoadingState() {
   return (
-    <div className="space-y-6">
+    <div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="md:col-span-2 h-72 animate-pulse rounded-[2rem] bg-surface-container-low" />
-        <div className="h-72 animate-pulse rounded-[2rem] bg-surface-container-high" />
+        <div className="min-h-[280px] animate-pulse rounded-[2rem] bg-surface-container-low md:col-span-2" />
+        <div className="min-h-[280px] animate-pulse rounded-[2rem] bg-surface-container-high" />
       </div>
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
+
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-2">
-          <div className="h-64 animate-pulse rounded-[2rem] bg-surface-container" />
+          <div className="h-6 w-48 animate-pulse rounded-full bg-surface-container-low" />
+          <div className="h-[332px] animate-pulse rounded-[2rem] bg-surface-container" />
           <div className="h-48 animate-pulse rounded-[2rem] bg-surface-container" />
         </div>
-        <div className="space-y-4 lg:col-span-3">
-          <div className="h-32 animate-pulse rounded-[2rem] bg-surface-container-low" />
-          <div className="h-32 animate-pulse rounded-[2rem] bg-surface-container-low" />
-          <div className="h-32 animate-pulse rounded-[2rem] bg-surface-container-low" />
+        <div className="space-y-6 lg:col-span-3">
+          <div className="h-6 w-40 animate-pulse rounded-full bg-surface-container-low" />
+          <div className="h-[540px] animate-pulse rounded-[2rem] bg-surface-container-low" />
         </div>
       </div>
     </div>
