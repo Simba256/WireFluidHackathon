@@ -1328,11 +1328,6 @@ export function DashboardPage() {
                         {formatWeiInteger(chainState.balances.walletBalance)}{" "}
                         BNDY
                       </h4>
-                      <p className="mt-2 text-sm text-slate-400">
-                        On-chain earned:{" "}
-                        {formatWeiInteger(chainState.balances.onChainEarned)}{" "}
-                        BNDY
-                      </p>
                     </>
                   ) : isChainStateUnavailable ? (
                     <>
