@@ -7,6 +7,7 @@ import {
   MIN_EARNED_TO_CLAIM_WEI,
   TIERS_BY_ID,
   VOUCHER_TTL_SECONDS,
+  toContractTierId,
   type TierId,
 } from "@boundaryline/shared";
 import { z } from "zod";
@@ -116,9 +117,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const nonce = generateNonce();
     const expiresAt = new Date(Date.now() + VOUCHER_TTL_SECONDS * 1000);
 
+    // Contract's tierNames array is inverted relative to backend TierId.
+    // Remap here so the on-chain trophy metadata matches the tier the user
+    // actually claimed. See docs/CONTRACTS.md "Tier ID Mapping".
     const voucher = {
       user: wallet as Address,
-      tierId: Number(tierId),
+      tierId: toContractTierId(tierId),
       nonce,
     };
     const signature = await signClaimVoucher(voucher);

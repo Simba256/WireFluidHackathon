@@ -8,6 +8,7 @@ import {
   PSLPointsAbi,
   PSLTrophiesAbi,
   TIERS_BY_ID,
+  fromContractTierId,
   normalizeWallet,
   type TierId,
 } from "@boundaryline/shared";
@@ -70,7 +71,8 @@ export async function GET(
             args.burnedAmount.toString(),
           );
           tierClaimEvents.push({
-            tierId: Number(args.tierId),
+            // Event carries contract-space tierId; translate back to backend space.
+            tierId: fromContractTierId(Number(args.tierId)),
             trophyTokenId: args.trophyTokenId,
             burnedAmount: args.burnedAmount,
             txHash: log.transactionHash,

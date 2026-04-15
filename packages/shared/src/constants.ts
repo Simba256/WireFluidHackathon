@@ -186,6 +186,16 @@ export const TIERS_BY_ID: Record<TierId, TierDefinition> = TIERS.reduce(
   {} as Record<TierId, TierDefinition>,
 );
 
+// PSLTrophies.sol initializes tierNames in the reverse order of our backend
+// TierId enum (contract: 1=Top50..5=Champion, backend: 1=Rank1..5=Top50).
+// We remap at the voucher boundary so backend code stays in backend-space.
+// See docs/CONTRACTS.md "Tier ID Mapping".
+export const toContractTierId = (backendTierId: TierId): number =>
+  6 - backendTierId;
+
+export const fromContractTierId = (contractTierId: number): TierId =>
+  (6 - contractTierId) as TierId;
+
 export const tierForRank = (rank: number): TierDefinition | null => {
   if (rank < 1) return null;
   const ordered = [...TIERS].sort((a, b) => a.rankRequired - b.rankRequired);

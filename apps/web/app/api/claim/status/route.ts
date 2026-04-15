@@ -6,6 +6,7 @@ import {
   CONTRACT_ADDRESSES,
   PSLPointsAbi,
   TIERS_BY_ID,
+  fromContractTierId,
   type TierId,
 } from "@boundaryline/shared";
 import { db } from "@/lib/db";
@@ -49,6 +50,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           burnedAmount?: bigint;
         };
         if (args.tierId == null || args.trophyTokenId == null) continue;
+        // Event carries contract-space tierId; translate back to backend space.
+        const backendTierId = fromContractTierId(Number(args.tierId));
         await database
           .update(claim)
           .set({
@@ -61,7 +64,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
           .where(
             and(
               eq(claim.wallet, wallet),
-              eq(claim.tierId, Number(args.tierId)),
+              eq(claim.tierId, backendTierId),
               inArray(claim.status, ["pending", "expired"]),
               isNull(claim.trophyTokenId),
             ),

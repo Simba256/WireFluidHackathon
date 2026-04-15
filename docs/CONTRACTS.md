@@ -17,6 +17,32 @@ Dependencies: OpenZeppelin Contracts v5 (`ERC20`, `ERC721`, `ECDSA`, `EIP712`, `
 
 ---
 
+## Tier ID Mapping (backend ⇄ contract)
+
+`PSLTrophies.sol` was deployed with its `tierNames` array initialized in the reverse order of the backend `TierId` enum defined in `packages/shared/src/constants.ts`. Rather than redeploy both contracts (`setTrophies` is one-shot on `PSLPoints`), the backend remaps tier IDs at the voucher boundary.
+
+| Backend `TierId` (constants.ts, DB, API, UI) | Contract `tokenTier` / `tierNames[i]` |
+|---|---|
+| `1` RANK_1 (Grand Prize) | `5` Champion |
+| `2` TOP_3 | `4` Top 3 Finisher |
+| `3` TOP_10 | `3` Top 10 Finisher |
+| `4` TOP_25 | `2` Top 25 Finisher |
+| `5` TOP_50 | `1` Top 50 Finisher |
+
+Formula: `contractTierId = 6 - backendTierId` (and vice versa — the mapping is a self-inverse).
+
+**Rules:**
+- All backend code (DB `claim.tierId`, API request/response bodies, `TIERS_BY_ID`, prize seeds, UI) uses the **backend** space.
+- `PSLPoints.claimTier(tierId, …)` arguments, `TierClaimed` event `tierId`, `PSLTrophies.tokenTier[tokenId]`, and `tokenURI` metadata all use the **contract** space.
+- The flip happens in exactly two places:
+  1. `apps/web/app/api/claim/route.ts` — `toContractTierId(backendTierId)` when building the `ClaimVoucher` the user signs and submits on-chain.
+  2. `apps/web/app/api/claim/status/route.ts` and `apps/web/app/api/trophies/[wallet]/route.ts` — `fromContractTierId(event.tierId)` when reconciling `TierClaimed` logs back into the `claim` table.
+- Helpers live in `@boundaryline/shared`: `toContractTierId`, `fromContractTierId`.
+
+Do **not** introduce a third conversion point. If a new path needs to cross the boundary, import the helper.
+
+---
+
 ## `PSLPoints.sol`
 
 ### Purpose
@@ -126,7 +152,7 @@ Non-transferable ERC-721 NFTs representing tournament achievements. Minted only 
 |---|---|---|
 | `minter` | `address immutable` | Address of `PSLPoints` contract (only caller allowed to mint) |
 | `nextTokenId` | `uint256` | Auto-incrementing token ID |
-| `tokenTier` | `mapping(uint256 => uint8)` | Tier ID per token (1=Top50, 2=Top25, 3=Top10, 4=Top3, 5=Rank1) |
+| `tokenTier` | `mapping(uint256 => uint8)` | Contract-space tier ID per token (1=Top50, 2=Top25, 3=Top10, 4=Top3, 5=Rank1). **Note:** this is the *inverse* of the backend `TierId` enum; see "Tier ID Mapping" below. |
 | `tokenTournamentId` | `mapping(uint256 => uint256)` | Which tournament this trophy is from |
 | `tierNames` | `mapping(uint8 => string)` | Human-readable tier labels (set by admin) |
 
