@@ -178,45 +178,35 @@ export async function POST(
       );
     }
 
-    const rawStats = players.map((p) => ({
-      playerId: p.id,
-      team: p.team,
-      raw: simulatePlayerStats(matchId, p.id, p.role),
-    }));
+    // Only 11 per side actually bat in a T20 — pick a deterministic XI
+    // from each franchise roster seeded by matchId so every match has a
+    // stable but match-specific lineup. Players not in the XI get no
+    // player_score row (consistent with how real squads rotate).
+    const XI_SIZE = 11;
+    const pickXI = (teamName: string, seedOffset: number): Set<number> => {
+      const roster = players.filter((p) => p.team === teamName);
+      const rand = seededRandom(matchId * 104729 + seedOffset);
+      const shuffled = [...roster]
+        .map((p) => ({ p, k: rand() }))
+        .sort((a, b) => a.k - b.k)
+        .map((x) => x.p);
+      return new Set(shuffled.slice(0, XI_SIZE).map((p) => p.id));
+    };
+    const xiA = pickXI(matchRow.teamA, 1);
+    const xiB = pickXI(matchRow.teamB, 2);
+    const inXI = (pid: number) => xiA.has(pid) || xiB.has(pid);
 
-    // Normalize per-team run totals into a realistic T20 band [130, 210].
-    // Scaling factor is computed per franchise so each team lands in the
-    // band regardless of how many players we happen to have seeded.
-    const teamTargetRand = seededRandom(matchId * 7919 + 11);
-    const pickTarget = () => 130 + Math.floor(teamTargetRand() * 80); // 130–209
-    const targets: Record<string, number> = {
-      [matchRow.teamA]: pickTarget(),
-      [matchRow.teamB]: pickTarget(),
-    };
-    const rawTotals: Record<string, number> = {
-      [matchRow.teamA]: 0,
-      [matchRow.teamB]: 0,
-    };
-    for (const r of rawStats) {
-      rawTotals[r.team] = (rawTotals[r.team] ?? 0) + r.raw.runs;
-    }
-    const scale = (team: string) => {
-      const raw = rawTotals[team] ?? 0;
-      const target = targets[team] ?? 0;
-      if (raw === 0) return 1;
-      return target / raw;
-    };
-
-    const scoreRows = rawStats.map(({ playerId, team, raw }) => {
-      const scaled = Math.round(raw.runs * scale(team));
-      const stats = { ...raw, runs: scaled };
-      return {
-        matchId,
-        playerId,
-        ...stats,
-        pointsAwarded: calculatePlayerPoints(stats),
-      };
-    });
+    const scoreRows = players
+      .filter((p) => inXI(p.id))
+      .map((p) => {
+        const stats = simulatePlayerStats(matchId, p.id, p.role);
+        return {
+          matchId,
+          playerId: p.id,
+          ...stats,
+          pointsAwarded: calculatePlayerPoints(stats),
+        };
+      });
 
     const pointsByPlayer = new Map<number, bigint>(
       scoreRows.map((r) => [r.playerId, r.pointsAwarded]),
