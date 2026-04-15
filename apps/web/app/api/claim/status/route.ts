@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import type { Address } from "viem";
 import { claim, getActiveTournamentId } from "@boundaryline/db";
-import { TIERS_BY_ID, type TierId } from "@boundaryline/shared";
+import {
+  CONTRACT_ADDRESSES,
+  PSLPointsAbi,
+  TIERS_BY_ID,
+  type TierId,
+} from "@boundaryline/shared";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth";
 import { internalError } from "@/lib/errors";
 import { expireStaleClaims } from "@/lib/prize-state";
+import { publicClient } from "@/lib/viem";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,6 +26,50 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const database = db();
     const tournamentId = await getActiveTournamentId(database);
     await expireStaleClaims(database, tournamentId, wallet);
+
+    // Lazy-reconcile: if a TierClaimed event exists on-chain but the matching
+    // claim row is still pending/expired (backend observer missed the event),
+    // patch the row to confirmed so the UI recovers automatically.
+    try {
+      const client = publicClient();
+      const latestBlock = await client.getBlockNumber();
+      const fromBlock = latestBlock > 9000n ? latestBlock - 9000n : 0n;
+      const logs = await client.getContractEvents({
+        address: CONTRACT_ADDRESSES.PSLPoints,
+        abi: PSLPointsAbi,
+        eventName: "TierClaimed",
+        args: { user: wallet as Address },
+        fromBlock,
+        toBlock: latestBlock,
+      });
+      for (const log of logs) {
+        const args = log.args as {
+          tierId?: number;
+          trophyTokenId?: bigint;
+          burnedAmount?: bigint;
+        };
+        if (args.tierId == null || args.trophyTokenId == null) continue;
+        await database
+          .update(claim)
+          .set({
+            status: "confirmed",
+            trophyTokenId: args.trophyTokenId,
+            txHash: log.transactionHash,
+            blockNumber: log.blockNumber,
+            confirmedAt: sql`now()`,
+          })
+          .where(
+            and(
+              eq(claim.wallet, wallet),
+              eq(claim.tierId, Number(args.tierId)),
+              inArray(claim.status, ["pending", "expired"]),
+              isNull(claim.trophyTokenId),
+            ),
+          );
+      }
+    } catch {
+      // swallow — best-effort reconciliation
+    }
 
     const [row] = await database
       .select()
