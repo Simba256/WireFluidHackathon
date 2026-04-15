@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
-import {
-  APP_NAME,
-  BNDY_DECIMALS,
-  type DashboardChainStateDTO,
-} from "@boundaryline/shared";
+import { APP_NAME, BNDY_DECIMALS } from "@boundaryline/shared";
 import { useAuth } from "@/components/auth-provider";
 import { ProfilePopover } from "@/components/profile-popover";
 import { apiFetch } from "@/lib/api-client";
@@ -53,10 +49,10 @@ export function AppHeader() {
     }
     let cancelled = false;
     setLoading(true);
-    apiFetch<DashboardChainStateDTO>("/api/dashboard/chain-state")
+    apiFetch<{ walletBalance: string }>("/api/dashboard/wallet-balance")
       .then((data) => {
         if (cancelled) return;
-        setWalletBalance(data.balances.walletBalance);
+        setWalletBalance(data.walletBalance);
       })
       .catch(() => {
         if (cancelled) return;
