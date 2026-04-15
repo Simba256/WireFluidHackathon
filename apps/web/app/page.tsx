@@ -2,7 +2,11 @@ import Image from "next/image";
 import { LandingNav } from "@/components/landing-nav";
 import { HeroWalletActions } from "@/components/hero-wallet-actions";
 import { FinalCtaWalletAction } from "@/components/final-cta-wallet-action";
-import { ScrollReveal, ScrollRevealItem } from "@/components/scroll-reveal";
+import {
+  ScrollReveal,
+  ScrollRevealItem,
+  FloatReveal,
+} from "@/components/scroll-reveal";
 
 const HERO_IMAGE =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAtbiBkfh0n1iYWKJMjnClUdsWtk1Q4C62aZY8v6bwhAq7VX1D2aWH5tm13PHdZP6YfsEoRJPLzBMToJhuDf9piAyi87MeHaifldMn71CHd8GhG4ROP83ViTOJ0DBTWmUlFY7iizvt7m74oQB8fe61Az0Q0lbsEl3cT4xkzEsdl_vgm9AXXjlDkNzWsiH1wuqQwdY43Bv-Lcsy0RSE0mpRwH-LM9CvALwzFiZm72EZm4qmXx3fbswmCjEB9TGfvRISB5XZ7j0D_Pgau";
@@ -37,9 +41,9 @@ function HeroSection() {
       </div>
 
       <div className="container mx-auto px-6 relative z-10">
-        <div className="max-w-4xl">
+        <ScrollReveal className="max-w-4xl">
           {/* Live badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-6">
+          <ScrollRevealItem className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-6">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
@@ -47,28 +51,34 @@ function HeroSection() {
             <span className="text-primary text-xs font-bold uppercase tracking-widest font-label">
               PSL 2026 Edition LIVE
             </span>
-          </div>
+          </ScrollRevealItem>
 
-          <h1 className="text-6xl md:text-8xl font-headline font-bold text-on-surface leading-[0.9] tracking-tighter mb-8 italic">
-            PLAY FANTASY PSL.
-            <br />
-            EARN <span className="text-primary">BNDY.</span>
-            <br />
-            WIN REAL PRIZES.
-          </h1>
+          <ScrollRevealItem>
+            <h1 className="text-6xl md:text-8xl font-headline font-bold text-on-surface leading-[0.9] tracking-tighter mb-8 italic">
+              PLAY FANTASY PSL.
+              <br />
+              EARN <span className="text-primary">BNDY.</span>
+              <br />
+              WIN REAL PRIZES.
+            </h1>
+          </ScrollRevealItem>
 
-          <p className="text-xl md:text-2xl text-slate-400 font-body max-w-2xl mb-12">
-            The first high-stakes cricket management engine built on WireFluid.
-            Draft your squad, dominate the pitch, and sync your wins to the
-            blockchain.
-          </p>
+          <ScrollRevealItem>
+            <p className="text-xl md:text-2xl text-slate-400 font-body max-w-2xl mb-12">
+              The first high-stakes cricket management engine built on
+              WireFluid. Draft your squad, dominate the pitch, and sync your
+              wins to the blockchain.
+            </p>
+          </ScrollRevealItem>
 
-          <HeroWalletActions />
-        </div>
+          <ScrollRevealItem>
+            <HeroWalletActions />
+          </ScrollRevealItem>
+        </ScrollReveal>
       </div>
 
       {/* Asymmetric floating data card */}
-      <div className="hidden xl:block absolute right-[-5%] top-[20%] w-[500px] h-[600px] bg-surface-container-high/60 backdrop-blur-2xl rounded-[4rem] border-l border-t border-white/10 p-12 -rotate-3 shadow-2xl">
+      <FloatReveal className="hidden xl:block absolute right-[-5%] top-[20%] w-[500px] h-[600px] bg-surface-container-high/60 backdrop-blur-2xl rounded-[4rem] border-l border-t border-white/10 p-12 shadow-2xl">
         <div className="flex justify-between items-start mb-12">
           <div className="bg-secondary p-4 rounded-3xl rotate-3">
             <Icon name="military_tech" className="text-on-secondary text-4xl" />
@@ -125,7 +135,7 @@ function HeroSection() {
             </div>
           </div>
         </div>
-      </div>
+      </FloatReveal>
     </section>
   );
 }
@@ -134,32 +144,32 @@ function StatsBar() {
   return (
     <section className="bg-surface-container-low border-y border-outline-variant/10 py-12">
       <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div className="group">
+        <ScrollReveal className="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+          <ScrollRevealItem className="group">
             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-2">
               Total Players Registered
             </p>
             <p className="text-5xl font-headline font-black group-hover:text-primary transition-colors">
               458,291
             </p>
-          </div>
-          <div className="group">
+          </ScrollRevealItem>
+          <ScrollRevealItem className="group">
             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-2">
               Total BNDY Earned
             </p>
             <p className="text-5xl font-headline font-black text-primary group-hover:scale-105 transition-transform inline-block">
               2,840,119
             </p>
-          </div>
-          <div className="group">
+          </ScrollRevealItem>
+          <ScrollRevealItem className="group">
             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-2">
               Next Match Starts In
             </p>
             <p className="text-5xl font-headline font-black text-secondary">
               04:12:55
             </p>
-          </div>
-        </div>
+          </ScrollRevealItem>
+        </ScrollReveal>
       </div>
     </section>
   );
@@ -270,34 +280,42 @@ function CTASection() {
             />
           </div>
 
-          <div className="relative z-10 max-w-2xl">
-            <h2 className="text-5xl md:text-7xl font-headline font-bold italic tracking-tighter mb-8 leading-tight">
-              THE STADIUM <br />
-              <span className="text-secondary">IS WAITING.</span>
-            </h2>
-            <p className="text-xl text-slate-300 mb-10 leading-relaxed">
-              Don&apos;t just watch the game. Own the outcome. Join the most
-              advanced fantasy ecosystem in the sport.
-            </p>
+          <ScrollReveal className="relative z-10 max-w-2xl">
+            <ScrollRevealItem>
+              <h2 className="text-5xl md:text-7xl font-headline font-bold italic tracking-tighter mb-8 leading-tight">
+                THE STADIUM <br />
+                <span className="text-secondary">IS WAITING.</span>
+              </h2>
+            </ScrollRevealItem>
+            <ScrollRevealItem>
+              <p className="text-xl text-slate-300 mb-10 leading-relaxed">
+                Don&apos;t just watch the game. Own the outcome. Join the most
+                advanced fantasy ecosystem in the sport.
+              </p>
+            </ScrollRevealItem>
 
-            <div className="space-y-4">
-              {[
-                "Zero Gas Fees on Testnet",
-                "Exclusive NFT Player Cards",
-                "Direct Wallet Payouts",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-center gap-4 text-primary"
-                >
-                  <Icon name="check_circle" />
-                  <span className="font-bold">{item}</span>
-                </div>
-              ))}
-            </div>
+            <ScrollRevealItem>
+              <div className="space-y-4">
+                {[
+                  "Zero Gas Fees on Testnet",
+                  "Exclusive NFT Player Cards",
+                  "Direct Wallet Payouts",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-4 text-primary"
+                  >
+                    <Icon name="check_circle" />
+                    <span className="font-bold">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </ScrollRevealItem>
 
-            <FinalCtaWalletAction />
-          </div>
+            <ScrollRevealItem>
+              <FinalCtaWalletAction />
+            </ScrollRevealItem>
+          </ScrollReveal>
         </div>
       </div>
     </section>
