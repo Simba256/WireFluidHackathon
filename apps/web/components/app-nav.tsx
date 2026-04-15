@@ -75,7 +75,7 @@ export function AppNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-semibold transition-colors ${
+              className={`flex touch-manipulation select-none flex-col items-center gap-0.5 px-3 py-2 text-[10px] font-semibold transition-colors ${
                 active
                   ? "text-primary"
                   : "text-on-surface-variant hover:text-on-surface"
