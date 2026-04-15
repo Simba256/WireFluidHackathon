@@ -127,11 +127,11 @@ export function franchiseForName(name: string): FranchiseDefinition {
 }
 
 export const TIER = {
-  TOP_50: 1,
-  TOP_25: 2,
+  RANK_1: 1,
+  TOP_3: 2,
   TOP_10: 3,
-  TOP_3: 4,
-  RANK_1: 5,
+  TOP_25: 4,
+  TOP_50: 5,
 } as const;
 
 export type TierId = (typeof TIER)[keyof typeof TIER];
