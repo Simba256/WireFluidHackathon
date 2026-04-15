@@ -376,13 +376,11 @@ function MatchActivitySection({
                 {matchItem.status === "completed" ? (
                   matchItem.teamAScore != null ||
                   matchItem.teamBScore != null ? (
-                    <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-slate-200">
-                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-4 py-2 font-bold">
-                        {matchItem.teamA.shortCode}{" "}
+                    <div className="flex flex-wrap items-center justify-center gap-4 text-lg text-slate-100 md:text-xl">
+                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-5 py-2.5 font-black tracking-wide shadow-sm">
                         {matchItem.teamAScore ?? "-"}
                       </span>
-                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-4 py-2 font-bold">
-                        {matchItem.teamB.shortCode}{" "}
+                      <span className="rounded-full border border-outline-variant/15 bg-surface-container px-5 py-2.5 font-black tracking-wide shadow-sm">
                         {matchItem.teamBScore ?? "-"}
                       </span>
                     </div>

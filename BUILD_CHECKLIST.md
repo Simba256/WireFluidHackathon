@@ -125,6 +125,7 @@
 - [x] `players.json` seed (~150 PSL 2026 players) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `matches.json` seed (full PSL 2026 schedule with venues, completed-match score summaries, and playoff placeholders) — _DATA_MODEL.md_
+- [x] Live Neon `match` rows refreshed from `matches.json` so completed-match score summaries are present for fixtures UI surfaces — _DATA_MODEL.md_
 - [x] Tournament row seed — _DATA_MODEL.md_
 - [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — _SETUP.md_
 
@@ -245,7 +246,7 @@
 - [x] Landing nav routes correctly (`/` does not show Dashboard as active; Dashboard links to `/dashboard`) — _README.md_
 - [x] Team logos sourced from ESPN Cricinfo, including HHK/Rawalpindiz extras, stored locally under `apps/web/public/team-logos`, and styled to fit the dark dashboard UI — _README.md_
 - [x] Dashboard/fixtures now reuse the shared `(app)` nav shell instead of rendering duplicate page-local sidebars or mobile nav — _README.md_
-- [x] Dashboard/fixtures match cards use the repo's existing franchise short forms with a Cricinfo-style scoreboard layout: date block left, fixture number + venue right, horizontal logo/VS/logo center, and official recent scorelines — _README.md_
+- [x] Dashboard/fixtures match cards use the repo's existing franchise short forms with a Cricinfo-style scoreboard layout: date block left, fixture number + venue right, horizontal logo/VS/logo center, and larger official recent scorelines without duplicate short-form labels — _README.md_
 - [x] Authenticated app shell widened beyond `max-w-7xl` so dashboard cards can breathe on desktop — _README.md_
 - [ ] Chain guard / switcher — _WIREFLUID.md_
 - [x] PlayerCard (inline in team-picker-client) — _GAME_DESIGN.md_
