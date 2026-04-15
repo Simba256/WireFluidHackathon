@@ -48,12 +48,16 @@ export async function GET(
 
     const burnedByTokenId = new Map<string, string>();
     try {
+      const latestBlock = await client.getBlockNumber();
+      const fromBlock =
+        latestBlock > 9000n ? latestBlock - 9000n : 0n;
       const logs = await client.getContractEvents({
         address: CONTRACT_ADDRESSES.PSLPoints,
         abi: PSLPointsAbi,
         eventName: "TierClaimed",
         args: { user: wallet as Address },
-        fromBlock: 0n,
+        fromBlock,
+        toBlock: latestBlock,
       });
       for (const log of logs) {
         const args = log.args as {
