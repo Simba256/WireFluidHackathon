@@ -310,8 +310,9 @@ function MatchActivitySection({
       ) : (
         <div className="space-y-4">
           {matches.map((matchItem) => (
-            <div
+            <Link
               key={`${matchItem.status}-${matchItem.id}`}
+              href={`/play?matchId=${matchItem.id}`}
               className="rounded-[2.5rem] bg-surface-container-low p-8 transition-colors hover:bg-surface-container-highest md:p-10 lg:px-12 lg:py-10"
             >
               <div className="space-y-7">
@@ -397,7 +398,7 @@ function MatchActivitySection({
                   </p>
                 )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

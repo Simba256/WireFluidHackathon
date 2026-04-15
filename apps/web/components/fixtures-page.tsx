@@ -310,8 +310,9 @@ export function FixturesPage() {
 
               <div className="space-y-4">
                 {group.matches.map((fixture) => (
-                  <div
+                  <Link
                     key={`${fixture.status}-${fixture.id}`}
+                    href={`/play?matchId=${fixture.id}`}
                     className="rounded-[2.5rem] bg-surface-container-low p-8 transition-colors hover:bg-surface-container-highest md:p-10 lg:px-12 lg:py-10"
                   >
                     <div className="space-y-7">
@@ -397,7 +398,7 @@ export function FixturesPage() {
                         </p>
                       )}
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>

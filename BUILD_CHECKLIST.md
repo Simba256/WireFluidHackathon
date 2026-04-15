@@ -100,6 +100,7 @@
 - [x] `prize_leaderboard_snapshot` (wallet, tournament*id, earned_balance, rank, snapshot_block) — \_DATA_MODEL.md*
 - [x] `tournament` (id, name, status, started/closed/grace timestamps) — _DATA_MODEL.md_
 - [x] `admin_session` (optional) — _DATA_MODEL.md_
+- [x] `selected_team` (user_wallet, match_id, player_1..player_11, timestamps; unique wallet+match) — per-match squad selection
 
 ### 2.2 Indexes & constraints
 
@@ -126,6 +127,7 @@
 - [x] `prizes.json` seed (5 tiers × stock 1/3/10/25/50) — _DATA_MODEL.md / GAME_DESIGN.md_
 - [x] `matches.json` seed (full PSL 2026 schedule with venues, completed-match score summaries, and playoff placeholders) — _DATA_MODEL.md_
 - [x] Live Neon `match` rows refreshed from `matches.json` so completed-match score summaries are present for fixtures UI surfaces — _DATA_MODEL.md_
+- [x] Match data seed: `team_a_score`/`team_b_score` for 22 completed matches, 484 `player_score` rows, 22 `selected_team` rows for demo wallet — _DATA_MODEL.md_
 - [x] Tournament row seed — _DATA_MODEL.md_
 - [x] `db:push`, `db:migrate`, `db:seed`, `db:studio` scripts — _SETUP.md_
 
@@ -166,6 +168,8 @@
 - [x] `GET /api/players` (cached 1h) — _API.md_
 - [x] `POST /api/teams` (validate 11 players, no dup, no existing team) — _API.md_
 - [x] `GET /api/teams/me` — _API.md_
+- [x] `POST /api/selected-teams` (save/update per-match squad; match-lock enforced) — per-match squad selection
+- [x] `GET /api/selected-teams?matchId=X` (load user's squad + match status for a match) — per-match squad selection
 
 ### 4.3 Points & Sync
 
@@ -233,6 +237,11 @@
 - [x] `/dashboard/fixtures` (full authenticated tournament schedule list using the same scoreboard-style card treatment as `/dashboard`, without exposing DB row ids as fixture numbers) — _API.md_
 - [x] `/play` team picker (search, filters, salary cap, 11-slot submit) — _GAME_DESIGN.md_
 - [x] `/leaderboard` (global + prize tabs, without redundant footer legend or `Sorted By` stat cards) — _API.md_
+- [x] `/play?matchId=X` per-match squad picker with lock/unlock based on match status — _GAME_DESIGN.md_
+- [x] `/play?matchId=X` match scorecard (live/completed): team header, full player ratings, squad indicator, toggle all/squad, cumulative squad points — _GAME_DESIGN.md_
+- [x] `GET /api/matches/[id]/scorecard` (player scores + user squad + team meta) — _API.md_
+- [x] Dashboard + fixtures match cards link to `/play?matchId=X` — _GAME_DESIGN.md_
+- [x] `/leaderboard` (global + prize tabs) — _API.md_
 - [x] `/prizes` (tier cards, stock, claim) — _GAME_DESIGN.md_
 - [x] `/trophies` (user's soulbound NFTs) — _API.md_
 

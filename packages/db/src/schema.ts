@@ -82,9 +82,9 @@ export const match = pgTable(
     venue: text("venue"),
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
     status: text("status").notNull(),
-    playedAt: timestamp("played_at", { withTimezone: true }),
     teamAScore: text("team_a_score"),
     teamBScore: text("team_b_score"),
+    playedAt: timestamp("played_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -285,6 +285,62 @@ export const tournament = pgTable("tournament", {
     .notNull(),
 });
 
+export const selectedTeam = pgTable(
+  "selected_team",
+  {
+    id: serial("id").primaryKey(),
+    userWallet: text("user_wallet")
+      .notNull()
+      .references(() => user.wallet),
+    matchId: integer("match_id")
+      .notNull()
+      .references(() => match.id),
+    player1: integer("player_1")
+      .notNull()
+      .references(() => player.id),
+    player2: integer("player_2")
+      .notNull()
+      .references(() => player.id),
+    player3: integer("player_3")
+      .notNull()
+      .references(() => player.id),
+    player4: integer("player_4")
+      .notNull()
+      .references(() => player.id),
+    player5: integer("player_5")
+      .notNull()
+      .references(() => player.id),
+    player6: integer("player_6")
+      .notNull()
+      .references(() => player.id),
+    player7: integer("player_7")
+      .notNull()
+      .references(() => player.id),
+    player8: integer("player_8")
+      .notNull()
+      .references(() => player.id),
+    player9: integer("player_9")
+      .notNull()
+      .references(() => player.id),
+    player10: integer("player_10")
+      .notNull()
+      .references(() => player.id),
+    player11: integer("player_11")
+      .notNull()
+      .references(() => player.id),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => [
+    uniqueIndex("selected_team_wallet_match_key").on(t.userWallet, t.matchId),
+    walletCheck("user_wallet"),
+  ],
+);
+
 export const adminSession = pgTable("admin_session", {
   token: text("token").primaryKey(),
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -307,4 +363,5 @@ export type Prize = typeof prize.$inferSelect;
 export type PrizeLeaderboardSnapshot =
   typeof prizeLeaderboardSnapshot.$inferSelect;
 export type Tournament = typeof tournament.$inferSelect;
+export type SelectedTeam = typeof selectedTeam.$inferSelect;
 export type AdminSession = typeof adminSession.$inferSelect;
