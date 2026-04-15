@@ -227,6 +227,7 @@
 ### 5.2 Marketing pages
 
 - [x] `/` landing (hero, pitch, connect CTA) — _README.md_
+- [x] `/banner` static promo page for screenshot/export-friendly marketing visuals — _README.md_
 - [ ] `/how-it-works` — _README.md_
 - [ ] `/about` — _README.md_
 
