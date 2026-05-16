@@ -23,7 +23,7 @@ This project uses two tracking files. They are **not** redundant.
 
 - **Purpose**: current, recent, and near-term activity. Living snapshot, not history.
 - **Read when**: starting a session.
-- **Update when**: you start a task, finish a task, hit a blocker, make a decision worth logging, or change project status.
+- **Update when**: starting a task, finishing a task, hitting a blocker, making a decision worth logging, changing project status.
 - **Format rules**: absolute dates (YYYY-MM-DD), ~10 recent completions max, roll older items off. Dashboard, not a journal.
 
 ### `BUILD_CHECKLIST.md` — the master scope
@@ -32,15 +32,7 @@ This project uses two tracking files. They are **not** redundant.
 - **Read when**: planning work, scoping a feature, checking what's left in an area, verifying nothing was missed.
 - **Update when**: any checklist item changes state. Flip `[ ]` → `[~]` when starting, `[~]` → `[x]` when done. Add new items if scope genuinely grows (and cite the doc).
 
-### MANDATORY: update both after every task
-
-After completing _any_ unit of work — however small:
-
-1. Flip the relevant box(es) in `BUILD_CHECKLIST.md`.
-2. Move the item in `PROJECT_TRACKER.md` (In Progress → Recently Completed, today's date).
-3. If new work surfaced, add it to both files.
-
-Never end a session with these two files out of sync with reality.
+After completing _any_ unit of work, update **both** files in the same commit.
 
 ---
 
@@ -78,7 +70,7 @@ Stack: **pnpm + Turborepo**, **Next.js 16 App Router** (Fluid Compute on Vercel)
 | Gas (sync)      | ~$0.0005                       |
 | Gas (claim)     | ~$0.001                        |
 
-Never hard-code these outside `packages/shared` — import from the shared chain config.
+Import from `packages/shared` chain config — never hard-code these elsewhere.
 
 ---
 
@@ -90,7 +82,7 @@ Recorded in `PROJECT_TRACKER.md` "Key Decisions". Reiterated here because these 
   - **Qualification + claim threshold**: `earnedBalance >= 10,000 BNDY` — a wallet with less than 10k earned never appears on the leaderboard regardless of `balanceOf`, AND the contract reverts any `claimTier()` attempt. Enforced in two places (backend filter + `PSLPoints.claimTier()` compile-time constant) that read the same on-chain number.
   - Once a wallet crosses the 10k earned threshold, it is both visible on the leaderboard and eligible to claim. Trading, gifting, and buying BNDY can then move its rank (since rank is `balanceOf`-based) but never affect qualification (which is `earnedBalance`-based).
   - Pure whales with zero earned are blocked from both leaderboard visibility and prize claims by the same check. Pay-to-rank is a feature; pay-to-qualify is impossible.
-  - **Do not lower the 10k threshold without redeploying the contract.** The `MIN_EARNED_TO_CLAIM` constant in `PSLPoints.sol` is compile-time.
+  - **The 10k threshold requires a contract redeploy to change.** The `MIN_EARNED_TO_CLAIM` constant in `PSLPoints.sol` is compile-time.
 - **Soulbound trophy NFTs** — `PSLTrophies._update` reverts on all non-mint transfers. Trophies prove achievement; making them tradable would let anyone fake "Top 10 Finisher" status.
 - **Dual leaderboard** — Global off-chain (inclusive, engagement) + Prize on-chain (authoritative, prize distribution). Only the prize leaderboard determines winners.
 - **One claim per user per tournament, current tier only** — creates press-your-luck tension; blocks downgrade exploits.
@@ -102,54 +94,47 @@ If a change seems to contradict any of these, stop and ask.
 
 ---
 
-## 6. Coding standards
+## 6. Project-specific coding rules
 
-### General
+Global CLAUDE.md covers general code style. The rules below are specific to this codebase:
 
-- TypeScript everywhere. No `any` unless unavoidable and commented with _why_.
-- Zod validation at every external boundary (API request bodies, env parsing, external API responses). Never trust internal code boundaries.
+### Server / API
+
 - Server re-derives authoritative state. **Never** trust client-submitted points, ranks, eligibility, or tier bands.
-- No hardcoded secrets. Env vars via `packages/shared` typed env loader.
-- No hardcoded magic numbers. Constants live in `packages/shared/constants.ts` (MIN_EARNED_TO_CLAIM_WEI, TEAM_SIZE, tier stocks, formula multipliers).
-- Handle errors explicitly at boundaries; trust internal code.
-- Write testable code: pure functions, dependency injection for contract/DB clients.
-- Self-documenting names over comments. Comments only explain _why_, not _what_.
+- Zod-validate every request body, every external API response, env parsing.
+- Standard error shape on every non-2xx: `{ error: string, code: string }` — match `docs/API.md`.
+- Error codes match `docs/API.md` exactly: `SIWE_INVALID`, `NONCE_MISMATCH`, `INVALID_TEAM_SIZE`, `DUPLICATE_PLAYER`, `TEAM_EXISTS`, `NO_TEAM`, `NOTHING_TO_SYNC`, `UNAUTHORIZED`, `BELOW_THRESHOLD`, `WRONG_TIER`, `NO_STOCK`, `ALREADY_CLAIMED`.
+- Admin routes gated by `X-Admin-Key` header against `ADMIN_API_KEY` env. SIWE JWT in `Authorization: Bearer <token>` on user routes.
+- Constants live in `packages/shared/constants.ts` — `MIN_EARNED_TO_CLAIM_WEI`, `TEAM_SIZE`, tier stocks, formula multipliers.
+- Env vars via `packages/shared` typed loader.
 
-### Next.js / frontend (apps/web)
+### Next.js / frontend (`apps/web`)
 
-- **App Router** only. Server Components by default; Client Components only when you need state, effects, or wallet hooks.
+- App Router only. Server Components by default; Client Components only when state, effects, or wallet hooks are needed.
 - API routes under `app/api/*/route.ts` — Fluid Compute runtime (Node.js, not edge).
-- Standard error shape: `{ error: string, code: string }` on every non-2xx — match `docs/API.md`.
-- wagmi + viem only for chain interaction. No ethers.js in frontend code.
-- No `unstable_cache` — use Next.js 16 `cacheLife` / `cacheTag` / `updateTag` patterns where caching is needed.
-- Tailwind + shadcn/ui only. No other UI libraries. Follow Impeccable design principles (no gray on color, tinted neutrals, no nested cards, avoid Inter/Arial unless asked).
+- wagmi + viem for chain interaction. No ethers.js in frontend code.
+- Skip `unstable_cache` — use Next.js 16 `cacheLife` / `cacheTag` / `updateTag`.
+- Tailwind + shadcn/ui only.
 
-### Smart contracts (packages/contracts)
+### Smart contracts (`packages/contracts`)
 
 - Solidity `0.8.24`, optimizer runs `200`, OpenZeppelin v5.
-- No `tx.origin`, ever. Use `msg.sender`.
-- Checks-Effects-Interactions pattern on every state-changing function.
+- `msg.sender` always — never `tx.origin`.
+- Checks-Effects-Interactions on every state-changing function.
 - EIP-712 typed data for vouchers. Domain name `"BoundaryLine"`, version `"1"`.
 - `trustedSigner` **immutable**. `setTrophies` **one-shot** (reverts if already set).
 - `usedNonces` mapping for replay protection on every voucher consumer.
-- All events indexed appropriately (user, nonce, tokenId).
+- All events indexed on relevant fields (user, nonce, tokenId).
 - Tests with Hardhat + Chai. `>90%` line coverage target. Slither clean (zero high/medium). solhint clean.
-- Never log signer private keys. Deploy artifacts go to `packages/contracts/deployments/wirefluid-testnet.json`.
+- Deploy artifacts go to `packages/contracts/deployments/wirefluid-testnet.json`. Signer keys stay in env, never logged.
 
-### Database (packages/db)
+### Database (`packages/db`)
 
 - Drizzle schema in `src/schema.ts`. Migrations committed to repo.
 - Wallet addresses stored **lowercase `0x...`** with CHECK constraint. Normalize on write.
-- Indexes as spec'd in `docs/DATA_MODEL.md` — leaderboard queries depend on them.
+- Indexes match `docs/DATA_MODEL.md` — leaderboard queries depend on them.
 - Atomic updates for `user_point.total_points` and `claim` slot reservations (use transactions).
-- Unique partial index on `claim(wallet, tournament_id) WHERE status IN ('pending', 'confirmed')` to block double-claims at DB level.
-
-### API (apps/web/app/api)
-
-- Every route handler: (1) Zod-validate input, (2) auth check (SIWE JWT or admin key), (3) business logic, (4) standard error shape on failure.
-- Admin routes gated by `X-Admin-Key` header against `ADMIN_API_KEY` env.
-- SIWE JWT in `Authorization: Bearer <token>` header on all user-scoped routes.
-- Error codes match `docs/API.md` exactly: `SIWE_INVALID`, `NONCE_MISMATCH`, `INVALID_TEAM_SIZE`, `DUPLICATE_PLAYER`, `TEAM_EXISTS`, `NO_TEAM`, `NOTHING_TO_SYNC`, `UNAUTHORIZED`, `BELOW_THRESHOLD`, `WRONG_TIER`, `NO_STOCK`, `ALREADY_CLAIMED`.
+- Unique partial index on `claim(wallet, tournament_id) WHERE status IN ('pending', 'confirmed')` — blocks double-claims at DB level.
 
 ---
 
@@ -164,7 +149,7 @@ From `docs/SECURITY.md`. Any change touching these needs a corresponding test an
 5. **Signer key never leaves Vercel env**: never logged, never returned to clients, never committed. Stored as `SIGNER_PRIVATE_KEY`.
 6. **Front-running on scarce tiers blocked**: stock reserved at voucher-issue time via pending DB row, not at tx-confirm time.
 7. **Server-side validation everywhere**: Zod on every body, server re-derives all authoritative values. `earnedBalance` and `balanceOf` always read from contract, never from a client-submitted number.
-8. **No `tx.origin`, CEI respected, signer immutable, trophies one-shot.**
+8. **`msg.sender` only, CEI respected, signer immutable, trophies one-shot.**
 
 ---
 
@@ -192,52 +177,7 @@ Full detail: `docs/ARCHITECTURE.md` §Core Data Flows, `docs/API.md`.
 
 ---
 
-## 9. Project data containment
-
-All project data lives **inside** the repo. Nothing in system root, home, or anywhere outside `WireFluid/`:
-
-- `.venv`, `node_modules`, build artifacts, logs, caches, uploaded files, PID/lock files — all project-local.
-- Never `pip install` globally, never write outside project dir, always use relative paths or project-rooted absolute paths.
-- Override any tool default that writes outside (e.g., `--prefix`, `--target`).
-- Hardhat artifacts, Drizzle temp files, `.turbo`, `.next`, `node_modules` — all gitignored and project-local.
-
----
-
-## 10. Workflow
-
-### Starting a session
-
-1. Read `PROJECT_TRACKER.md` (current state).
-2. Read `BUILD_CHECKLIST.md` (scope of any area you'll touch).
-3. Read the relevant doc(s) under `docs/` for the task area.
-
-### During a task
-
-- Do exactly what was asked. No "while I'm here" bonus work, no unsolicited refactors, no speculative abstractions.
-- If uncertain, ask. Don't silently make architectural decisions.
-- Run tests for the affected package before declaring done. If tests don't exist, write them.
-- Keep commits scoped and descriptive. No Claude/Anthropic attribution in commits, PRs, messages, or any generated content.
-
-### Finishing a task
-
-1. Tests pass.
-2. Update **both** `PROJECT_TRACKER.md` and `BUILD_CHECKLIST.md`.
-3. Commit and push (only when explicitly asked or when finishing a requested unit of work).
-4. If the user explicitly asked for a fix/feature, one complete unit = fix + commit + push.
-
-### Risky actions — always confirm first
-
-- Destructive git (`reset --hard`, force push, branch -D)
-- Schema-destructive DB ops (dropping tables, destructive migrations on prod)
-- Deploying contracts or re-running `setTrophies`
-- Pushing to prod Vercel
-- Any action that touches shared state or is hard to reverse
-
-Authorization is scoped to what was asked. A green light once is not a green light always.
-
----
-
-## 11. Testing expectations
+## 9. Testing expectations
 
 | Area         | Framework                                                                        | Bar                                              |
 | ------------ | -------------------------------------------------------------------------------- | ------------------------------------------------ |
@@ -246,11 +186,24 @@ Authorization is scoped to what was asked. A green light once is not a green lig
 | API routes   | Route handler integration tests                                                  | All error codes exercised                        |
 | Frontend     | Playwright smoke tests on golden-path flows (SIWE → team → score → sync → claim) | Before declaring "demo ready"                    |
 
-If you touch UI, start the dev server and manually verify the flow in a browser. Type checks and unit tests verify code correctness, not feature correctness — say so explicitly if you can't test visually.
+If you touch UI, start the dev server and verify the flow in a browser. Type checks and unit tests verify code correctness, not feature correctness — say so explicitly if you can't test visually.
 
 ---
 
-## 12. Out of scope for v1 (do not build unless asked)
+## 10. Risky actions — always confirm first
+
+Project-specific destructive actions beyond the global rules:
+
+- Schema-destructive DB ops (dropping tables, destructive migrations on prod)
+- Deploying contracts or re-running `setTrophies`
+- Pushing to prod Vercel
+- Resetting `earnedBalance` outside of `claimTier()` flow
+
+Authorization is scoped to what was asked. A green light once is not a green light always.
+
+---
+
+## 11. Out of scope for v1 (do not build unless asked)
 
 From `docs/ROADMAP.md`:
 
@@ -265,7 +218,7 @@ From `docs/ROADMAP.md`:
 
 ---
 
-## 13. Quick reference
+## 12. Quick reference
 
 | Need                         | File                        |
 | ---------------------------- | --------------------------- |
